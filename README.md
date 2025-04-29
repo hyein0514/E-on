@@ -1,12 +1,10 @@
 # ✅  E-ON 프로젝트 README.md (팀원 전용, GCP + Docker 기준)
 
-```markdown
 # E-ON 프로젝트
 
 > GCP 서버에 배포되는 풀스택 교육 플랫폼입니다.  
 > 백엔드(Node.js), 프론트엔드(React), 데이터베이스(MySQL)를 Docker로 통합 구성했습니다.
 
----
 
 ## 📁 프로젝트 폴더 구조
 
@@ -22,8 +20,6 @@ e-on/
 └── README.md
 ```
 
----
-
 # 🧑‍💻 팀원이 개발 시작하는 방법
 
 ## ✅ 1. GitHub 프로젝트 clone
@@ -33,7 +29,7 @@ git clone https://github.com/Education-ON/e-on.git
 cd e-on
 ```
 
----
+
 
 ## ✅ 2. Docker 설치 (필수)
 

@@ -1,6 +1,9 @@
 const express = require('express');
 const db = require('./db');  
 const app = express();
+require('dotenv').config();
+require('./config/database');
+const challengeRoutes = require('./routes/challengeRoutes');
 
 app.use(express.json());
 
@@ -14,6 +17,8 @@ app.get('/api/users', (req, res) => {
     res.json(results);
   });
 });
+
+app.use('/api', challengeRoutes);
 
 app.listen(4000, () => {
   console.log('✅ 서버 실행 중 (포트 4000)');

@@ -1,7 +1,11 @@
+// dotenv 패키지 사용해 환경변수 로드
+require('dotenv').config();
+
 // Express 앱 구성
 const express = require('express');
-const db = require('./database/db'); 
+const db = require('./database/db.js'); 
 const app = express();
+const schoolScheduleRoute = require('./routes/schoolScheduleRoute'); // 학사 일정 API 라우터
 
 // 미들웨어
 app.use(express.json());
@@ -10,6 +14,7 @@ app.use(express.json());
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from Node.js!' });
 });
+app.use('/api', schoolScheduleRoute); // 학사 일정 API 라우터
 
 app.get('/api/users', (req, res) => {
   db.query('SELECT * FROM users', (err, results) => {

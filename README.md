@@ -8,6 +8,8 @@
 backend/
 ├── controllers/           # 요청을 받아서 응답 처리 (req, res)
 │   └── userController.js
+├── services/              # 비즈니스 로직 처리 (데이터베이스와 API 요청 등)
+│   └── userService.js
 ├── models/                # DB 모델 정의 또는 쿼리 처리
 │   └── userModel.js
 ├── routes/                # URL 별로 컨트롤러 연결

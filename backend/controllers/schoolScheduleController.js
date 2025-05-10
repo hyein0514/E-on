@@ -21,7 +21,7 @@ exports.getSchedule = async (req, res) => {
         // 필수 파라미터 빠질 경우 에러 처리
         if (!schoolId) return res.status(400).json({ error: "schoolId를 필수로 입력해야 합니다" });
 
-        // 학사일정 데이터 요청청
+        // 학사일정 데이터 요청
         const schedule = await schoolscheduleService.getSchoolSchedule(schoolId, year);
         res.json(schedule);
     } catch (err) {

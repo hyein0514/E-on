@@ -51,7 +51,7 @@ async function getSchoolSchedule(schoolCode, options = {}) {
             : today.getFullYear() - 1; // 올해 3월 이후면 올해, 아니면 작년
     const year =
         options.year === "prev"
-            ? (currentYear - 1).toString
+            ? (currentYear - 1).toString()
             : currentYear.toString();
 
     const url = "https://open.neis.go.kr/hub/SchoolSchedule"; // NEIS API URL

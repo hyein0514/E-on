@@ -22,7 +22,7 @@ exports.getSchedule = async (req, res) => {
         if (!schoolId) return res.status(400).json({ error: "schoolId를 필수로 입력해야 합니다" });
 
         // 학사일정 데이터 요청
-        const schedule = await schoolscheduleService.getSchoolSchedule(schoolId, year);
+        const schedule = await schoolscheduleService.getSchoolSchedule(schoolId, { year }); // year을 객체로 넘겨야 함 (prev 또는 null)
         res.json(schedule);
     } catch (err) {
         console.error(err);

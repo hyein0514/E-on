@@ -13,5 +13,6 @@ router.post(
   );
 
 router.get('/challenges', ctrl.list);
+router.get('/challenges/:id', ctrl.detail);
 
 module.exports = router;

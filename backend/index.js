@@ -1,10 +1,10 @@
-<<<<<<< HEAD
 const express = require('express');
-const db = require('./db');  
+const db = require('./database/db');  
 const app = express();
 require('dotenv').config();
 require('./config/database');
 const challengeRoutes = require('./routes/challengeRoutes');
+const participationRoutes = require('./routes/participationRoutes');
 
 app.use(express.json());
 
@@ -20,6 +20,9 @@ app.get('/api/users', (req, res) => {
 });
 
 app.use('/api', challengeRoutes);
+app.use('/api',participationRoutes);
+
+app.use((req, res) => res.status(404).send('Not Found'));
 
 app.listen(4000, () => {
   console.log('✅ 서버 실행 중 (포트 4000)');

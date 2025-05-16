@@ -6,25 +6,32 @@ const Interests       = require('../models/Interests');
 const Visions         = require('../models/Visions');
 const VisionCategory   = require('../models/VisionCategory');
 const InterestCategory = require('../models/InterestCategory');
+const User  = require('../models/User');
 
 //1) 챌린지 개설
 exports.create = async (req, res, next) => {
+  const body = req.body.meta ? JSON.parse(req.body.meta) : req.body;
+  const files = req.files ?? []
+
   try {
     //필수값 검증
     const {
       title, description,
       minimum_age, maximum_age, maximum_people,
       application_deadline, start_date, end_date,
-      is_recuming, repeat_type,
-      intermediate_participation,
+      is_recuming = false, repeat_type = null,
+      intermediate_participation = false,
+      creator_contact,
+      user_id, 
       days = [],
-      interestIds = [],             // [1,5]
-      visionIds   = []              // [3]
-    } = req.body; 
-    //JSON.parse(req.body.meta);
+      interestIds = [],             
+      visionIds   = []              
+    } = body; 
 
-
-    const files = req.files ?? [];
+    /*  필수값 검증 */
+    if (!title || !description || !creator_contact || !user_id) {
+      return res.status(400).json({ error: '필수 필드 누락' });
+    }
 
     // 트랜잭션 시작
     //t는 트랜잭션 나타내는 객체로, 모든 쿼리에 {transaction:t} 옵션을 넘김
@@ -35,11 +42,12 @@ exports.create = async (req, res, next) => {
         minimum_age, maximum_age, maximum_people,
         application_deadline, start_date, end_date,
         is_recuming, repeat_type,
-        intermediate_participation
+        intermediate_participation,
+        creator_contact,
+        user_id 
       }, { transaction: t });
 
-      // 요일 INSERT
-      // days배열요소 d하나당 {챌린지 id,요일}객체 만들어서 bulkcreate로 한번에 삽입
+      // 요일 INSERT -> days배열요소 d하나당 {챌린지 id,요일}객체 만들어서 bulkcreate로 한번에 삽입
       if (is_recuming && days.length) {
         const bulk = days.map(d => ({
           challenge_id: challenge.challenge_id,
@@ -47,15 +55,11 @@ exports.create = async (req, res, next) => {
         }));
         await ChallengeDay.bulkCreate(bulk, { transaction: t });
       }
-      if (interestIds.length) {
-        await challenge.addInterests(interestIds, { transaction:t });
-      }
-
-      // 4) 진로분야 매핑
-      if (visionIds.length) {
-        await challenge.addVisions(visionIds, { transaction:t });
-      }
-       // 5) 첨부파일
+      // 관심/진로 매핑
+      if (interestIds.length) await challenge.addInterests(interestIds, { transaction: t });
+      if (visionIds.length)   await challenge.addVisions(visionIds,   { transaction: t });
+  
+       // 첨부파일
        if (files.length) {
         const attachRows = files.map(f => ({
           challenge_id    : challenge.challenge_id,
@@ -65,7 +69,7 @@ exports.create = async (req, res, next) => {
         }));
         await Attachment.bulkCreate(attachRows, { transaction:t });
       }
-      // with days 포함 재조회
+      // 최종결과 재조회
       return Challenge.findByPk(challenge.challenge_id, {
         include:[
           { model:ChallengeDay, as:'days', attributes:['day_of_week'] },
@@ -94,10 +98,12 @@ exports.create = async (req, res, next) => {
       attachments  : result.attachments,
       intermediate_participation: result.intermediate_participation,
       challenge_state: result.challenge_state,
-      created_at: result.created_at
+      created_at: result.created_at,
+      user_id: result.user_id,
+      creator_contact: result.creator_contact,
     });
   } catch (err) {
-    console.error(err);
+    console.error('▶▶ SQL Error Message:', err.parent?.sqlMessage || err.message);
     next(err);
   }
 };
@@ -197,6 +203,52 @@ exports.list = async (req, res, next) => {
       items : rows
     });
   } catch (err) {
+    next(err);
+  }
+};
+
+// 3) 챌린지 상세 조회
+exports.detail = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+
+    const challenge = await Challenge.findByPk(id, {
+      include: [
+        { model: User,           as: 'creator',   attributes: ['user_id','name','email'] },
+        { model: ChallengeDay,   as: 'days',      attributes: ['day_of_week'] },
+        { model: Attachment,     as: 'attachments',
+          attributes: ['attachment_id','url','attachment_type'] },
+        { model: Interests,      as: 'interests',
+          through:{ attributes:[] }, attributes:['interest_id','interest_detail'] },
+        { model: Visions,        as: 'visions',
+          through:{ attributes:[] }, attributes:['vision_id','vision_detail'] }
+      ]
+    });
+
+    if (!challenge) return res.status(404).json({ error:'존재하지 않는 챌린지' });
+
+    /* 응답 정리 */
+    res.json({
+      challenge_id: challenge.challenge_id,
+      title       : challenge.title,
+      description : challenge.description,
+      age_range   : `${challenge.minimum_age} ~ ${challenge.maximum_age}`,
+      maximum_people: challenge.maximum_people,
+      application_deadline: challenge.application_deadline,
+      duration    : { start: challenge.start_date, end: challenge.end_date },
+      is_recuming : challenge.is_recuming,
+      repeat_type : challenge.repeat_type,
+      intermediate_participation: challenge.intermediate_participation,
+      challenge_state: challenge.challenge_state,
+      creator     : challenge.creator,                
+      days        : challenge.days.map(d=>d.day_of_week),
+      attachments : challenge.attachments,
+      interests   : challenge.interests,
+      visions     : challenge.visions,
+      created_at  : challenge.created_at
+    });
+  } catch (err) {
+    console.error('▶▶ SQL Error Message:', err.parent?.sqlMessage);
     next(err);
   }
 };

@@ -3,6 +3,7 @@ const sequelize = require('../config/database');
 const ChallengeDay = require('./ChallengeDay');
 const Interests = require('./Interests')
 const Visions = require('./Visions')
+const User = require('./User');
  
 const Challenge = sequelize.define('Challenge',{
     // 1) 기본키
@@ -11,6 +12,10 @@ const Challenge = sequelize.define('Challenge',{
         primaryKey: true,
         autoIncrement: true,
     },
+    creator_contact: {
+        type: DataTypes.STRING(100),
+        allowNull: false
+      },
     title:{
         type: DataTypes.STRING,
         allowNull : false,
@@ -71,7 +76,11 @@ const Challenge = sequelize.define('Challenge',{
         type: DataTypes.ENUM('ACTIVE','CLOSED','CANCELLED'),
         allowNull: false,
         defaultValue: 'ACTIVE',
-    }
+    },
+    user_id: {                       // 개설자 FK
+        type: DataTypes.BIGINT,
+        allowNull: false
+      }
     },{
         tableName: 'Challenge',
         timestamps:true,
@@ -105,5 +114,9 @@ const Challenge = sequelize.define('Challenge',{
         otherKey :'vision_id',
         as:'visions'
       });
+      /* User 모델과 연관 */
+    
+    Challenge.belongsTo(User, { foreignKey:'user_id', as:'creator' });
+
 
     module.exports = Challenge;

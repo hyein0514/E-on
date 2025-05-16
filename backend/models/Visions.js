@@ -3,8 +3,8 @@ const sequelize     = require('../config/database');
 const VisionCategory = require('./VisionCategory');
 
 const Visions = sequelize.define('Visions', {
-  interest_id    : { type: DataTypes.BIGINT, primaryKey:true, autoIncrement:true },
-  interest_detail: { type: DataTypes.STRING },
+  vision_id    : { type: DataTypes.BIGINT, primaryKey:true, autoIncrement:true },
+  vision_detail: { type: DataTypes.STRING },
   category_code  : { type: DataTypes.STRING, allowNull:false }
 }, { tableName:'Visions', timestamps:false });
 

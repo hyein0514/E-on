@@ -12,7 +12,10 @@ router.post(
     ctrl.create
   );
 
-router.get('/challenges', ctrl.list);
-router.get('/challenges/:id', ctrl.detail);
+router.get('/challenges', ctrl.list); // 챌린지 조회
+router.get('/challenges/:id', ctrl.detail); // 챌린지 상세 조회
+router.patch('/challenges/:id', ctrl.update); //챌린지 수정
+router.delete('/challenges/:id', ctrl.remove); 
+router.patch('/challenges/:id/state', ctrl.changeState); //상태변경
 
 module.exports = router;

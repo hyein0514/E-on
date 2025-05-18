@@ -1,29 +1,7 @@
-const express = require('express');
-const db = require('./database/db');  
-const app = express();
-require('dotenv').config();
-require('./config/database');
-const challengeRoutes = require('./routes/challengeRoutes');
-const participationRoutes = require('./routes/participationRoutes');
+// 서버 실행
+const app = require('./app');
+const PORT = process.env.PORT || 4000; // 환경변수 PORT가 없으면 4000 사용
 
-app.use(express.json());
-
-app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello from Node.js!' });
-});
-
-app.get('/api/users', (req, res) => {
-  db.query('SELECT * FROM users', (err, results) => {
-    if (err) return res.status(500).send('DB 에러: ' + err.message);
-    res.json(results);
-  });
-});
-
-app.use('/api', challengeRoutes);
-app.use('/api',participationRoutes);
-
-app.use((req, res) => res.status(404).send('Not Found'));
-
-app.listen(4000, () => {
-  console.log('✅ 서버 실행 중 (포트 4000)');
+app.listen(PORT, () => {
+  console.log(`✅ 서버 실행 중 (포트 ${PORT})`);
 });

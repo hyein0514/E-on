@@ -8,7 +8,8 @@ const VisionCategory   = require('../models/VisionCategory');
 const InterestCategory = require('../models/InterestCategory');
 const User  = require('../models/User');
 
-//1) 챌린지 개설
+
+/* ───────────────────────── 챌린지 개설 ───────────────────────── */
 exports.create = async (req, res, next) => {
   const body = req.body.meta ? JSON.parse(req.body.meta) : req.body;
   const files = req.files ?? []
@@ -108,7 +109,7 @@ exports.create = async (req, res, next) => {
   }
 };
 
-//2) 챌린지 조회
+/* ───────────────────────── 챌린지 조회 ───────────────────────── */
 exports.list = async (req, res, next) => {
   try {
     /* ── 1) 쿼리 파라미터 ───────────────────────── */
@@ -207,7 +208,7 @@ exports.list = async (req, res, next) => {
   }
 };
 
-// 3) 챌린지 상세 조회
+/* ───────────────────────── 챌린지 상세조회 ───────────────────────── */
 exports.detail = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -252,3 +253,69 @@ exports.detail = async (req, res, next) => {
     next(err);
   }
 };
+
+/* ───────────────────────── 챌린지 수정 ───────────────────────── */
+exports.update = async(req,res,next)=>{
+  try{
+    const id = req.params.id;
+    const body = req.body;
+
+    const challenge = await Challenge.findByPk(id);
+    if (!challenge) return res.status(404).json({error:'챌린지 없음'});
+
+    const updatetable = [
+      'title','description','minimum_age','maximum_age',
+      'maximum_people','application_deadline','start_date','end_date',
+      'is_recuming','repeat_type','intermediate_participation',
+      'creator_contact'
+    ];
+    updatetable.forEach(f => {if (body[f] !== undefined) challenge[f] = body[f];});
+    await challenge.save();
+    // 요일 수정
+    if (body.days){
+      await ChallengeDay.destroy({where:{challenge_id:id}});
+      if (body.is_recuming && body.days.length){
+        await ChallengeDay.bulkCreate(
+          body.days.map(d => ({challenge_id:id, day_of_week:d}))
+        );
+      }
+    }
+
+    // 관심/진로 매핑 수정
+    if (body.interestIds) await challenge.setInterests(body.interestIds);
+    if (body.visionIds  ) await challenge.setVisions  (body.visionIds  );
+
+    res.json({ message:'수정 완료' });
+
+  }catch(err){next(err);}
+}
+
+
+/* ───────────────────────── 챌린지 삭제 ───────────────────────── */
+exports.remove = async(req,res,next)=>{
+  try{
+    const id = req.params.id;
+    const rows = await Challenge.destroy({ where:{ challenge_id:id } });
+    if (!rows) return res.status(404).json({ error:'챌린지 없음' });
+    res.status(204).end();
+  }catch(err){next(err);}
+}
+
+/* ───────────────────────── 챌린지 상태변경 ───────────────────────── */
+exports.changeState = async(req,res,next)=>{
+  try{
+    const id    = req.params.id;
+    const state = req.body.challenge_state;       // 'ACTIVE' | 'CLOSED' | 'CANCELLED'
+
+    if (!['ACTIVE','CLOSED','CANCELLED'].includes(state))
+      return res.status(400).json({ error:'잘못된 상태 값' });
+
+    const challenge = await Challenge.findByPk(id);
+    if (!challenge) return res.status(404).json({ error:'챌린지 없음' });
+
+    challenge.challenge_state = state;
+    await challenge.save();
+    res.json({ challenge_id:id, challenge_state:state });
+
+  }catch(err){next(err);}
+}

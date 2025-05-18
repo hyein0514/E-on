@@ -42,3 +42,17 @@ exports.cancel = async (req, res, next) => {
     } catch (err) { next(err); }
   };
 
+//챌린지 참여 조회
+exports.getOne = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const row = await ParticipatingChallenge.findByPk(id);
+    if (!row) {
+      return res.status(404).json({ error: '참여 기록 없음' });
+    }
+    res.json(row);
+  } catch (err) {
+    next(err);
+  }
+};
+

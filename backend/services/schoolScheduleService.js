@@ -53,6 +53,7 @@ async function getSchoolSchedule(schoolCode, options = {}) {
         options.year === "prev"
             ? (currentYear - 1).toString()
             : currentYear.toString();
+    const grade = options.grade || null; // 학년 (default: null)
 
     const url = "https://open.neis.go.kr/hub/SchoolSchedule"; // NEIS API URL
 
@@ -69,11 +70,34 @@ async function getSchoolSchedule(schoolCode, options = {}) {
         },
     });
 
-    if (response.data.SchoolSchedule) {
-        return response.data.SchoolSchedule[1].row;
-    } else {
+    if (!response.data.SchoolSchedule) {
         return [];
     }
+
+    const scheduleData = response.data.SchoolSchedule[1].row;
+
+    // 학년 필터링 요청 시 필터링해서 제공
+    return filterByGrade(scheduleData, grade);
+}
+
+function filterByGrade(scheduleData, grade) {
+    if (!grade) return scheduleData; // grade 없으면 필터링 안 함
+
+    // 학년별 키 매핑
+    const gradeKeyMap = {
+        "1": "ONE_GRADE_EVENT_YN",
+        "2": "TW_GRADE_EVENT_YN",
+        "3": "THREE_GRADE_EVENT_YN",
+        "4": "FR_GRADE_EVENT_YN",
+        "5": "FIV_GRADE_EVENT_YN",
+        "6": "SIX_GRADE_EVENT_YN",
+    };
+
+    const key = gradeKeyMap[grade.toString()];
+    if (!key) return scheduleData; // 잘못된 학년 입력 시 필터 안 함
+
+    // 해당 키가 "Y"인 항목만 필터링
+    return scheduleData.filter(item => item[key] === "Y");  // *은 미존재!?
 }
 
 module.exports = {

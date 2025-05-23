@@ -1,9 +1,10 @@
-const schoolscheduleService = require('../services/schoolscheduleService');
+const schoolscheduleService = require("../services/schoolscheduleService");
 
 exports.searchSchools = async (req, res) => {
     try {
         const query = req.query.query;
-        if (!query) return res.status(400).json({ error: "학교명을 입력하세요" });
+        if (!query)
+            return res.status(400).json({ error: "학교명을 입력하세요" });
 
         const results = await schoolscheduleService.searchSchools(query);
         res.json(results);
@@ -20,10 +21,16 @@ exports.getSchedule = async (req, res) => {
         const { grade } = req.query; // 학년 (default: null)
 
         // 필수 파라미터 빠질 경우 에러 처리
-        if (!schoolId) return res.status(400).json({ error: "schoolId를 필수로 입력해야 합니다" });
+        if (!schoolId)
+            return res
+                .status(400)
+                .json({ error: "schoolId를 필수로 입력해야 합니다" });
 
         // 학사일정 데이터 요청
-        const schedule = await schoolscheduleService.getSchoolSchedule(schoolId, { year, grade }); // year을 객체로 넘겨야 함 (prev 또는 null)
+        const schedule = await schoolscheduleService.getSchoolSchedule(
+            schoolId,
+            { year, grade }
+        ); // year을 객체로 넘겨야 함 (prev 또는 null)
         res.json(schedule);
     } catch (err) {
         console.error(err);

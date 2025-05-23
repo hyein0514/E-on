@@ -2,7 +2,7 @@
 
 import styles from "./../../styles/Common/Header.module.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import logo from "./../../../public/logo.svg";
+import logo from "../../assets/logo.svg";
 
 const Header = () => {
     return (

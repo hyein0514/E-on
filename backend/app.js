@@ -1,6 +1,9 @@
 // dotenv 패키지 사용해 환경변수 로드
 require('dotenv').config();
 
+// cors 패키지 사용해 CORS 설정
+const cors = require('cors');
+
 // Express 앱 구성
 const express = require('express');
 const db = require('./database/db.js'); 
@@ -10,6 +13,7 @@ const regionRouter = require('./routes/regionRouter');
 
 // 미들웨어
 app.use(express.json());
+app.use(cors());  // 모든 도메인에서 접근 허용
 
 // 라우터
 app.get('/api/hello', (req, res) => {

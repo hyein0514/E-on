@@ -14,7 +14,7 @@ const regionRouter = require('./routes/regionRouter');
 // 미들웨어
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5173',  // 개발용용
+  origin: 'http://localhost:5173',  // 개발용
   // origin: '도메인 URL', // 운영용
   credentials: true // 클라이언트에서 쿠키를 사용할 수 있도록 설정
 }));

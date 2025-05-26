@@ -51,7 +51,6 @@ const SchoolSearchBar = () => {
                         value="school"
                         checked={searchType === "school"}
                         onChange={() => setSearchType("school")}
-                        defaultChecked
                     />
                     학교별
                 </label>
@@ -86,7 +85,7 @@ const SchoolSearchBar = () => {
                         ))}
                     </ul>
                 )}
-                <button type="submit">검색하기</button>
+                <button type="submit" className={styles.button}>검색하기</button>
             </div>
         </div>
     );

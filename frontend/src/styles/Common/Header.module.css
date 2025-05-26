@@ -2,13 +2,44 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
+    width: 1280px;
     height: 140px;
     background-color:antiquewhite;
+    border: #333 solid 2px;
 }
 
 img {
     width: 130px;
     height: auto;
-    margin-left: 20px;
+    margin-right: 50px;
+}
+
+.navContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.navList {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 80px; /* ← 여백을 navItem 개수만큼 자동 적용 */
+    margin: 0 40px;
+}
+
+.navItem {
+    margin: 0 20px;
+    padding-bottom: 5px;
+    font-size: 16px;
+    color: #333;
+    text-decoration: none;
+    list-style-type: none;
+    display: inline-block;
+}
+
+.navLink {
+    text-decoration: none;
+    color: #333;
 }

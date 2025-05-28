@@ -1,5 +1,5 @@
-const boardService = require("../services/boardsService");
-const { Post } = require('../models/Boards');
+const boardService = require("../services/boardService");
+const { Post } = require('../models/Post');
 
 exports.getBoard = async (req, res) => {
     try {

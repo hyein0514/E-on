@@ -1,4 +1,5 @@
-const { Board, Post } = require('../models/Boards');
+const { Board } = require('../models/Board');
+const { Post } = require('../models/Post');
 const { User } = require('../models/User'); 
 const { Se } = require('sequelize');
 const axios = require("axios");

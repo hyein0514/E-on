@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const boardController = require('../controllers/boardsController');
+const boardController = require('../controllers/boardController');
 
 //router.get('/', boardControllers.apfhweofawef); // 모든 게시판 조회 api (디자인 보고 보류)
 // 게시판 상세 조회

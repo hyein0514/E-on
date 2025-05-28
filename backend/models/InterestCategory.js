@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const sequelize     = require('../config/database');
+const { sequelize, Sequelize } = require('../database/db');
+const { DataTypes } = Sequelize;
 
 module.exports = sequelize.define('InterestCategory', {
   category_code: { type: DataTypes.STRING, primaryKey: true },

@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const { sequelize, Sequelize } = require('../database/db');
+const { DataTypes } = Sequelize;
 
 const ChallengeDay = sequelize.define('ChallengeDay', {
   challenge_id: {

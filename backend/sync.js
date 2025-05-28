@@ -1,4 +1,6 @@
-const sequelize = require('./config/database');
+require('dotenv').config();
+const { sequelize } = require('./database/db');
+
 require('./models/InterestCategory');
 require('./models/Interests');
 require('./models/VisionCategory');
@@ -6,8 +8,14 @@ require('./models/Visions');
 require('./models/Users');
 require('./models/Challenge');  
 
+
 (async () => {
-  await sequelize.sync({ alter:false });   // alter:true -> DB 스키마 자동 갱신(개발용)
-  console.log('🗄️  테이블 동기화 완료!');
-  process.exit(0);
+  try {
+    await sequelize.sync({ alter: false });
+    console.log('🗄️  테이블 동기화 완료!');
+  } catch (err) {
+    console.error('❌ 테이블 동기화 실패:', err);
+  } finally {
+    process.exit(0);
+  }
 })();

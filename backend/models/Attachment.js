@@ -1,5 +1,6 @@
+const db = require('../database/db');
+const sequelize = db.sequelize;
 const { DataTypes } = require('sequelize');
-const sequelize     = require('../config/database');
 const Challenge     = require('./Challenge');  
 
 const Attachment = sequelize.define('Attachment', {
@@ -19,7 +20,11 @@ const Attachment = sequelize.define('Attachment', {
   attachment_type: {
     type: DataTypes.ENUM('이미지', '문서', '영상', '기타'),
     allowNull: false
-  }
+  },
+  challenge_id: {
+  type: DataTypes.BIGINT,
+  allowNull: false
+},
 }, {
   tableName: 'Attachment',
   timestamps: false

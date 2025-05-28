@@ -1,6 +1,6 @@
 // models/User.js
-const { DataTypes } = require('sequelize');
-const sequelize     = require('../config/database');
+const { sequelize, Sequelize } = require('../database/db');
+const { DataTypes } = Sequelize;
 
 const User = sequelize.define('User', {
   user_id:       { type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true },

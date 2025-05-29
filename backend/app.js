@@ -11,9 +11,11 @@ const app = express();
 const schoolScheduleRoute = require('./routes/schoolScheduleRoute'); // 학사 일정 API 라우터
 const averageScheduleRoute = require('./routes/averageScheduleRouter'); // 지역별 평균 시간표 API 라우터
 const regionRouter = require('./routes/regionRouter');
+const boardsRoute = require('./routes/boardsRoute.js')
 
 // 미들웨어
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin: 'http://localhost:5173',  // 개발용
   // origin: '도메인 URL', // 운영용
@@ -32,6 +34,8 @@ app.use('/averageSchedule', averageScheduleRoute);
 
 // 지역 API 라우터
 app.use('/regions', regionRouter);
+
+app.use('/boards', boardsRoute);
 
 app.get('/api/users', (req, res) => {
   db.query('SELECT * FROM users', (err, results) => {

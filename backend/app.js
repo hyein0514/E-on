@@ -9,6 +9,7 @@ const express = require('express');
 const db = require('./database/db.js'); 
 const app = express();
 const schoolScheduleRoute = require('./routes/schoolScheduleRoute'); // 학사 일정 API 라우터
+const averageScheduleRoute = require('./routes/averageScheduleRouter'); // 지역별 평균 시간표 API 라우터
 const regionRouter = require('./routes/regionRouter');
 
 // 미들웨어
@@ -20,13 +21,14 @@ app.use(cors({
 }));
 
 
-// 라우터
-app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello from Node.js!' });
-});
+// // 라우터
+// app.get('/api/hello', (req, res) => {
+//   res.json({ message: 'Hello from Node.js!' });
+// });
 
 // 학사 일정 API 라우터
 app.use('/schoolSchedule', schoolScheduleRoute);
+app.use('/averageSchedule', averageScheduleRoute);
 
 // 지역 API 라우터
 app.use('/regions', regionRouter);

@@ -1,10 +1,9 @@
-const Region = require("../models/Region");
-const { Op } = require("sequelize");
+const regionService = require("../services/regionSearchService");
 
 // 1. DB 내 모든 지역 정보 조회 API
 exports.getAllRegions = async (req, res) => {
     try {
-        const regions = await Region.findAll({ order: [["region_id", "ASC"]] });
+        const regions = await regionService.getAllRegions();
         res.status(200).json({
             status: "success",
             data: {
@@ -33,15 +32,9 @@ exports.getRegionByName = async (req, res) => {
 
     // region_name이 있는 경우만 처리
     try {
-        const regions = await Region.findAll({
-            where: {
-                region_name: {
-                    [Op.like]: `%${region_name}%`, // 부분 일치 검색 가능
-                },
-            },
-            order: [["region_id", "ASC"]], // 지역 id 기준 오름차순 정렬
-        });
+        const regions = await regionService.getRegionByName(region_name);
 
+        // 검색 결과가 없을 경우 처리
         if (regions.length === 0) {
             return res.status(404).json({
                 status: "fail",

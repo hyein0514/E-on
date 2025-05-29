@@ -1,12 +1,18 @@
 import styles from "../../styles/Calendar/ViewNavigator.module.css";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { ViewContext } from "../../contexts/ViewContext";
+import { SearchTypeContext } from "../../contexts/SearchTypeContext";
 
 const ViewNavigator = () => {
     const { currentView, setCurrentView } = useContext(ViewContext);
+    const { searchType, setSearchType } = useContext(SearchTypeContext);
     const handleViewTypeChange = (event) => {
         setCurrentView(event.target.value);
     };
+
+    // useEffect(() => {
+    //     console.log("SearchTypeContext: ", searchType);
+    // }, [searchType]);
 
     return (
         <div className={styles.viewNavigator}>
@@ -14,7 +20,17 @@ const ViewNavigator = () => {
                 <div className={styles.name}>가가초등학교</div>
                 <div className={styles.text}>학사일정</div>
                 <div className={styles.selectGrade}>
-                    <select className={styles.select}>
+                    <select
+                        className={styles.select}
+                        onChange={(e) => {
+                            const selectedGrade = parseInt(e.target.value, 10); // 문자열 → 10진법 숫자
+                            setSearchType((prev) => ({
+                                ...prev,
+                                grade: selectedGrade,
+                            }));
+                        }}
+                        value={searchType.grade || 1} // 초기값 세팅
+                    >
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>

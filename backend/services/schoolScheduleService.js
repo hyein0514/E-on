@@ -11,15 +11,22 @@ async function searchSchools(query) {
     const url = "https://open.neis.go.kr/hub/schoolInfo"; // 학교기본정보 조회 API URL
 
     try {
+        const params = {
+            KEY: apiKey,
+            Type: "json",
+            pIndex: 1,
+            pSize: 1000, // 가능한 한 많이 가져오기
+            ATPT_OFCDC_SC_CODE: "B10", // 서울특별시교육청
+        };
+
+        // query가 들어올 경우 학교 이름으로 필터링
+        // query가 비어있으면 모든 학교 조회
+        if (query && query.trim() !== "") {
+            params.SCHUL_NM = query.trim();
+        }
+
         const response = await axios.get(url, {
-            params: {
-                KEY: apiKey,
-                Type: "json",
-                pIndex: 1,
-                pSize: 1000, // 가능한 한 많이 가져오기
-                ATPT_OFCDC_SC_CODE: "B10", // 서울특별시교육청
-                SCHUL_NM: query,
-            },
+            params,
         });
 
         if (!response.data.schoolInfo) return [];
@@ -85,19 +92,19 @@ function filterByGrade(scheduleData, grade) {
 
     // 학년별 키 매핑
     const gradeKeyMap = {
-        "1": "ONE_GRADE_EVENT_YN",
-        "2": "TW_GRADE_EVENT_YN",
-        "3": "THREE_GRADE_EVENT_YN",
-        "4": "FR_GRADE_EVENT_YN",
-        "5": "FIV_GRADE_EVENT_YN",
-        "6": "SIX_GRADE_EVENT_YN",
+        1: "ONE_GRADE_EVENT_YN",
+        2: "TW_GRADE_EVENT_YN",
+        3: "THREE_GRADE_EVENT_YN",
+        4: "FR_GRADE_EVENT_YN",
+        5: "FIV_GRADE_EVENT_YN",
+        6: "SIX_GRADE_EVENT_YN",
     };
 
     const key = gradeKeyMap[grade.toString()];
     if (!key) return scheduleData; // 잘못된 학년 입력 시 필터 안 함
 
     // 해당 키가 "Y"인 항목만 필터링
-    return scheduleData.filter(item => item[key] === "Y");  // *은 미존재!?
+    return scheduleData.filter((item) => item[key] === "Y"); // *은 미존재!?
 }
 
 module.exports = {

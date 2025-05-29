@@ -1,12 +1,16 @@
-const schoolscheduleService = require("../services/schoolscheduleService");
+const schoolscheduleService = require("../services/schoolScheduleService");
 
 exports.searchSchools = async (req, res) => {
     try {
         const query = req.query.query;
-        if (!query)
-            return res.status(400).json({ error: "학교명을 입력하세요" });
+        let results;
 
-        const results = await schoolscheduleService.searchSchools(query);
+        // query가 비어있으면 모든 학교 조회
+        if (!query) {
+            results = await schoolscheduleService.searchSchools();
+        } else {
+            results = await schoolscheduleService.searchSchools(query);
+        }
         res.json(results);
     } catch (err) {
         console.error(err);

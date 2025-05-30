@@ -16,11 +16,7 @@ app.use(express.json());
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from Node.js!' });
 });
-<<<<<<< HEAD
 app.use('/api/schoolSchedule', schoolScheduleRoute); // 학사 일정 API 라우터
-=======
-//app.use('/api/schoolSchedule', schoolScheduleRoute); // 학사 일정 API 라우터
->>>>>>> challenge
 
 app.get('/api/users', (req, res) => {
   db.query('SELECT * FROM users', (err, results) => {

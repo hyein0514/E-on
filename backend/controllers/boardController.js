@@ -1,6 +1,23 @@
 const boardService = require("../services/boardService");
 const { Post } = require('../models/Post');
 
+// controllers/boardController.js
+const { Board } = require('../models'); // Sequelize 모델 또는 DB 연결
+
+exports.getBoardList = async (req, res) => {
+  try {
+    const boards = await Board.findAll({
+      attributes: ['board_id', 'board_name'],
+      order: [['board_id', 'ASC']]
+    });
+    res.status(200).json(boards);
+  } catch (error) {
+    console.error('게시판 목록 조회 실패:', error);
+    res.status(500).json({ message: '게시판 목록 조회 실패' });
+  }
+};
+
+
 exports.getBoard = async (req, res) => {
     try {
         const { board_id } = req.params;

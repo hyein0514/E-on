@@ -18,14 +18,15 @@ const AppRoutes = () => {
             <Route path="/challenge" element={<Challenge />} />
             <Route path="/challenge/create" element={<ChallengeCreate />} />
             <Route path="/suggestion" element={<Suggestion />} />
-            <Route
+            <Route path="/community" element={<CommunityList />} />
+            {/*<Route
                 path="/community"
                 element={
                     <PrivateRoutes>
                         <CommunityList />
                     </PrivateRoutes>
                 }
-            />
+            />*/}
             <Route
                 path="/mypage/:userId"
                 element={

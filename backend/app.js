@@ -3,7 +3,7 @@ const { rawConnection: db, sequelize } = require('./database/db.js');
 const express = require('express');
 const app = express();
 
-//const schoolScheduleRoute = require('./routes/schoolScheduleRoute'); // 학사 일정 API 라우터
+const schoolScheduleRoute = require('./routes/schoolScheduleRoute'); // 학사 일정 API 라우터
 const challengeRoutes = require('./routes/challengeRoutes');
 const participationRoutes = require('./routes/participationRoutes');
 const attendanceRoutes = require('./routes/attendance.js');

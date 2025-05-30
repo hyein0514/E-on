@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 @import url("https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap");
+=======
+>>>>>>> 40933ce (main 브랜치에서 frontend 폴더만 가져옴)
 @font-face {
     font-family: "Cafe24SsurroundAir";
     src: url("https://gcore.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/Cafe24SsurroundAir.woff")
@@ -7,6 +10,10 @@
     font-style: normal;
 }
 
+<<<<<<< HEAD
+=======
+@import url("https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap");
+>>>>>>> 40933ce (main 브랜치에서 frontend 폴더만 가져옴)
 
 .play-regular {
     font-family: "Play", sans-serif;

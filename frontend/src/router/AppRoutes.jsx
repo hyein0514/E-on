@@ -16,14 +16,15 @@ const AppRoutes = () => {
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/challenge" element={<Challenge />} />
             <Route path="/suggestion" element={<Suggestion />} />
-            <Route
+            <Route path="/community" element={<CommunityList />} />
+            {/*<Route
                 path="/community"
                 element={
                     <PrivateRoutes>
                         <CommunityList />
                     </PrivateRoutes>
                 }
-            />
+            />*/}
             <Route
                 path="/mypage/:userId"
                 element={

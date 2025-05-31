@@ -1,10 +1,9 @@
 const { sequelize, Sequelize } = require('../database/db');
 const { DataTypes } = Sequelize;
-//const sequelize = require('../config/database');
 const ChallengeDay = require('./ChallengeDay');
 const Interests = require('./Interests')
 const Visions = require('./Visions')
-const User = require('./User');
+const { User } = require('./User');
  
 const Challenge = sequelize.define('Challenge',{
     // 1) 기본키

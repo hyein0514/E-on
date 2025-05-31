@@ -15,6 +15,10 @@ const BoardRequest = sequelize.define('BoardRequest', {
   requested_board_name: {
     type: DataTypes.STRING(255),
   },
+  request_reason: {                    // 추가된 필드
+    type: DataTypes.TEXT,
+    allowNull: true,
+  },
   request_date: {
     type: DataTypes.DATE,
   },

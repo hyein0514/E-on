@@ -2,6 +2,7 @@ const boardService = require("../services/boardService");
 const { Post } = require('../models/Post');
 const { Board } = require('../models/Board');
 const { Comment } = require('../models/Comment');
+const { BoardRequest } = require('../models/BoardRequest');
 
 exports.getBoardList = async (req, res) => {
   try {
@@ -229,4 +230,48 @@ exports.deleteComment = async (req, res) => {
     console.error(error);
     res.status(500).json({ error: '댓글 삭제 중 오류가 발생했습니다.' });
   }
+};
+
+// 게시판 개설 요청
+exports.createBoardRequest = async (req, res) => {
+    const { user_id, requested_board_name, request_reason } = req.body;
+
+    if (!user_id || !requested_board_name) {
+        return res.status(400).json({ error: 'user_id와 requested_board_name은 필수입니다.'});
+    }
+
+    try {
+        const newRequest = await BoardRequest.create({
+            user_id,
+            requested_board_name,
+            request_reason,
+            request_date: new Date(),
+            request_status: '대기',
+        });
+        res.status(201).json({
+            message: '게시판 개설 신청이 접수되었습니다.',
+            boardrequest: newRequest
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: '게시판 개설 신청 중 오류가 발생했습니다.' });
+    }
+};
+
+// 게시판 개설 신청 목록 조회 API
+exports.getAllBoardRequests = async (req, res) => {
+    try {
+        const requests = await BoardRequest.findAll({
+            include: {
+                model: User,
+                attributes: ['user_id', 'name']
+            },
+            order: [['request_date', 'DESC']],
+        });
+        req.status(200).json({ requests });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: '게시판 신청 목록 조회 중 오류 발생'});
+    }
 };

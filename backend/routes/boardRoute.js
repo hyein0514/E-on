@@ -33,4 +33,12 @@ router.put('/comments/:comment_id', boardController.updateComment);
 // 댓글 삭제
 router.delete('/comments/:comment_id', boardController.deleteComment);
 
+// 게시판 개설 신청
+router.post('/board-requests', boardController.createBoardRequest);
+
+// 게시판 개설 신청 목록 조회
+router.get('/board-requests', boardController.getAllBoardRequests);
+
+// 게시판 개설 승인
+
 module.exports = router;

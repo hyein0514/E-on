@@ -17,6 +17,7 @@ backend/
 ├── views/                 # (선택) 템플릿 엔진 사용 시
 ├── database/              # DB 연결 설정
 │   └── db.js
+├── utils/                 # 유틸 함수 모음
 ├── app.js                 # 앱 구성 (미들웨어, 라우터 등 설정)
 └── index.js               # 서버 실행 진입점
 ```

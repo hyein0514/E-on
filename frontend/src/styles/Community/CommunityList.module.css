@@ -1,0 +1,94 @@
+.container {
+  max-width: 1280px;
+  min-height: 100vh;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0;
+  font-family: 'Pretendard', sans-serif;
+}
+
+/* 탭 */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+  /* padding-left: 16px; ✅ 좌측 정렬 고정 */
+}
+
+.tab {
+  padding: 10px 16px;
+  border: 1px solid #ccc;
+  background-color: #f5f5f5;
+  border-radius: 6px 6px 0 0;
+  font-weight: 500;
+  color: #888;
+  cursor: pointer;
+}
+
+.activeTab {
+  background-color: #fff;
+  color: #000;
+  border-bottom: none;
+  font-weight: bold;
+}
+
+/* 공지 영역 */
+.notice {
+  border: 1px solid #ccc;
+  border-top: none;
+  padding: 12px 16px; /* ✅ 좌우 padding 일치 */
+  font-size: 16px;
+  background-color: #fafafa;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 게시글 목록 */
+.list {
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+.listRow {
+  height: 40px;
+  border-bottom: 1px solid #eee;
+  padding: 10px 16px;
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 8px;
+}
+
+.pageNumber {
+  color: #888;
+  cursor: pointer;
+}
+
+.activePage {
+  font-weight: bold;
+  color: black;
+}
+
+.pageArrow {
+  cursor: pointer;
+  color: #888;
+}
+
+/* 게시판 개설 버튼 */
+.createButton {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 14px;
+}

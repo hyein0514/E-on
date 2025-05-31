@@ -7,6 +7,7 @@ import Suggestion from "../pages/Suggestion/Suggestion";
 import CommunityList from "../pages/Community/CommunityList";
 import MyPage from "../pages/MyPage/MyPage";
 import PrivateRoutes from "./PrivateRoutes";
+import ChallengeCreate from "../pages/Challenge/ChallengeCreate";
 
 const AppRoutes = () => {
     return (
@@ -15,15 +16,17 @@ const AppRoutes = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/challenge" element={<Challenge />} />
+            <Route path="/challenge/create" element={<ChallengeCreate />} />
             <Route path="/suggestion" element={<Suggestion />} />
-            <Route
+            <Route path="/community" element={<CommunityList />} />
+            {/*<Route
                 path="/community"
                 element={
                     <PrivateRoutes>
                         <CommunityList />
                     </PrivateRoutes>
                 }
-            />
+            />*/}
             <Route
                 path="/mypage/:userId"
                 element={

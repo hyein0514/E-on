@@ -1,0 +1,94 @@
+const { Op } = require('sequelize');
+const ParticipatingChallenge  = require('../models/ParticipatingChallenge');
+const ParticipatingAttendance = require('../models/participatingAttendance');
+const Challenge               = require('../models/Challenge');
+
+/*  출석 추가 -------------------------------------------------- */
+exports.add = async (req, res, next) => {
+  try {
+    const partId = req.params.id;
+    const { attendance_date, attendance_state, memo } = req.body;
+
+     if (!['출석', '결석', '지각'].includes(attendance_state)) {
+      return res.status(400).json({ error: 'attendance_state must be 출석, 결석, or 지각' });
+    }
+
+    // 참여 존재 여부
+    const part = await ParticipatingChallenge.findByPk(partId);
+    if (!part) return res.status(404).json({ error:'참여 기록 없음' });
+
+    // 중복 출석 방지 (같은 날짜에 이미 기록?)
+    const dup = await ParticipatingAttendance.findOne({
+      where:{ participating_id: partId, attendance_date }
+    });
+    if (dup) return res.status(409).json({ error:'이미 해당 날짜 출석이 있습니다.' });
+
+    const row = await ParticipatingAttendance.create({
+      participating_id: partId,
+      attendance_date,
+      attendance_state,
+      memo
+    });
+    res.status(201).json(row);
+  } catch (err) { next(err); }
+};
+
+/* 챌린지별 출석 조회 ---------------------------------------- */
+exports.listByChallenge = async (req, res, next) => {
+  try {
+    const challengeId = req.params.id;
+    const { from, to } = req.query;               // YYYY-MM-DD
+
+    // 챌린지 존재 여부 확인
+    const challenge = await Challenge.findByPk(challengeId);
+    if (!challenge) return res.status(404).json({ error: '챌린지 없음' });
+
+    // 참여 → 출석 JOIN
+    const rows = await ParticipatingAttendance.findAll({
+      include:[{
+        model: ParticipatingChallenge,
+        attributes:['participating_id','user_id'],
+        where:{ challenge_id: challengeId }
+      }],
+      where:{
+        attendance_date:{
+          [Op.between]: [from || '1000-01-01', to || '9999-12-31']
+        }
+      },
+      order:[['attendance_date','ASC']]
+    });
+    res.json(rows);
+  } catch (err) { next(err); }
+};
+
+/* 출석 수정 -------------------------------------------------- */
+exports.update = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const { attendance_state, memo } = req.body;
+
+    const row = await ParticipatingAttendance.findByPk(id);
+    if (!row) return res.status(404).json({ error:'출석 기록 없음' });
+
+    if (attendance_state) row.attendance_state = attendance_state;
+    if (memo !== undefined) row.memo = memo;
+    await row.save();
+    res.json(row);
+  } catch (err) { next(err); }
+};
+
+
+/*  출석 삭제 -------------------------------------------------- */
+exports.remove = async (req, res, next) => {
+  try {
+    const attendanceId = req.params.id;
+    const row = await ParticipatingAttendance.findByPk(attendanceId);
+    if (!row) return res.status(404).json({ error: '출석 기록 없음' });
+
+    await row.destroy();
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+};
+

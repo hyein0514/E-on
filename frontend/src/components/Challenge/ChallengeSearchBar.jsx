@@ -25,7 +25,6 @@ const ChallengeSearchBar = ({ search, setSearch, onSearch }) => (
         borderRadius: "0 8px 8px 0",
         fontSize: "15px",
         cursor: "pointer",
-                         // 버튼 높이도 맞추기
         fontWeight: "bold"
       }}
     >

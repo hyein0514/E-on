@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-// Challenge.Challenge.jsx
-
-const Challenge = () => {
-    return (
-        <div>
-            <h1>Challenge Page</h1>
-        </div>
-    );
-}
-
-export default Challenge;
-=======
 import { useState } from "react";
 import Header from "../../components/Common/Header";
 import styles from "../../styles/Pages/Challenge.module.css";
@@ -140,4 +127,3 @@ const Challenge = () => {
 };
 
 export default Challenge;
->>>>>>> 63c6133e9bbb9d9084d893adc3834550947d4d39

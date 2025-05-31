@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-// Coomunicity/CommunityList.jsx
-
-const CommunityList = () => {
-    return (
-        <div>
-            <h1>Community List Page</h1>
-        </div>
-    );
-}
-
-export default CommunityList;
-=======
 import { useEffect, useState } from "react";
 import Header from "../../components/Common/Header";
 import styles from "../../styles/Community/CommunityList.module.css";
@@ -134,4 +121,3 @@ useEffect(() => {
 };
 
 export default CommunityList;
->>>>>>> 63c6133e9bbb9d9084d893adc3834550947d4d39

@@ -24,4 +24,13 @@ router.put('/posts/:post_id', boardController.updatePost);
 // 게시글 삭제
 router.delete('/posts/:post_id', boardController.deletePost);
 
+// 댓글 작성
+router.post('/posts/:post_id/comments', boardController.createComment);
+
+// 댓글 수정
+router.put('/comments/:comment_id', boardController.updateComment);
+
+// 댓글 삭제
+router.delete('/comments/:comment_id', boardController.deleteComment);
+
 module.exports = router;

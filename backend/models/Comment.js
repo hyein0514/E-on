@@ -1,16 +1,16 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../database/db.js');
 const { User } = require('./User.js');
-const { Board } = require('./Board.js')
+const { Post } = require('./Post.js');
 
-const Post = sequelize.define('Post', {
-  post_id: {
+const Comment = sequelize.define('Comment', {
+  comment_id: {
     type: DataTypes.BIGINT,
-    primaryKey: true,
     allowNull: false,
     autoIncrement: true,
+    primaryKey: true,
   },
-  board_id: {
+  post_id: {
     type: DataTypes.BIGINT,
     allowNull: false,
   },
@@ -23,32 +23,17 @@ const Post = sequelize.define('Post', {
   },
   created_at: {
     type: DataTypes.DATE,
-    allowNull: false,
     defaultValue: DataTypes.NOW,
   },
 }, {
-  tableName: "Post",
+  tableName: 'Comment',
   timestamps: false,
 });
 
-
-Post.belongsTo(Board, {
-  foreignKey: 'board_id',
-  onDelete: 'CASCADE'
-});
-
-Post.belongsTo(User, {
+Comment.belongsTo(User, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+Comment.belongsTo(Post, { foreignKey: 'post_id', onDelete: 'CASCADE' });
+User.hasMany(Comment, {
   foreignKey: 'user_id',
-  onDelete: 'CASCADE'
 });
 
-Board.hasMany(Post, {
-  foreignKey: 'board_id',
-  onDelete: 'CASCADE'
-});
-User.hasMany(Post, {
-  foreignKey: 'user_id',
-  onDelete: 'CASCADE'
-});
-
-module.exports = { Post };
+module.exports = { Comment };

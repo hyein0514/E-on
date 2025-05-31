@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { useEffect, useState } from "react";
 import Header from "../../components/Common/Header";
 import styles from "../../styles/Community/CommunityList.module.css";
@@ -122,16 +121,3 @@ useEffect(() => {
 };
 
 export default CommunityList;
-=======
-// Coomunicity/CommunityList.jsx
-
-const CommunityList = () => {
-    return (
-        <div>
-            <h1>Community List Page</h1>
-        </div>
-    );
-}
-
-export default CommunityList;
->>>>>>> 40933ce (main 브랜치에서 frontend 폴더만 가져옴)

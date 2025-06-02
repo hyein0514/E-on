@@ -3,6 +3,7 @@
 import styles from "./../../styles/Common/Header.module.css";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.svg";
+import notification from "../../assets/notification.svg"
 
 const Header = () => {
     return (
@@ -33,6 +34,9 @@ const Header = () => {
                         <Link to="/myPage/:userId" className={styles.navLink}>
                             마이페이지
                         </Link>
+                    </li>
+                    <li>
+                        <img src={notification} className={styles.notification} />
                     </li>
                 </ul>
             </div>

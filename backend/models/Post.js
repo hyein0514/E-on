@@ -46,5 +46,9 @@ Board.hasMany(Post, {
   foreignKey: 'board_id',
   onDelete: 'CASCADE'
 });
+User.hasMany(Post, {
+  foreignKey: 'user_id',
+  onDelete: 'CASCADE'
+});
 
 module.exports = { Post };

@@ -17,7 +17,6 @@ const rawConnection = mysql.createConnection({
   password: DB_PASSWORD,
   database: DB_NAME
 });
-
 rawConnection.connect(err => {
   if (err) {
     console.error('❌ MySQL(raw) 연결 실패:', err.message);
@@ -47,4 +46,3 @@ module.exports = {
   sequelize,
   Sequelize
 };
-

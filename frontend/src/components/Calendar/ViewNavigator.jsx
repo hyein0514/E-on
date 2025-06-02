@@ -1,5 +1,5 @@
 import styles from "../../styles/Calendar/ViewNavigator.module.css";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { ViewContext } from "../../contexts/ViewContext";
 import { SearchTypeContext } from "../../contexts/SearchTypeContext";
 
@@ -39,6 +39,9 @@ const ViewNavigator = () => {
                         <option value="6">6</option>
                     </select>
                     <span className={styles.selectText}>학년</span>
+                </div>
+                <div className={styles.chooseYearView}>
+                    → 작년 학사일정 보러가기
                 </div>
             </div>
             <div className={styles.viewRadio}>

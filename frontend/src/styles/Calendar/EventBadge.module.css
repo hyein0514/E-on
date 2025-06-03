@@ -1,0 +1,31 @@
+/* .eventBadge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 108px;
+    height: 25px;
+    border: 1px solid #ba68ce;
+    background-color: #FCF2FF;
+    border-radius: 10px;
+    margin-top: 8px;
+} */
+
+.eventTitle {
+    letter-spacing: -0.5px;
+    text-align: center;
+    padding-bottom: 1px;
+    margin: 0 4px;
+}
+
+.eventBadge {
+    display: flex;
+    align-items: center;
+        justify-content: center;
+    background-color: #fcf2ff;
+    /* border-radius: 10px; */
+    font-size: 11px;
+    height: 25px;
+    padding: 0 8px;
+    border-left: 6px solid #ba68ce; /* 왼쪽 끝 보라색 막대 */
+    margin-top: 8px;
+}

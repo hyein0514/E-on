@@ -1,13 +1,63 @@
 .viewNavigator {
     display: flex;
-    align-items: flex-end; /* center → flex-end */
-    justify-content: space-between; /* 좌우 끝 정렬 */
+    align-items: flex-end;
+    justify-content: space-between;
     gap: 10px;
     padding: 10px;
     margin-bottom: 10px;
     background-color: var(--color-background);
     border-radius: 5px;
 }
+
+.left {
+    display: flex;
+    align-items: baseline; /* 기준선(baseline) 정렬 */
+}
+
+.name {
+    font-size: 22px;
+    font-weight: bold;
+    color: #000000;
+    margin-left: 30px;
+    margin-right: 5px;
+    line-height: 1;
+}
+
+.text {
+    font-size: 14px;
+    color: #000000;
+    margin-right: 5px;
+    line-height: 1.1;
+}
+
+.selectGrade {
+    display: flex;
+    align-items: baseline; /* select와 텍스트도 밑줄 맞춤 */
+    gap: 4px;
+    margin-left: 5px;
+}
+
+.select {
+    width: 55px;
+    height: 27px;
+    font-size: 17px;
+    text-align: center;
+    border: solid 1px #717171;
+    border-radius: 5px;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+}
+
+.selectText {
+    font-size: 17px;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+}
+
+
+/*
 
 .left {
     display: flex;
@@ -19,7 +69,7 @@
     font-size: 22px;
     font-weight: bold;
     color: #000000;
-    margin-right: 0px;
+    margin-right: 5px;
     line-height: 1;
 }
 
@@ -28,7 +78,37 @@
     color: #000000;
     line-height: 1.1;
     margin-left: 0px;
+    margin-right: 5px;
 }
+
+.selectGrade {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 5px;
+}
+
+.select {
+    width: 55px;
+    height: 27px;
+    font-size: 17px;
+    text-align: center;
+    border: solid 1px #717171;
+    border-radius: 5px;
+    padding: 0;
+    margin: 0;
+}
+
+.selectText {
+    height: 27px;
+    font-size: 17px;
+    line-height: 1;
+    margin: 0;
+    margin-top: 3px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+} */
 
 .viewRadio {
     display: flex;

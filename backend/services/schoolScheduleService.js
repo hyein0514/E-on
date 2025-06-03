@@ -35,6 +35,9 @@ async function searchSchools(query) {
             .filter(
                 (school) =>
                     !school.SCHUL_KND_SC_NM.includes("고등") &&
+                    !school.SCHUL_KND_SC_NM.includes("각종학교(고)") &&
+                    !school.SCHUL_KND_SC_NM.includes("평생학교(고)-3년6학기") &&
+                    !school.SCHUL_KND_SC_NM.includes("평생학교(고)-2년6학기") &&
                     school.LCTN_SC_NM.includes("서울특별시")
             )
             .map((school) => ({

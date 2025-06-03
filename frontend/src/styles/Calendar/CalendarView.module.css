@@ -45,11 +45,16 @@
     cursor: pointer;
     font-size: 20px;
     padding: 8px 12px;
-    color: #b2b2b2;
+    color: #000000;
     user-select: none;
     transition: color 0.2s ease;
     font-weight: 300;
     margin: 0 10px;
+}
+
+.disabled {
+    color: #b2b2b2;
+    cursor: default;
 }
 
 .monthView {
@@ -58,12 +63,18 @@
     gap: 1px; /* 필요 시 간격 조정 */
 }
 
+.year,
 .month {
     font-size: 30px;
     font-weight: bold;
     line-height: 1; /* 줄 간격 축소로 미세 조정 */
 }
 
+.yearText {
+    margin-right: 6px;
+}
+
+.yearText,
 .monthText {
     font-size: 16px;
     line-height: 1.4;
@@ -129,12 +140,35 @@
     box-sizing: border-box;
 }
 
-.otherMonth {
-    color: #cccccc;
-}
-
+.weeklyDay:hover,
 .day:hover {
     background-color: #e6f3ff;
     color: #3398ff;
     font-weight: bold;
+}
+
+.weeklyDays {
+    font-family: "Play", sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    width: 894px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-auto-rows: 211px;
+    text-align: left;
+    border: 1px solid #cccccc;
+}
+
+.weeklyDay {
+    padding: 8px 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: #333;
+    border: 1px solid #cccccc;
+    height: 211px; /* 명시적으로 높이 지정 */
+    box-sizing: border-box;
+}
+
+.otherMonth {
+    color: #cccccc;
 }

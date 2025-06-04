@@ -12,9 +12,9 @@ const ChallengeList = ({ challenges, onApply }) => {
     <div style={{ width: "90%", minWidth: "440px", margin: "0 auto" }}>
       {challenges.map(challenge => (
         <ChallengeListItem
-          key={challenge.id}
+          key={challenge.challenge_id}
           {...challenge}
-          onApply={() => onApply(challenge.id)}
+          onApply={() => onApply(challenge.challenge_id)}
         />
       ))}
     </div>

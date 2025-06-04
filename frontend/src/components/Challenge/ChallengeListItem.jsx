@@ -24,13 +24,22 @@ function formatDateRange(start, end) {
 }
 
 const ChallengeListItem = ({
-  id, status, title, startDate, endDate, onApply
+  challenge_id, challenge_state, title, start_date, end_date, onApply
 }) => {
   const navigate = useNavigate();
 
+  // 상태 한글 변환
+  const statusMap = {
+    ACTIVE: "모집중",
+    CLOSED: "마감",
+    CANCELLED: "취소됨"
+  };
+
+  const status = statusMap[challenge_state] || challenge_state;
+
   // 상세페이지로 이동 핸들러
   const handleGoDetail = () => {
-    navigate(`/challenge/${id}`);
+    navigate(`/challenge/${challenge_id}`);
   };
 
   return (
@@ -69,7 +78,7 @@ const ChallengeListItem = ({
         <div style={{ fontSize: "17px", fontWeight: "bold", marginBottom: "5px" }}>
           {title}
         </div>
-        <div style={{ fontSize: "14px", color: "#6b7280" }}>{formatDateRange(startDate, endDate)}</div>
+        <div style={{ fontSize: "14px", color: "#6b7280" }}>{formatDateRange(start_date, end_date)}</div>
       </div>
       {/* 신청하기 버튼 */}
       <button

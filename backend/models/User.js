@@ -1,21 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../database/db.js');
-
-const UserState = sequelize.define('UserState', {
-  state_code: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-    primaryKey: true,
-  },
-  state_description: {
-    type: DataTypes.STRING(255),
-    allowNull: true,
-  },
-}, {
-  tableName: 'UserState',
-  timestamps: false,
-});
-
+const UserState = require('./UserState.js');
 
 const User = sequelize.define('User', {
   user_id: {
@@ -50,10 +35,7 @@ const User = sequelize.define('User', {
   },
   state_code: {
     type: DataTypes.STRING(100),
-    references: {
-      model: UserState,
-      key: 'state_code',
-    },
+    // reference는 아래 UserState.js에서 설정됨!
   },
   my_school: {
     type: DataTypes.STRING(100),
@@ -73,4 +55,5 @@ User.belongsTo(UserState, {
   targetKey: 'state_code',
 });
 
-module.exports = { UserState, User };
+
+module.exports = User;

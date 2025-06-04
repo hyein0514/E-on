@@ -115,7 +115,7 @@ exports.list = async (req, res, next) => {
     /* ── 1) 쿼리 파라미터 ───────────────────────── */
     const keyword      = req.query.q      || '';
     const state        = req.query.state;               // ACTIVE | CLOSED | CANCELLED
-    const activityType = req.query.activityType;        // 교과 | 비교과 | 진로
+    const activityType = req.query.activityType;        // 필터링
     const dateStr      = req.query.date;                // YYYY-MM-DD
     const minAge       = req.query.minAge ? Number(req.query.minAge) : null;
     const maxAge       = req.query.maxAge ? Number(req.query.maxAge) : null;
@@ -153,6 +153,7 @@ exports.list = async (req, res, next) => {
     }
 
     /* ── 3) include (활동 타입 필터) ─────────────── */
+    /* ── 3) include (활동 타입 필터) ─────────────── */
     const include = [
       { model: ChallengeDay, as:'days', attributes:['day_of_week'] },
       { model: Attachment,   as:'attachments', attributes:['url'] }
@@ -184,6 +185,8 @@ exports.list = async (req, res, next) => {
         attributes: []
       });
     }
+
+
     /* ───────────────────────────────────────────── */
 
     /* ── 4) 조회 & 페이징 ───────────────────────── */
@@ -204,6 +207,7 @@ exports.list = async (req, res, next) => {
       items : rows
     });
   } catch (err) {
+    console.error('[Challenge List Error]', err); 
     next(err);
   }
 };
@@ -246,6 +250,7 @@ exports.detail = async (req, res, next) => {
       attachments : challenge.attachments,
       interests   : challenge.interests,
       visions     : challenge.visions,
+      creator_contact: challenge.creator_contact,
       created_at  : challenge.created_at
     });
   } catch (err) {

@@ -5,6 +5,9 @@ import Calendar from "../pages/Calendar/Calendar";
 import Challenge from "../pages/Challenge/Challenge";
 import Suggestion from "../pages/Suggestion/Suggestion";
 import CommunityList from "../pages/Community/CommunityList";
+import CommunityWrite from "../pages/Community/CommunityWrite";
+import CommunityEdit from "../pages/Community/CommunityEdit";
+import PostDetail from "../pages/Community/PostDetail";
 import MyPage from "../pages/MyPage/MyPage";
 import PrivateRoutes from "./PrivateRoutes";
 import ChallengeCreate from "../pages/Challenge/ChallengeCreate";
@@ -24,13 +27,14 @@ const AppRoutes = () => {
             <Route path="/challenge" element={<Challenge />} />
             <Route path="/challenge/create" element={<ChallengeCreate />} />
             <Route path="/suggestion" element={<Suggestion />} />
-            <Route path="/community" element={<CommunityList />} />
             <Route path="/attendance/:challengeId" element={<Attendance />} />
             <Route path="/challenge/:challengeId/reviews" element={<ReviewList />} />
             <Route path="/challenge/:challengeId/review/create" element={<ReviewCreate />} />
             <Route path="/challenge/:id" element={<ChallengeDetail />} />
             <Route path="/challenge/:id/edit" element={<ChallengeEdit />} />
             <Route path="/challenge/:challengeId/review/:reviewId/edit" element={<ReviewEdit />} />
+            
+            <Route path="/community" element={<CommunityList />} />
             {/*<Route
                 path="/community"
                 element={
@@ -39,6 +43,9 @@ const AppRoutes = () => {
                     </PrivateRoutes>
                 }
             />*/}
+            <Route path="/community/:board_id/write" element={<CommunityWrite />} />
+            <Route path="/posts/:post_id" element={<PostDetail />} />
+
             <Route
                 path="/mypage/:userId"
                 element={

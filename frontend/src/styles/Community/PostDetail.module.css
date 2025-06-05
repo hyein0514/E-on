@@ -1,0 +1,116 @@
+.container {
+  max-width: 1280px;
+  min-height: 100vh;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: 'Pretendard', sans-serif;
+  background-color: #fff;
+}
+
+.header {
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.meta {
+  color: #888;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.author {
+    margin-right: 30px;
+}
+
+.content {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+  min-height: 300px;
+  white-space: pre-wrap;
+
+}
+
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+  margin-bottom: 5px;
+  flex-grow: 1;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.editBtn, .deleteBtn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.editBtn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.deleteBtn {
+  background-color: #f44336;
+  color: white;
+}
+
+.commentsSection {
+  border-top: 1px solid #ddd;
+  padding-top: 24px;
+}
+
+.commentsTitle {
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.commentList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.commentItem {
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+}
+
+.commentHeader {
+  font-size: 14px;
+  color: #555;
+  display: flex;
+  justify-content: space-between;
+}
+
+.commentContent {
+  margin-top: 4px;
+  font-size: 15px;
+}
+
+.noComments {
+  color: #999;
+}

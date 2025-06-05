@@ -61,7 +61,7 @@ const ChallengeDetail = () => {
         setIsJoined={setIsJoined}
         participationId={participationId}
         setParticipationId={setParticipationId}
-        
+        participationState={participationState}
         refresh={fetchDetail} // 추가! (핵심)
       />
     </div>

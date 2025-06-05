@@ -16,7 +16,6 @@ exports.create = async (req, res, next) => {
   const body = req.body.meta ? JSON.parse(req.body.meta) : req.body;
   const files = req.files ?? []
   
-
   try {
     //필수값 검증
     const {
@@ -119,20 +118,24 @@ exports.create = async (req, res, next) => {
 exports.list = async (req, res, next) => {
   try {
     /* ── 1) 쿼리 파라미터 ───────────────────────── */
-    const keyword      = req.query.q      || '';
-    const state        = req.query.state;               // ACTIVE | CLOSED | CANCELLED
-    const activityType = req.query.activityType;        // 필터링
-    const dateStr      = req.query.date;                // YYYY-MM-DD
-    const minAge       = req.query.minAge ? Number(req.query.minAge) : null;
-    const maxAge       = req.query.maxAge ? Number(req.query.maxAge) : null;
-    const page         = Number(req.query.page)  || 1;
-    const limit        = Number(req.query.limit) || 20;
-    const offset       = (page - 1) * limit;
+    const keyword    = req.query.q || '';
+    const state      = req.query.state;               // ACTIVE | CLOSED | CANCELLED
+    const dateStr    = req.query.date;                // YYYY-MM-DD
+    const minAge     = req.query.minAge ? Number(req.query.minAge) : null;
+    const maxAge     = req.query.maxAge ? Number(req.query.maxAge) : null;
+    const page       = Number(req.query.page)  || 1;
+    const limit      = Number(req.query.limit) || 20;
+    const offset     = (page - 1) * limit;
 
-    //DB에 보낼 where 객체 만들기
-    const where = {};
+    // 새로 추가된 필터 파라미터
+    const interestId = req.query.interestId ? Number(req.query.interestId) : null;
+    const visionId   = req.query.visionId   ? Number(req.query.visionId)   : null;
 
+    // 로그인한 유저 ID (선택 사항)
     const userId = req.query.user_id ? Number(req.query.user_id) : null;
+
+    /* ── 2) where 객체 구성 ───────────────────────── */
+    const where = {};
 
     // 키워드 필터 (부분 일치)
     if (keyword) {
@@ -143,16 +146,18 @@ exports.list = async (req, res, next) => {
     }
 
     // 상태 (모집중=ACTIVE, 마감=CLOSED, 취소=CANCELLED)
-    if (state) where.challenge_state = state;
+    if (state) {
+      where.challenge_state = state;
+    }
 
-    // 날짜 (시작일<= 날짜 <= 종료일)
+    // 날짜 필터 (시작일 <= dateStr <= 종료일)
     if (dateStr) {
       const target = new Date(dateStr);
       where.start_date = { [Op.lte]: target };
       where.end_date   = { [Op.gte]: target };
     }
 
-    // 나이
+    // 나이 필터
     if (minAge !== null) {
       where.maximum_age = { ...(where.maximum_age || {}), [Op.gte]: minAge };
     }
@@ -160,91 +165,76 @@ exports.list = async (req, res, next) => {
       where.minimum_age = { ...(where.minimum_age || {}), [Op.lte]: maxAge };
     }
 
-    /* ── 3) include (활동 타입 필터) ─────────────── */
-    /* ── 3) include (활동 타입 필터) ─────────────── */
-    const include = [
-      { model: ChallengeDay, as:'days', attributes:['day_of_week'] },
-      { model: Attachment,   as:'attachments', attributes:['url'] }
-    ];
-
-    // 활동유형이 '교과'나 '비교과'인 경우 -> 관심 테이블에서
-    if (activityType === '교과' || activityType === '비교과') {
-      include.push({
-        model: Interests,
-        as: 'interests',
-        required: true,
-        include: [{
-          model: InterestCategory,
-          as: 'category',
-          where: { category_name: activityType }
-        }],
-        attributes: []
-      });
-    } else if (activityType === '진로') {
-      include.push({
-        model: Visions,
-        as: 'visions',
-        required: true,
-        include: [{
-          model: VisionCategory,
-          as: 'category',
-          where: { category_name: '진로' }
-        }],
-        attributes: []
-      });
+    // 관심사 ID 필터 (Challenge 모델에 interest_id 컬럼이 있어야 함)
+    if (interestId !== null) {
+      where.interest_id = interestId;
     }
 
+    // 비전 ID 필터 (Challenge 모델에 vision_id 컬럼이 있어야 함)
+    if (visionId !== null) {
+      where.vision_id = visionId;
+    }
 
-    /* ───────────────────────────────────────────── */
+    /* ── 3) include 배열 구성 ───────────────────────── */
+    // activityType 관련 include는 모두 제거하고, ChallengeDay와 Attachment만 추가
+    const include = [
+      { model: ChallengeDay, as: 'days',        attributes: ['day_of_week'] },
+      { model: Attachment,   as: 'attachments', attributes: ['url'] }
+    ];
 
     /* ── 4) 조회 & 페이징 ───────────────────────── */
     const { count, rows } = await Challenge.findAndCountAll({
       where,
       include,
-      distinct: true,                 // 중복 count 방지
+      distinct: true,               // include로 인한 중복 count 방지
       limit,
       offset,
-      order:[['created_at','DESC']] //최신 등록순 정렬
+      order: [['created_at', 'DESC']] // 최신 등록순 정렬
     });
 
-    // 3) 로그인한 유저의 참여정보도 한 번에 가져오기
+    /* ── 5) 로그인한 유저 참여정보도 한 번에 가져오기 ───────────────────────── */
     let participationsMap = {};
     if (userId) {
       const challengeIds = rows.map(c => c.challenge_id);
-      // 전체 챌린지들에 대해 이 유저의 참여기록들 조회
+      // 이 유저가 참여한 모든 챌린지 레코드 조회
       const participations = await ParticipatingChallenge.findAll({
         where: {
           challenge_id: challengeIds,
-          user_id: userId
+          user_id:      userId
         }
       });
-      // participation을 {challenge_id: participation객체} 형태로 매핑
+
+      // { challenge_id: 참여객체 } 형태로 매핑
       participationsMap = participations.reduce((acc, p) => {
         acc[p.challenge_id] = p;
         return acc;
       }, {});
     }
 
-    // 4) 각 챌린지 row에 my_participation 값 추가
+    /* ── 6) 각 챌린지 row에 my_participation 추가 ───────────────────────── */
     rows.forEach(row => {
       if (userId) {
         const p = participationsMap[row.challenge_id];
-        row.setDataValue('my_participation', p ? {
-          participating_id: p.participating_id,
-          participating_state: p.participating_state
-        } : null);
+        row.setDataValue(
+          'my_participation',
+          p
+            ? {
+                participating_id:    p.participating_id,
+                participating_state: p.participating_state
+              }
+            : null
+        );
       }
     });
 
-    /* ── 5) 응답 ────────────────────────────────── */
+    /* ── 7) 응답 ───────────────────────── */
     res.json({
-      total : count,
-      page  : page,
-      limit : limit,
-      items : rows
+      totalItems:  count,
+      challenges:  rows,
+      totalPages:  Math.ceil(count / limit),
+      currentPage: page
     });
   } catch (err) {
-    console.error('[Challenge List Error]', err); 
     next(err);
   }
 };
@@ -326,6 +316,16 @@ exports.update = async(req,res,next)=>{
       'creator_contact'
     ];
     updatetable.forEach(f => {if (body[f] !== undefined) challenge[f] = body[f];});
+
+    // ── (2) ▶ challenge_state(상태) 업데이트 로직 추가 ──
+    if (body.challenge_state !== undefined) {
+      const newState = body.challenge_state;
+      const allowed = ['ACTIVE', 'CLOSED', 'CANCELLED'];
+      if (!allowed.includes(newState)) {
+        return res.status(400).json({ error: '잘못된 상태 값' });
+      }
+      challenge.challenge_state = newState;
+    }
     await challenge.save();
     // 요일 수정
     if (body.days){
@@ -361,7 +361,7 @@ exports.remove = async(req,res,next)=>{
 exports.changeState = async(req,res,next)=>{
   try{
     const id    = req.params.id;
-    const state = req.body.challenge_state;       // 'ACTIVE' | 'CLOSED' | 'CANCELLED'
+    const state = req.body.state;       // 'ACTIVE' | 'CLOSED' | 'CANCELLED'
 
     if (!['ACTIVE','CLOSED','CANCELLED'].includes(state))
       return res.status(400).json({ error:'잘못된 상태 값' });

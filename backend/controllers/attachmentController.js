@@ -6,25 +6,45 @@ const path       = require('path');
 exports.add = async (req, res, next) => {
   try {
     const challengeId = req.params.id;
-    const files       = req.files || [];
+    const photosArr   = req.files.photos   || [];
+    const consentsArr = req.files.consents || [];
+    console.log("▶ [첨부파일 추가] req.params.id:", challengeId);
+    console.log("▶ [첨부파일 추가] req.files:", req.files);
+    
 
     // 1) 챌린지 존재 확인
     const challenge = await Challenge.findByPk(challengeId);
     if (!challenge) return res.status(404).json({ error: '챌린지 없음' });
 
-    if (!files.length) {
+    // 2) 업로드할 파일이 하나도 없으면 400 에러
+    if (photosArr.length === 0 && consentsArr.length === 0) {
       return res.status(400).json({ error: '업로드할 파일이 없습니다.' });
     }
 
-    // 2) DB 삽입 준비
-    const rows = files.map(f => ({
-      challenge_id    : challengeId,
-      attachment_name : f.originalname,
-      url             : `/uploads/${f.filename}`,
-      attachment_type : f.mimetype.startsWith('image') ? '이미지' : '기타'
-    }));
+    // 3) DB 삽입용 레코드 배열 준비
+    const rows = [];
 
-    // 3) bulkCreate
+    // 3-1) photosArr → attachment_type: '이미지'
+    photosArr.forEach((f) => {
+      rows.push({
+        challenge_id:    challengeId,
+        attachment_name: f.originalname,
+        url:             `/uploads/${f.filename}`,
+        attachment_type: '이미지'
+      });
+    });
+
+    // 3-2) consentsArr → attachment_type: '동의서'
+    consentsArr.forEach((f) => {
+      rows.push({
+        challenge_id:    challengeId,
+        attachment_name: f.originalname,
+        url:             `/uploads/${f.filename}`,
+        attachment_type: '문서'
+      });
+    });
+
+    // 4) 한꺼번에 Bulk Insert
     const created = await Attachment.bulkCreate(rows);
     res.status(201).json(created);
   } catch (err) {

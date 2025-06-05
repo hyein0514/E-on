@@ -6,7 +6,12 @@ const cors = require('cors');
 // Express 앱 구성
 const { rawConnection: db, sequelize } = require('./database/db.js');
 const express = require('express');
+const path    = require('path'); 
 const app = express();
+
+const upload = require('./config/multer.js');
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 미들웨어
 app.use(express.json());

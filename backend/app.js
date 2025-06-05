@@ -10,7 +10,14 @@ const attendanceRoutes = require('./routes/attendance.js');
 const reviewRoutes = require('./routes/reviewRoutes.js');
 const bookmarkRoutes = require('./routes/bookmarkRoutes.js');
 const attachmentRoutes = require('./routes/attachmentRoutes.js');
+const timeRecommendationRoutes = require('./routes/timeRecommendations');
+const regionRouter = require('./routes/regionRouter'); 
+const boardRoute = require('./routes/boardRoute'); // 게시판 API 라우터
+const averageScheduleRoute = require('./routes/averageScheduleRouter');
+const recommendationRoutes = require('./routes/recommendations');
 
+app.use('/api', recommendationRoutes);
+app.use('/averageSchedule', averageScheduleRoute);
 app.use(express.json());
 
 app.get('/api/hello', (req, res) => {
@@ -30,6 +37,8 @@ app.use('/api', require('./routes/select'));
 
 
 app.use('/api/schoolSchedule', schoolScheduleRoute); // 학사 일정 API 라우터
+
+app.use('/api/time-recommendations', timeRecommendationRoutes);
 
 app.get('/api/users', (req, res) => {
   db.query('SELECT * FROM users', (err, results) => {

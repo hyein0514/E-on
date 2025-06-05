@@ -8,6 +8,7 @@ import CommunityList from "../pages/Community/CommunityList";
 import MyPage from "../pages/MyPage/MyPage";
 import PrivateRoutes from "./PrivateRoutes";
 import ChallengeCreate from "../pages/Challenge/ChallengeCreate";
+import TimeRecommendation from "../pages/Suggestion/TimeRecommendation";
 
 const AppRoutes = () => {
     return (
@@ -19,6 +20,7 @@ const AppRoutes = () => {
             <Route path="/challenge/create" element={<ChallengeCreate />} />
             <Route path="/suggestion" element={<Suggestion />} />
             <Route path="/community" element={<CommunityList />} />
+            <Route path="/recommendation/time" element={<TimeRecommendation />} /> 
             {/*<Route
                 path="/community"
                 element={

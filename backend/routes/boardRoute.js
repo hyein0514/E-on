@@ -40,5 +40,6 @@ router.post('/board-requests', boardController.createBoardRequest);
 router.get('/board-requests', boardController.getAllBoardRequests);
 
 // 게시판 개설 승인
+router.patch('board-requests/:request_id', boardController.updateBoardRequestStatus);
 
 module.exports = router;

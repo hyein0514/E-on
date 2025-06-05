@@ -49,17 +49,12 @@ async function getPostWithComments(post_id) {
             attributes: ['content', 'created_at'],
             include: [{
                 model: User,
-                attributes: ['name'], // User 모델에 name 필드가 있다고 가정
+                attributes: ['name'],
             }]
         }]
     });
 };
 
-
-//  게시글 작성
-//async function createPost({board_id, user_id, content}) {
-
-//};
 
 module.exports = {
     getBoardList,

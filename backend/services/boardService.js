@@ -23,7 +23,7 @@ async function getBoardList(board_id) {
 async function getBoardPost(board_id) {
     try {
         const boardPosts = await Post.findAll({
-            attributes: [ 'title', 'created_at', 'user_id'],
+            attributes: [ 'post_id', 'title', 'created_at', 'user_id'],
             where: { board_id },
             order: [['created_at', 'DESC']],
             limit: 10,                         // 최대 10개만
@@ -45,13 +45,18 @@ async function getPostWithComments(post_id) {
     return await Post.findOne({
         where: { post_id },
         include: [{
-            model: Comment,
-            attributes: ['content', 'created_at'],
-            include: [{
-                model: User,
-                attributes: ['name'],
-            }]
-        }]
+            model: User,
+            attributes: ['name']
+            },
+            {
+                model: Comment,
+                attributes: ['content', 'created_at'],
+                include: [{
+                    model: User,
+                    attributes: ['name'],
+                }]
+            }
+        ]
     });
 };
 

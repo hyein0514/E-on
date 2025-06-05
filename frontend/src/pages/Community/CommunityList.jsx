@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/Common/Header";
 import styles from "../../styles/Community/CommunityList.module.css";
 import { getBoardPosts, getBoardList } from "../../api/communityApi";
@@ -9,6 +10,10 @@ const CommunityList = () => {
   const [activeTab, setActiveTab] = useState("");
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+  const boardId = boardIdMap[activeTab];
+
 
   // 게시판 목록 불러오기
   useEffect(() => {
@@ -41,7 +46,10 @@ useEffect(() => {
     try {
       const boardId = boardIdMap[activeTab];
       const response = await getBoardPosts(boardId);
+      console.log("응답 확인:", response.data);
+
       setPosts(response.data.map(post => ({
+        post_id: post.post_id,
         title: post.title,
         createdAt: post.created_at,
         userId: post.user_id,
@@ -76,25 +84,34 @@ useEffect(() => {
         ))}
       </div>
 
-      {/* 게시판 공지 */}
+      {/* 게시판 공지
       <div className={styles.notice}>
         <span role="img" aria-label="notice">📢</span> 게시판 공지
-      </div>
+      </div> */}
 
       {/* 게시글 목록 */}
-      <div className={styles.list}>
+      <div className={styles.postTable}>
+        {/* 헤더 */}
+        <div className={styles.tableHeader}>
+          <div className={styles.columnTitle}>제목</div>
+          <div className={styles.columnWriter}>글쓴이</div>
+          <div className={styles.columnTime}>작성일</div>
+        </div>
+
         {loading ? (
-          <div className={styles.listRow}>불러오는 중...</div>
+          <div className={styles.tableRow}>불러오는 중...</div>
         ) : posts.length === 0 ? (
-          Array.from({ length: 10 }).map((_, idx) => (
-            <div key={idx} className={styles.listRow}></div>
-          ))
+          <div className={styles.tableRow}>게시글이 없습니다.</div>
         ) : (
           posts.map((post, idx) => (
-            <div key={idx} className={styles.listRow}>
-              <div className={styles.postTitle}>{post.title}</div>
-              <div className={styles.postMeta}>
-                작성자: {post.userName} | 작성일: {new Date(post.createdAt).toLocaleDateString()}
+            <div key={idx} className={styles.tableRow}>
+              <div className={styles.columnTitle}
+              onClick={() => navigate(`/posts/${post.post_id}`)}
+              style={{ cursor: "pointer" }}
+              >{post.title}</div>
+              <div className={styles.columnWriter}>{post.userName}</div>
+              <div className={styles.columnTime}>
+                {new Date(post.createdAt).toLocaleDateString()}
               </div>
             </div>
           ))
@@ -114,6 +131,10 @@ useEffect(() => {
         <span className={styles.pageArrow}>&gt;</span>
       </div>
 
+      {/* 글쓰기 버튼 */}
+      <button className={styles.writeButton}
+      onClick={() => navigate(`/community/${boardId}/write`)}>글쓰기</button>
+      
       {/* 게시판 개설 신청 버튼 */}
       <button className={styles.createButton}>게시판 개설 신청</button>
     </div>

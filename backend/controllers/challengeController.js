@@ -7,12 +7,15 @@ const Visions         = require('../models/Visions');
 const VisionCategory   = require('../models/VisionCategory');
 const InterestCategory = require('../models/InterestCategory');
 const User  = require('../models/User');
+const Bookmark = require('../models/Bookmark');
+const ParticipatingChallenge = require('../models/ParticipatingChallenge');
 
 
 /* ───────────────────────── 챌린지 개설 ───────────────────────── */
 exports.create = async (req, res, next) => {
   const body = req.body.meta ? JSON.parse(req.body.meta) : req.body;
   const files = req.files ?? []
+  
 
   try {
     //필수값 검증
@@ -56,6 +59,9 @@ exports.create = async (req, res, next) => {
         }));
         await ChallengeDay.bulkCreate(bulk, { transaction: t });
       }
+      console.log("프론트에서 넘어온 interestIds:", interestIds);
+      console.log("프론트에서 넘어온 visionIds:", visionIds);
+
       // 관심/진로 매핑
       if (interestIds.length) await challenge.addInterests(interestIds, { transaction: t });
       if (visionIds.length)   await challenge.addVisions(visionIds,   { transaction: t });
@@ -125,6 +131,8 @@ exports.list = async (req, res, next) => {
 
     //DB에 보낼 where 객체 만들기
     const where = {};
+
+    const userId = req.query.user_id ? Number(req.query.user_id) : null;
 
     // 키워드 필터 (부분 일치)
     if (keyword) {
@@ -199,6 +207,35 @@ exports.list = async (req, res, next) => {
       order:[['created_at','DESC']] //최신 등록순 정렬
     });
 
+    // 3) 로그인한 유저의 참여정보도 한 번에 가져오기
+    let participationsMap = {};
+    if (userId) {
+      const challengeIds = rows.map(c => c.challenge_id);
+      // 전체 챌린지들에 대해 이 유저의 참여기록들 조회
+      const participations = await ParticipatingChallenge.findAll({
+        where: {
+          challenge_id: challengeIds,
+          user_id: userId
+        }
+      });
+      // participation을 {challenge_id: participation객체} 형태로 매핑
+      participationsMap = participations.reduce((acc, p) => {
+        acc[p.challenge_id] = p;
+        return acc;
+      }, {});
+    }
+
+    // 4) 각 챌린지 row에 my_participation 값 추가
+    rows.forEach(row => {
+      if (userId) {
+        const p = participationsMap[row.challenge_id];
+        row.setDataValue('my_participation', p ? {
+          participating_id: p.participating_id,
+          participating_state: p.participating_state
+        } : null);
+      }
+    });
+
     /* ── 5) 응답 ────────────────────────────────── */
     res.json({
       total : count,
@@ -217,6 +254,9 @@ exports.detail = async (req, res, next) => {
   try {
     const id = req.params.id;
 
+    const userId = req.query.user_id;
+    
+
     const challenge = await Challenge.findByPk(id, {
       include: [
         { model: User,           as: 'creator',   attributes: ['user_id','name','email'] },
@@ -231,6 +271,16 @@ exports.detail = async (req, res, next) => {
     });
 
     if (!challenge) return res.status(404).json({ error:'존재하지 않는 챌린지' });
+
+     // ★ 여기서 북마크 여부 체크 (user_id 있으면)
+    // 북마크 여부 조회 (userId가 있을 때만)
+      let is_bookmarked = false;
+      if (userId) {
+        const bookmark = await Bookmark.findOne({
+          where: { challenge_id: id, user_id: userId }
+        });
+        is_bookmarked = !!bookmark;
+      }
 
     /* 응답 정리 */
     res.json({
@@ -251,7 +301,8 @@ exports.detail = async (req, res, next) => {
       interests   : challenge.interests,
       visions     : challenge.visions,
       creator_contact: challenge.creator_contact,
-      created_at  : challenge.created_at
+      created_at  : challenge.created_at,
+      is_bookmarked,
     });
   } catch (err) {
     console.error('▶▶ SQL Error Message:', err.parent?.sqlMessage);

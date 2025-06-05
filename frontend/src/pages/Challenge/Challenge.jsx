@@ -4,7 +4,7 @@ import styles from "../../styles/Pages/Challenge.module.css";
 import ChallengeSearchSection from "../../components/Challenge/ChallengeSearchSelection"
 import ChallengeList from "../../components/Challenge/ChallengeList";
 import Pagination from "../../components/Challenge/Pagination";
-import { getChallengeList } from "../../api/challengeApi";
+import { getChallengeList, participateChallenge, cancelParticipation } from "../../api/challengeApi";
 
  const itemsPerPage = 5; // 한 페이지에 보여줄 챌린지 개수
 
@@ -17,12 +17,14 @@ const Challenge = () => {
   const [challenges, setChallenges] = useState([]); // 서버에서 받은 리스트
   const [totalCount, setTotalCount] = useState(0); // 전체 개수(서버에서 페이징할 때 필요)
   const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const userId = 1; 
 
   const fetchChallenges = async () => {
     setLoading(true);
     try {
       // status가 all일 때는 보내지 말고, 아닐 때만 보내는 것도 방법!
-      const params = { page: currentPage, limit: itemsPerPage };
+      const params = { page: currentPage, limit: itemsPerPage, user_id: userId };
       if (search) params.q = search;
       if (filter !== "all") params.status = filter;
 
@@ -50,16 +52,48 @@ const Challenge = () => {
   setCurrentPage(1);
 };
 
-  const handleApply = (id) => {
-    alert(`${id}번 챌린지 신청!`);
-  };
-
     const handlePageChange = (page) => {
     setCurrentPage(page);
   };
 
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+   // ✅ 참여/취소 로직!
+  const handleApply = async ({ challenge_id, isJoined, participationId, participationState }) => {
+    if (actionLoading) return;
+    setActionLoading(true);
+
+    try {
+      if (isJoined) {
+        // 참여 취소
+        if (!participationId) {
+          alert("참여 기록이 없습니다.");
+          setActionLoading(false);
+          return;
+        }
+        await cancelParticipation(participationId);
+        alert("참여가 취소되었습니다.");
+      } else {
+        // 참여 신청
+        if (participationId && participationState === '취소') {
+          await cancelParticipation(participationId);
+          await new Promise(res => setTimeout(res, 200));
+          await participateChallenge(challenge_id, { user_id: userId });
+          alert("참여가 완료되었습니다!");
+        } else {
+          await participateChallenge(challenge_id, { user_id: userId });
+          alert("참여가 완료되었습니다!");
+        }
+      }
+      // 신청/취소 후 리스트 새로고침
+      await fetchChallenges();
+    } catch (error) {
+      alert("참여 처리 중 오류가 발생했습니다.");
+      console.log(error);
+    }
+    setActionLoading(false);
+  };
 
 
   return (

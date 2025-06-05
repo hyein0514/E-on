@@ -27,6 +27,8 @@ const attendanceRoutes = require('./routes/attendance.js');
 const reviewRoutes = require('./routes/reviewRoutes.js');
 const bookmarkRoutes = require('./routes/bookmarkRoutes.js');
 const attachmentRoutes = require('./routes/attachmentRoutes.js');
+const interestsRouter = require('./routes/interest.js');
+const visionsRouter = require('./routes/visions.js');
 
 app.use(express.json());
 app.use('/schoolSchedule', schoolScheduleRoute);
@@ -45,6 +47,8 @@ app.use('/api', attendanceRoutes);
 app.use('/api', reviewRoutes);
 app.use('/api', bookmarkRoutes);
 app.use('/api', attachmentRoutes);
+app.use('/api/interests', interestsRouter);
+app.use('/api/visions', visionsRouter);
 
 
 module.exports = app; // app을 모듈로 내보냄

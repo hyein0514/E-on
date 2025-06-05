@@ -1,11 +1,151 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import { FaBookmark } from "react-icons/fa6";
+import {
+  participateChallenge,
+  cancelParticipation,
+  addBookmark,
+  removeBookmark,
+  deleteChallenge,
+  getChallengeReviews,   // ★ 추가
+} from "../../api/challengeApi";
 
-const ChallengeDetailContent = ({ challenge }) => {
-  const [bookmarked, setBookmarked] = useState(false);
-  const [isJoined, setIsJoined] = useState(false);
+// 리뷰 하나를 보여줄 때 사용하는 컴포넌트 (간단한 예시)
+const ReviewPreview = ({ reviewerName, rating, comment, date }) => {
+  const formatted = date ? date.split("T")[0] : "-"; 
+  return (
+    <div style={{
+      borderBottom: "1px solid #e5e7eb",
+      padding: "8px 0"
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+        <span style={{ fontWeight: 600 }}>{reviewerName}</span>
+        <span style={{ color: "#888", fontSize: 12 }}>{formatted}</span>
+      </div>
+      <div style={{ marginBottom: 4 }}>
+        {/* ★ rating이 0이 아니라면 별표로 표시 */}
+        {rating > 0 ? (
+          <span style={{ color: "#f59e0b", fontSize: 14 }}>
+            {"★".repeat(rating)}
+          </span>
+        ) : null}
+      </div>
+      <div style={{ fontSize: 14, color: "#333" }}>
+        {comment || "(리뷰 내용이 없습니다.)"}
+      </div>
+    </div>
+  );
+};
+
+const ChallengeDetailContent = ({
+  challenge,
+  bookmarked,
+  setBookmarked,
+  userId,
+  isJoined,
+  setIsJoined,
+  participationId,
+  setParticipationId,
+  participationState,
+  refresh,
+}) => {
+
   const navigate = useNavigate();
+  const [actionLoading, setActionLoading] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+
+   useEffect(() => {
+    const fetchReviews = async () => {
+        setReviewsLoading(true);
+        try {
+          const res = await getChallengeReviews(challenge.challenge_id);
+          const data = res.data.map((r) => ({
+            id: r.review_id,
+            reviewerName: r.writer?.name || `유저${r.user_id}`,      // 현재는 user_id만 내려옴 → 임시로 ‘유저1’ 식으로 표기
+            rating: r.rating_stars,               // 별점
+            comment: r.text,                      // 리뷰 텍스트
+            date: r.review_date,                  // ISO 문자열
+          }));
+          setReviews(data);
+        } catch (e) {
+          console.error("리뷰 조회 실패:", e);
+          setReviews([]);
+        } finally {
+          setReviewsLoading(false);
+        }
+      };
+
+      fetchReviews();
+    }, [challenge.challenge_id]);
+
+    const handleCancel = async () => {
+        if (actionLoading) return;
+        setActionLoading(true);
+        try {
+          if (!participationId) {
+            alert("참여 기록이 없습니다.");
+            setActionLoading(false);
+            return;
+          }
+          // 참여취소 API 호출
+          await cancelParticipation(participationId);
+          alert("참여가 취소되었습니다.");
+          await new Promise(res => setTimeout(res, 300));
+          await refresh();
+        } catch (error) {
+          alert("참여 취소 중 오류가 발생했습니다.");
+          console.log(error);
+        }
+        setActionLoading(false);
+      };
+
+    const handleJoin = async () => {
+      if (actionLoading) return;
+      setActionLoading(true);
+
+      // participationState '취소'일 때의 로직
+      if (participationId && participationState === '취소') {
+    try {
+      await cancelParticipation(participationId);
+      await new Promise(res => setTimeout(res, 200));
+    } catch (e) {
+      // 이미 취소 상태 등으로 삭제 실패해도 무시
+      console.log('참여취소 에러(무시)', e);
+    }
+    try {
+      await participateChallenge(challenge.challenge_id, { user_id: userId });
+      alert("참여가 완료되었습니다!");
+      await new Promise(res => setTimeout(res, 300));
+      await refresh();
+    } catch (error) {
+      alert("참여 중 오류가 발생했습니다.");
+    }
+    setActionLoading(false);
+    return;
+  }
+      // 평상시 참여/취소 플로우
+      try {
+        if (isJoined) {
+          await handleCancel();
+          setActionLoading(false);
+          return;
+        }
+        await participateChallenge(challenge.challenge_id, { user_id: userId });
+        alert("참여가 완료되었습니다!");
+        await new Promise(res => setTimeout(res, 300));
+        await refresh();
+      } catch (error) {
+        if (error.response?.status === 409) {
+          alert("이미 참여한 상태입니다. 다시 시도합니다.");
+          await refresh();
+        } else {
+          alert("참여 중 오류가 발생했습니다.");
+        }
+      }
+      setActionLoading(false);
+    };
+
 
   // 1. 상태 한글 변환
   const statusMap = {
@@ -15,16 +155,16 @@ const ChallengeDetailContent = ({ challenge }) => {
   };
   const status = statusMap[challenge.challenge_state] || challenge.challenge_state;
 
-  // 2. 날짜 포맷 함수
-  const formatDate = (iso) => {
-    if (!iso) return "-";
-    const d = new Date(iso);
-    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-  };
+const formatDate = (iso) => {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+};
 
-  // 3. 기간 포맷
-  const period = challenge.start_date && challenge.end_date
-    ? `${formatDate(challenge.start_date)} ~ ${formatDate(challenge.end_date)}`
+// 3. 기간 포맷
+const period =
+  challenge.duration && challenge.duration.start && challenge.duration.end
+    ? `${formatDate(challenge.duration.start)} ~ ${formatDate(challenge.duration.end)}`
     : "-";
 
   // 4. 연령 파싱
@@ -80,8 +220,6 @@ const ChallengeDetailContent = ({ challenge }) => {
       </>
     );
 
-
-
   // 9. 개설자
   const phone =
     challenge.creator && challenge.creator.phone
@@ -97,15 +235,39 @@ const ChallengeDetailContent = ({ challenge }) => {
   const handleDelete = async () => {
     if (window.confirm("정말로 이 챌린지를 삭제하시겠습니까?")) {
       try {
-        // 실제 API 경로에 맞게 고쳐주세요
-        await axios.delete(`/api/challenges/${challenge.challenge_id}`);
+        await deleteChallenge(challenge.challenge_id);
         alert("챌린지가 삭제되었습니다.");
-        navigate("/challenge");
+        navigate("/challenge"); // 목록 페이지로 이동
       } catch (e) {
         alert("삭제에 실패했습니다. 다시 시도해주세요.");
       }
     }
   };
+
+  // 북마크 토글 함수
+const toggleBookmark = async () => {
+  const userId = 1; // 테스트용 하드코딩 or 로그인된 유저 아이디로 바꿔야 함
+  try {
+    if (bookmarked) {
+      await removeBookmark(challenge.challenge_id, userId);
+      setBookmarked(false);
+      alert("북마크가 해제되었습니다!");
+    } else {
+      await addBookmark(challenge.challenge_id, userId);
+      setBookmarked(true);
+      alert("북마크에 추가되었습니다!");
+    }
+  } catch (e) {
+    if (e.response && e.response.status === 409) {
+      setBookmarked(true);
+      alert("이미 북마크되어 있습니다!");
+    } else {
+      alert("북마크 처리 중 오류가 발생했습니다.");
+    }
+  }
+};
+
+
 
   return (
     <div style={{
@@ -157,7 +319,7 @@ const ChallengeDetailContent = ({ challenge }) => {
           </button>
           {/* 북마크 */}
           <button
-            onClick={() => setBookmarked(b => !b)}
+            onClick={toggleBookmark}
             style={{
               background: "none",
               border: "none",
@@ -168,11 +330,10 @@ const ChallengeDetailContent = ({ challenge }) => {
             <FaBookmark size={25} color={bookmarked ? "#38bdf8" : "#bbb"} />
           </button>
           {/* 신청/취소 */}
-          {isJoined ? (
-            <button
+          <button
               style={{
-                background: "#f3f3f3",
-                color: "#e11d48",
+                background: isJoined ? "#f3f3f3" : "#e5e7eb",
+                color: isJoined ? "#e11d48" : "#222",
                 border: "none",
                 borderRadius: 8,
                 padding: "9px 28px",
@@ -180,33 +341,10 @@ const ChallengeDetailContent = ({ challenge }) => {
                 fontSize: 16,
                 cursor: "pointer"
               }}
-              onClick={() => {
-                setIsJoined(false);
-                alert("참여가 취소되었습니다!");
-              }}
+               onClick={isJoined ? handleCancel : handleJoin}
             >
-              참여 취소
+              {isJoined ? "참여 취소" : "신청하기"}
             </button>
-          ) : (
-            <button
-              style={{
-                background: "#e5e7eb",
-                color: "#222",
-                border: "none",
-                borderRadius: 8,
-                padding: "9px 28px",
-                fontWeight: "bold",
-                fontSize: 16,
-                cursor: "pointer"
-              }}
-              onClick={() => {
-                setIsJoined(true);
-                alert("신청이 완료되었습니다!");
-              }}
-            >
-              신청하기
-            </button>
-          )}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <button
@@ -327,14 +465,37 @@ const ChallengeDetailContent = ({ challenge }) => {
               </button>
             </div>
           </div>
-          <div style={{
-            border: "1.5px solid #e5e7eb",
-            borderRadius: 8,
-            background: "#fafafa",
-            minHeight: 38,
-            padding: "8px 15px",
-          }}>
-            (리뷰 리스트 자리)
+
+          {/* ── 실제 리뷰를 최대 3개만 미리 보여주는 영역 ── */}
+          <div
+            style={{
+              border: "1.5px solid #e5e7eb",
+              borderRadius: 8,
+              background: "#fafafa",
+              minHeight: 80,
+              padding: "8px 15px",
+            }}
+          >
+            {reviewsLoading ? (
+              <div style={{ textAlign: "center", color: "#888" }}>
+                리뷰 불러오는 중…
+              </div>
+            ) : reviews.length === 0 ? (
+              <div style={{ color: "#666", fontSize: 14 }}>
+                등록된 리뷰가 없습니다.
+              </div>
+            ) : (
+              // 리뷰가 하나라도 있으면, 앞의 3개만 보여준다
+              reviews.slice(0, 3).map((rv) => (
+                <ReviewPreview
+                  key={rv.id}
+                  reviewerName={rv.reviewerName}
+                  rating={rv.rating}
+                  comment={rv.comment}
+                  date={rv.date}
+                />
+              ))
+            )}
           </div>
         </div>
       </div>

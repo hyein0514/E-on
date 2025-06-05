@@ -1,5 +1,6 @@
 const Review    = require('../models/Review');
 const Challenge = require('../models/Challenge');
+const User = require('../models/User');
 
 /* 13) 리뷰 작성 ----------------------------------------------- */
 exports.create = async (req, res, next) => {
@@ -26,12 +27,24 @@ exports.create = async (req, res, next) => {
 exports.list = async (req, res, next) => {
   try {
     const challengeId = req.params.id;
+
     const rows = await Review.findAll({
-      where:{ challenge_id: challengeId },
-      order:[['review_date','DESC']]
+      where: { challenge_id: challengeId },
+      include: [
+        {
+          model: User,
+          as       : 'writer',         // Review.belongsTo(User, { as: 'user' })
+          attributes: ['user_id', 'name']
+        }
+      ],
+      order: [['review_date', 'DESC']]
     });
+
+    /* 이제 rows 안에 { review_id, rating_stars, text, …, user: { user_id, name } } 형태로 내려옴 */
     res.json(rows);
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 };
 
 /* 15) 리뷰 수정 ----------------------------------------------- */

@@ -14,7 +14,14 @@ const ChallengeList = ({ challenges, onApply }) => {
         <ChallengeListItem
           key={challenge.challenge_id}
           {...challenge}
-          onApply={() => onApply(challenge.challenge_id)}
+          onApply={() =>
+            onApply({
+              challenge_id: challenge.challenge_id,
+              isJoined: !!challenge.my_participation && challenge.my_participation.participating_state !== "취소",
+              participationId: challenge.my_participation?.participating_id,
+              participationState: challenge.my_participation?.participating_state,
+            })
+          }
         />
       ))}
     </div>
@@ -22,4 +29,3 @@ const ChallengeList = ({ challenges, onApply }) => {
 };
 
 export default ChallengeList;
-

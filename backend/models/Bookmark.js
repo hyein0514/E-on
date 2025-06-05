@@ -4,8 +4,9 @@ const User = require('./User');
 const Challenge = require('./Challenge');
 
 const Bookmark = sequelize.define('Bookmark', {}, {
-  tableName :'Bookmarks',
-  timestamps:false
+  tableName :'bookmarks',
+  timestamps:false,
+  freezeTableName: true,
 });
 
 Bookmark.belongsTo(User,      { foreignKey:'user_id' });

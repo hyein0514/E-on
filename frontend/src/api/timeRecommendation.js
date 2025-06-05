@@ -1,8 +1,10 @@
-import axios from 'axios';
+// src/api/timeRecommendation.js
+import axios from './axiosInstance';
 
-export const fetchTimeRecommendations = async (grade, month) => {
-    const response = await axios.get(
-    `/api/time-recommendations?grade=${grade}&month=${month}`
-);
-return response.data.data;
+export const fetchTimeRecommendations = async (schoolType, month) => {
+  const response = await axios.get(
+    `/api/time-recommendations?schoolType=${schoolType}&month=${month}`
+  );
+  return response.data;
 };
+

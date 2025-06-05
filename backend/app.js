@@ -1,6 +1,8 @@
+//app.js
 require('dotenv').config();
 const { rawConnection: db, sequelize } = require('./database/db.js');
 const express = require('express');
+const cors = require('cors');
 const app = express();
 
 const schoolScheduleRoute = require('./routes/schoolScheduleRoute'); // 학사 일정 API 라우터
@@ -15,16 +17,17 @@ const regionRouter = require('./routes/regionRouter');
 const boardRoute = require('./routes/boardRoute'); // 게시판 API 라우터
 const averageScheduleRoute = require('./routes/averageScheduleRouter');
 const recommendationRoutes = require('./routes/recommendations');
-
+const preferenceRoutes = require('./routes/preferencesRoutes');
+app.use(cors()); // ✅ CORS 사용
 app.use('/api', recommendationRoutes);
 app.use('/averageSchedule', averageScheduleRoute);
 app.use(express.json());
-
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from Node.js!' });
 });
-
+app.use('/api/preferences', preferenceRoutes);
 // 학사 일정 API 라우터
+
 app.use('/schoolSchedule', schoolScheduleRoute);
 
 // 지역 API 라우터

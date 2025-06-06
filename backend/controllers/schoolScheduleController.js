@@ -41,3 +41,27 @@ exports.getSchedule = async (req, res) => {
         res.status(500).json({ error: "학사 일정 조회 실패" });
     }
 };
+
+exports.getAllSchedule = async (req, res) => {
+    try {
+        const { schoolId, atptCode } = req.params;
+        const { year, grade } = req.query;
+
+        if (!schoolId || !atptCode) {
+            return res.status(400).json({
+                error: "schoolId와 atptCode(교육청 코드)는 필수입니다",
+            });
+        }
+
+        const schedule = await schoolscheduleService.getAllSchoolSchedule(
+            schoolId,
+            atptCode,
+            { year, grade }
+        );
+
+        res.json(schedule);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "전국 학사 일정 조회 실패" });
+    }
+};

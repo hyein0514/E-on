@@ -48,10 +48,14 @@ export const getParticipationDetail = (participationId) => {
   return axiosInstance.get(`/participations/${participationId}`);
 };
 
+// export const getParticipationDetailForUser = (challengeId, userId) => {
+//   return axiosInstance.get(`/challenge/${challengeId}/user/${userId}`);
+// };
+
 export const getParticipationDetailForUser = (challengeId, userId) => {
-  // 만약 서버 라우터가 /api로 시작한다면 /api/challenge/...
-  return axiosInstance.get(`/challenge/${challengeId}/user/${userId}`);
-  // 만약 /api/challenge/...이 아니라면 그냥 /challenge/... 사용
+  return axiosInstance.get(`/challenges/${challengeId}`, {
+    params: { user_id: userId }
+  });
 };
 
 // 9. 챌린지 출석 기록 조회

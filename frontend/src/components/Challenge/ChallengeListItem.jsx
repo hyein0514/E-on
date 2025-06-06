@@ -13,14 +13,7 @@ const statusStyle = {
   },
 };
 
-function formatDateRange(start, end) {
-  const toKoreanDate = (dateStr) => {
-    if (!dateStr) return "";
-    const d = new Date(dateStr);
-    return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
-  };
-  return `${toKoreanDate(start)} ~ ${toKoreanDate(end)}`;
-}
+function formatDateRange(start, end) { /* ... */ }
 
 const ChallengeListItem = ({
   challenge_id,
@@ -29,25 +22,21 @@ const ChallengeListItem = ({
   start_date,
   end_date,
   onApply,
-  my_participation // <- 추가!
+  my_participation
 }) => {
   const navigate = useNavigate();
 
-  // 상태 한글 변환
-  const statusMap = {
-    ACTIVE: "모집중",
-    CLOSED: "마감",
-    CANCELLED: "취소됨"
-  };
+  // ① challenge_state → 한국어
+  const statusMap = { ACTIVE: "모집중", CLOSED: "마감", CANCELLED: "취소됨" };
   const status = statusMap[challenge_state] || challenge_state;
 
-  // 참여 상태 계산
+  // ② 참여 여부
   const isJoined =
     !!my_participation && my_participation.participating_state !== "취소";
   const participationId = my_participation?.participating_id;
   const participationState = my_participation?.participating_state;
 
-  // 상세페이지로 이동
+  // ③ 상세 페이지 이동 함수
   const handleGoDetail = () => {
     navigate(`/challenge/${challenge_id}`);
   };
@@ -66,7 +55,7 @@ const ChallengeListItem = ({
         minHeight: "68px",
         cursor: "pointer"
       }}
-      onClick={handleGoDetail}
+      onClick={handleGoDetail}   // ← 이 부분이 있어야 클릭 시 디테일로 이동
     >
       {/* 상태 박스 */}
       <div
@@ -79,21 +68,25 @@ const ChallengeListItem = ({
           padding: "7px 0",
           ...statusStyle[status]
         }}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()} // 상태 박스 클릭은 디테일 이동 방지
       >
         {status}
       </div>
+
       {/* 챌린지명 & 날짜 */}
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: "17px", fontWeight: "bold", marginBottom: "5px" }}>
           {title}
         </div>
-        <div style={{ fontSize: "14px", color: "#6b7280" }}>{formatDateRange(start_date, end_date)}</div>
+        <div style={{ fontSize: "14px", color: "#6b7280" }}>
+          {formatDateRange(start_date, end_date)}
+        </div>
       </div>
+
       {/* 신청하기/참여취소 버튼 */}
       <button
-        onClick={e => {
-          e.stopPropagation();
+        onClick={(e) => {
+          e.stopPropagation();   // 버튼 클릭 시 부모 onClick(=상세이동) 방지
           onApply({
             challenge_id,
             isJoined,

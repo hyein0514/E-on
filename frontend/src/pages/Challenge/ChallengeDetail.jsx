@@ -23,11 +23,23 @@ const ChallengeDetail = () => {
     setBookmarked(!!res.data.is_bookmarked);
 
     try {
-      // 참여 기록 있으면 참여상태 설정
-      const participationRes = await getParticipationDetailForUser(id, userId);
-      setParticipationState(participationRes.data?.participating_state || null);
-      setIsJoined(['신청', '참여', 'APPROVED'].includes(participationRes.data?.participating_state));
-      setParticipationId(participationRes.data?.participating_id || null);
+      // // 참여 기록 있으면 참여상태 설정
+      // const participationRes = await getParticipationDetailForUser(id, userId);
+      // setParticipationState(participationRes.data?.participating_state || null);
+      // setIsJoined(['신청', '참여', 'APPROVED'].includes(participationRes.data?.participating_state));
+      // setParticipationId(participationRes.data?.participating_id || null);
+      // 변경된 방식: res.data.my_participation 안에 참여 정보가 들어 있습니다.
+        const participationRes = await getParticipationDetailForUser(id, userId);
+        const mp = participationRes.data?.my_participation || null;
+        if (mp) {
+          setParticipationState(mp.participating_state);
+          setIsJoined(mp.participating_state !== "취소");
+          setParticipationId(mp.participating_id);
+        } else {
+          setParticipationState(null);
+          setIsJoined(false);
+          setParticipationId(null);
+        }
     } catch (e) {
       // 참여 기록이 없어서 404 뜨면 여기에 들어옴. 여기선 participation 값만 null!
       setParticipationState(null);

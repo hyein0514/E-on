@@ -1,14 +1,17 @@
 const { Op } = require('sequelize');
-const Challenge     = require('../models/Challenge');
-const ChallengeDay  = require('../models/ChallengeDay');
-const Attachment      = require('../models/Attachment');
-const Interests       = require('../models/Interests');
-const Visions         = require('../models/Visions');
-const VisionCategory   = require('../models/VisionCategory');
-const InterestCategory = require('../models/InterestCategory');
-const User  = require('../models/User');
-const Bookmark = require('../models/Bookmark');
-const ParticipatingChallenge = require('../models/ParticipatingChallenge');
+const db = require('../models');
+const { ChallengeInterest, ChallengeVision, Interests, Visions, Challenge, ChallengeDay, Attachment, ParticipatingChallenge, User, Bookmark } = db;
+
+// const Challenge     = require('../models/Challenge');
+// const ChallengeDay  = require('../models/ChallengeDay');
+// const Attachment      = require('../models/Attachment');
+// const Interests       = require('../models/Interests');
+// const Visions         = require('../models/Visions');
+// const User  = require('../models/User');
+// const Bookmark = require('../models/Bookmark');
+// const ParticipatingChallenge = require('../models/ParticipatingChallenge');
+// const ChallengeInterest = require('../models/ChallengeInterest');
+// const ChallengeVision = require('../models/ChallengeVision');
 
 
 /* ───────────────────────── 챌린지 개설 ───────────────────────── */
@@ -115,42 +118,49 @@ exports.create = async (req, res, next) => {
 };
 
 /* ───────────────────────── 챌린지 조회 ───────────────────────── */
+
 exports.list = async (req, res, next) => {
   try {
     /* ── 1) 쿼리 파라미터 ───────────────────────── */
-    const keyword    = req.query.q || '';
-    const state      = req.query.state;               // ACTIVE | CLOSED | CANCELLED
-    const dateStr    = req.query.date;                // YYYY-MM-DD
-    const minAge     = req.query.minAge ? Number(req.query.minAge) : null;
-    const maxAge     = req.query.maxAge ? Number(req.query.maxAge) : null;
+    const keyword    = req.query.q      || "";
+    const state      = req.query.state;
+    const dateStr    = req.query.date;
+
+    const minAge =
+      req.query.minAge !== undefined && req.query.minAge !== ""
+        ? Number(req.query.minAge)
+        : null;
+    const maxAge =
+      req.query.maxAge !== undefined && req.query.maxAge !== ""
+        ? Number(req.query.maxAge)
+        : null;
+
     const page       = Number(req.query.page)  || 1;
     const limit      = Number(req.query.limit) || 20;
     const offset     = (page - 1) * limit;
 
-    // 새로 추가된 필터 파라미터
     const interestId = req.query.interestId ? Number(req.query.interestId) : null;
     const visionId   = req.query.visionId   ? Number(req.query.visionId)   : null;
+    const userId     = req.query.user_id    ? Number(req.query.user_id)    : null;
 
-    // 로그인한 유저 ID (선택 사항)
-    const userId = req.query.user_id ? Number(req.query.user_id) : null;
 
     /* ── 2) where 객체 구성 ───────────────────────── */
     const where = {};
 
-    // 키워드 필터 (부분 일치)
+    // 키워드 필터
     if (keyword) {
       where[Op.or] = [
-        { title:       { [Op.like]: `%${keyword}%` } },
-        { description: { [Op.like]: `%${keyword}%` } }
+        { challenge_title:       { [Op.like]: `%${keyword}%` } },
+        { challenge_description: { [Op.like]: `%${keyword}%` } }
       ];
     }
 
-    // 상태 (모집중=ACTIVE, 마감=CLOSED, 취소=CANCELLED)
+    // 상태 필터
     if (state) {
       where.challenge_state = state;
     }
 
-    // 날짜 필터 (시작일 <= dateStr <= 종료일)
+    // 날짜 필터
     if (dateStr) {
       const target = new Date(dateStr);
       where.start_date = { [Op.lte]: target };
@@ -159,60 +169,101 @@ exports.list = async (req, res, next) => {
 
     // 나이 필터
     if (minAge !== null) {
-      where.maximum_age = { ...(where.maximum_age || {}), [Op.gte]: minAge };
+    where.minimum_age = { [Op.gte]: minAge };
     }
     if (maxAge !== null) {
-      where.minimum_age = { ...(where.minimum_age || {}), [Op.lte]: maxAge };
-    }
-
-    // 관심사 ID 필터 (Challenge 모델에 interest_id 컬럼이 있어야 함)
-    if (interestId !== null) {
-      where.interest_id = interestId;
-    }
-
-    // 비전 ID 필터 (Challenge 모델에 vision_id 컬럼이 있어야 함)
-    if (visionId !== null) {
-      where.vision_id = visionId;
+      where.maximum_age = { [Op.lte]: maxAge };
     }
 
     /* ── 3) include 배열 구성 ───────────────────────── */
-    // activityType 관련 include는 모두 제거하고, ChallengeDay와 Attachment만 추가
     const include = [
-      { model: ChallengeDay, as: 'days',        attributes: ['day_of_week'] },
-      { model: Attachment,   as: 'attachments', attributes: ['url'] }
+      {
+        model: ChallengeDay,
+        as: 'days',
+        attributes: ['day_of_week']
+      },
+      {
+        model: Attachment,
+        as: 'attachments',
+        attributes: ['url']
+      }
     ];
+
+    // 3-1) 관심사 필터
+    if (interestId) {
+      include.push({
+        model: Interests,
+        as: 'interests',
+        required: true,
+        through: {
+          model: ChallengeInterest,
+          as: 'ChallengeInterest',
+          where: { interest_id: interestId },
+          attributes: []       // 조인 테이블(in Steering) 데이터 노출 안 함
+        },
+        attributes: ['interest_id', 'interest_detail']
+      });
+    } else {
+      // 필터가 없을 때라도 순수한 관심사 정보만 포함
+      include.push({
+        model: Interests,
+        as: 'interests',
+        through: { attributes: [] }, // 조인 테이블 데이터 숨김
+        attributes: ['interest_id', 'interest_detail']
+      });
+    }
+
+    // 3-2) 비전 필터
+    if (visionId) {
+      include.push({
+        model: Visions,
+        as: 'visions',
+        required: true,
+        through: {
+          model: ChallengeVision,
+          as: 'ChallengeVision',
+          where: { vision_id: visionId },
+          attributes: []      // 조인 테이블 데이터 숨김
+        },
+        attributes: ['vision_id', 'vision_detail']
+      });
+    } else {
+      include.push({
+        model: Visions,
+        as: 'visions',
+        through: { attributes: [] }, // 조인 테이블 데이터 숨김
+        attributes: ['vision_id', 'vision_detail']
+      });
+    }
 
     /* ── 4) 조회 & 페이징 ───────────────────────── */
     const { count, rows } = await Challenge.findAndCountAll({
       where,
       include,
-      distinct: true,               // include로 인한 중복 count 방지
+      distinct: true,               // 조인으로 인한 중복 방지
       limit,
       offset,
-      order: [['created_at', 'DESC']] // 최신 등록순 정렬
+      order: [['created_at', 'DESC']]
     });
 
-    /* ── 5) 로그인한 유저 참여정보도 한 번에 가져오기 ───────────────────────── */
+    /* ── 5) 로그인 유저 참여정보 매핑 ───────────────────────── */
     let participationsMap = {};
     if (userId) {
-      const challengeIds = rows.map(c => c.challenge_id);
-      // 이 유저가 참여한 모든 챌린지 레코드 조회
+      const challengeIds = rows.map((c) => c.challenge_id);
       const participations = await ParticipatingChallenge.findAll({
         where: {
           challenge_id: challengeIds,
           user_id:      userId
         }
       });
-
-      // { challenge_id: 참여객체 } 형태로 매핑
       participationsMap = participations.reduce((acc, p) => {
         acc[p.challenge_id] = p;
         return acc;
       }, {});
     }
 
-    /* ── 6) 각 챌린지 row에 my_participation 추가 ───────────────────────── */
-    rows.forEach(row => {
+    /* ── 6) my_participation 필드 추가 ───────────────────────── */
+    rows.forEach((row) => {
       if (userId) {
         const p = participationsMap[row.challenge_id];
         row.setDataValue(
@@ -227,7 +278,7 @@ exports.list = async (req, res, next) => {
       }
     });
 
-    /* ── 7) 응답 ───────────────────────── */
+    /* ── 7) 결과 응답 ───────────────────────── */
     res.json({
       totalItems:  count,
       challenges:  rows,
@@ -239,38 +290,131 @@ exports.list = async (req, res, next) => {
   }
 };
 
+
+
+
 /* ───────────────────────── 챌린지 상세조회 ───────────────────────── */
 exports.detail = async (req, res, next) => {
   try {
     const id = req.params.id;
 
     const userId = req.query.user_id;
-    
 
+     // (1) 공통 include 항목들
+    const includeArr = [
+      {
+        model: User,
+        as: "creator",
+        attributes: ["user_id", "name", "email"]
+      },
+      {
+        model: ChallengeDay,
+        as: "days",
+        attributes: ["day_of_week"]
+      },
+      {
+        model: Attachment,
+        as: "attachments",
+        attributes: ["attachment_id", "url", "attachment_type"]
+      },
+      {
+        model: Interests,
+        as: "interests",
+        through: { attributes: [] },
+        attributes: ["interest_id", "interest_detail"]
+      },
+      {
+        model: Visions,
+        as: "visions",
+        through: { attributes: [] },
+        attributes: ["vision_id", "vision_detail"]
+      }
+    ];
+
+    // (2) userId가 정의되어 있을 때만, ParticipatingChallenge를 include
+    if (userId !== undefined) {
+      includeArr.push({
+        model: ParticipatingChallenge,
+        as: "participants", // Challenge 모델에서 정의된 alias
+        where: { user_id: userId },
+        required: false,
+        attributes: ["participating_id", "participating_state"]
+      });
+    }
+
+    // (3) findByPk 호출
     const challenge = await Challenge.findByPk(id, {
-      include: [
-        { model: User,           as: 'creator',   attributes: ['user_id','name','email'] },
-        { model: ChallengeDay,   as: 'days',      attributes: ['day_of_week'] },
-        { model: Attachment,     as: 'attachments',
-          attributes: ['attachment_id','url','attachment_type'] },
-        { model: Interests,      as: 'interests',
-          through:{ attributes:[] }, attributes:['interest_id','interest_detail'] },
-        { model: Visions,        as: 'visions',
-          through:{ attributes:[] }, attributes:['vision_id','vision_detail'] }
-      ]
+      include: includeArr
     });
 
-    if (!challenge) return res.status(404).json({ error:'존재하지 않는 챌린지' });
+    if (!challenge) {
+      return res.status(404).json({ error: "존재하지 않는 챌린지" });
+    }
 
-     // ★ 여기서 북마크 여부 체크 (user_id 있으면)
-    // 북마크 여부 조회 (userId가 있을 때만)
-      let is_bookmarked = false;
-      if (userId) {
-        const bookmark = await Bookmark.findOne({
-          where: { challenge_id: id, user_id: userId }
-        });
-        is_bookmarked = !!bookmark;
-      }
+    // (4) 북마크 여부 체크
+    let is_bookmarked = false;
+    if (userId) {
+      const bookmark = await Bookmark.findOne({
+        where: { challenge_id: id, user_id: userId }
+      });
+      is_bookmarked = !!bookmark;
+    }
+
+    // (5) my_participation 재구성
+    let myParticipation = null;
+    if (userId !== undefined && challenge.participants && challenge.participants.length > 0) {
+      // participants[0]에 해당 userId의 참여 레코드가 들어옴
+      const pc = challenge.participants[0];
+      myParticipation = {
+        participating_id:    pc.participating_id,
+        participating_state: pc.participating_state
+      };
+    }
+    
+
+    // const challenge = await Challenge.findByPk(id, {
+    //   include: [
+    //     { model: User,           as: 'creator',   attributes: ['user_id','name','email'] },
+    //     { model: ChallengeDay,   as: 'days',      attributes: ['day_of_week'] },
+    //     { model: Attachment,     as: 'attachments',
+    //       attributes: ['attachment_id','url','attachment_type'] },
+    //     { model: Interests,      as: 'interests',
+    //       through:{ attributes:[] }, attributes:['interest_id','interest_detail'] },
+    //     { model: Visions,        as: 'visions',
+    //       through:{ attributes:[] }, attributes:['vision_id','vision_detail'] },
+    //       {
+    //       model: ParticipatingChallenge,
+    //       as: "participants",  // alias
+    //       where: { user_id: userId },
+    //       required: false,         // userId 참여 기록이 없어도 챌린지를 리턴하기 위해 false
+    //       attributes: ["participating_id", "participating_state"]
+    //     }
+    //   ]
+    // });
+
+    
+
+    // if (!challenge) return res.status(404).json({ error:'존재하지 않는 챌린지' });
+
+    //  // ★ 여기서 북마크 여부 체크 (user_id 있으면)
+    // // 북마크 여부 조회 (userId가 있을 때만)
+    //   let is_bookmarked = false;
+    //   if (userId) {
+    //     const bookmark = await Bookmark.findOne({
+    //       where: { challenge_id: id, user_id: userId }
+    //     });
+    //     is_bookmarked = !!bookmark;
+    //   }
+
+    //   let myParticipation = null;
+    //    if (challenge.my_participation && challenge.my_participation.length > 0) {
+    //   // 배열이지만 where:user_id이므로 인덱스 0에 값이 하나만 들어옴
+    //   const mp = challenge.my_participation[0];
+    //     myParticipation = {
+    //       participating_id:    mp.participating_id,
+    //       participating_state: mp.participating_state
+    //     };
+    //   }
 
     /* 응답 정리 */
     res.json({
@@ -293,6 +437,7 @@ exports.detail = async (req, res, next) => {
       creator_contact: challenge.creator_contact,
       created_at  : challenge.created_at,
       is_bookmarked,
+      my_participation: myParticipation,
     });
   } catch (err) {
     console.error('▶▶ SQL Error Message:', err.parent?.sqlMessage);

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { fetchTimeRecommendations } from "../../api/timeRecommendation";
-import RecommendationCard from "../../components/Suggestion/RecommendationCard";
+import TimeRecommendationCard from "../../components/Suggestion/TimeRecommendationCard";
 import RecommendationModal from "../../components/Suggestion/RecommendationModal";
 import styles from "./TimeRecommendation.module.css";
 import { FaCalendarAlt } from "react-icons/fa";
@@ -70,7 +70,7 @@ const TimeRecommendation = () => {
       ) : (
         <div className={styles.cardList}>
           {recommendations.map((item) => (
-            <RecommendationCard
+            <TimeRecommendationCard
               key={item.item_id}
               item={item}
               onClick={() => setSelectedItem(item)}

@@ -18,6 +18,10 @@ const Post = sequelize.define('Post', {
     type: DataTypes.BIGINT,
     allowNull: false,
   },
+  title: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  },
   content: {
     type: DataTypes.TEXT,
   },
@@ -44,6 +48,10 @@ Post.belongsTo(User, {
 
 Board.hasMany(Post, {
   foreignKey: 'board_id',
+  onDelete: 'CASCADE'
+});
+User.hasMany(Post, {
+  foreignKey: 'user_id',
   onDelete: 'CASCADE'
 });
 

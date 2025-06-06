@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { fetchRecommendationsByPreference } from "../../api/preference";
-import RecommendationCard from "../../components/Suggestion/RecommendationCard";
+import PersonalRecommendationCard from "../../components/Suggestion/PersonalRecommendationCard";
 import styles from "./RecommendationResult.module.css";
 
 const RecommendationResult = () => {
@@ -26,7 +26,7 @@ const RecommendationResult = () => {
 ) : (
   recommendations.map((item) =>
     item ? (
-      <RecommendationCard key={item.challenge_id} challenge={item} />
+      <PersonalRecommendationCard key={item.challenge_id} challenge={item} />
     ) : null
   )
 )}

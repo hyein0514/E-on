@@ -1,14 +1,14 @@
 import React from "react";
 import styles from "./RecommendationCard.module.css";
 
-const RecommendationCard = ({ challenge }) => {
+const PersonalRecommendationCard = ({ challenge }) => {
   const {
     challenge_title,
     challenge_description,
     start_date,
     application_deadline,
     end_date,
-    image_url,
+    image_url
   } = challenge;
 
   return (
@@ -33,4 +33,4 @@ const RecommendationCard = ({ challenge }) => {
   );
 };
 
-export default RecommendationCard;
+export default PersonalRecommendationCard;

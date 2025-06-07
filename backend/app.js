@@ -10,6 +10,9 @@ const attendanceRoutes = require('./routes/attendance.js');
 const reviewRoutes = require('./routes/reviewRoutes.js');
 const bookmarkRoutes = require('./routes/bookmarkRoutes.js');
 const attachmentRoutes = require('./routes/attachmentRoutes.js');
+const regionRouter = require('./routes/regionRouter');
+const boardRoute = require('./routes/boardRoute.js');
+
 
 app.use(express.json());
 

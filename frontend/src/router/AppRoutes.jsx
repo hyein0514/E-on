@@ -7,6 +7,7 @@ import Suggestion from "../pages/Suggestion/Suggestion";
 import CommunityList from "../pages/Community/CommunityList";
 import CommunityWrite from "../pages/Community/CommunityWrite";
 import CommunityEdit from "../pages/Community/CommunityEdit";
+import BoardRequestPage from "../pages/Community/BoardRequestPage";
 import PostDetail from "../pages/Community/PostDetail";
 import MyPage from "../pages/MyPage/MyPage";
 import PrivateRoutes from "./PrivateRoutes";
@@ -38,12 +39,12 @@ const AppRoutes = () => {
             <Route path="/challenge/:id/edit" element={<ChallengeEdit />} />
             <Route path="/challenge/:challengeId/review/:reviewId/edit" element={<ReviewEdit />} />
             
-            <Route path="/community" element={<CommunityList />} />
             <Route path="/recommendation/time" element={<TimeRecommendation />} /> 
             <Route path="/suggestion/preferences" element={<PreferenceInterest />} />
             <Route path="/suggestion/preferences/vision" element={<PreferenceVision />} />
             <Route path="/suggestion/recommendation" element={<RecommendationResult />} />
 
+            <Route path="/community" element={<CommunityList />} />
             {/*<Route
                 path="/community"
                 element={
@@ -54,6 +55,7 @@ const AppRoutes = () => {
             />*/}
             <Route path="/community/:board_id/write" element={<CommunityWrite />} />
             <Route path="/posts/:post_id" element={<PostDetail />} />
+            <Route path="/community/board-requests" element={<BoardRequestPage />} />
 
             <Route
                 path="/mypage/:userId"

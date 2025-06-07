@@ -1,42 +1,80 @@
+// src/pages/reviews/ReviewEdit.jsx
+
 import Header from "../../components/Common/Header";
 import ReviewCreateForm from "../../components/Review/ReviewCreateForm";
 import { useParams, useNavigate } from "react-router-dom";
+import { getChallengeReviews, updateReview } from "../../api/challengeApi";
 import { useEffect, useState } from "react";
-
-// 임시 더미 데이터 (API 연동 전용)
-const dummyReviews = [
-  { id: 1, challengeId: 1, title: "정말 유익했어요!", rating: 5, content: "도움됐음", date: "2025-05-30" },
-  { id: 2, challengeId: 1, title: "좋은 경험", rating: 4, content: "꽤 괜찮았어요.", date: "2025-05-29" }
-];
 
 const ReviewEdit = () => {
   const { challengeId, reviewId } = useParams();
   const navigate = useNavigate();
-  const [review, setReview] = useState(null);
 
-  // 실제 서비스에서는 reviewId로 fetch!
+  const [initialData, setInitialData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // 1) 페이지 진입 시: reviewId에 해당하는 리뷰 하나만 가져오기
   useEffect(() => {
-    const found = dummyReviews.find(r => String(r.id) === String(reviewId));
-    setReview(found);
-  }, [reviewId]);
+    const fetchOneReview = async () => {
+      setLoading(true);
+      try {
+        // 현재 API는 “챌린지 전체 리뷰 목록”을 반환하므로, 리스트에서 해당 reviewId만 골라냅니다.
+        const res = await getChallengeReviews(challengeId);
+        const found = res.data.find(
+          (r) => String(r.review_id) === String(reviewId)
+        );
 
-  if (!review) return <div>로딩중...</div>;
+        if (!found) {
+          alert("해당 리뷰를 찾을 수 없습니다.");
+          navigate(`/challenge/${challengeId}/reviews`);
+          return;
+        }
 
-  const handleSubmit = (newReview) => {
-    // 실제로는 서버에 PATCH/PUT 요청
-    alert("리뷰가 수정되었습니다!");
-    navigate(`/challenge/${challengeId}/reviews`);
+        setInitialData(found);
+      } catch (e) {
+        console.error("리뷰 조회 오류:", e);
+        alert("리뷰를 불러오는 데 실패했습니다.");
+        navigate(`/challenge/${challengeId}/reviews`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOneReview();
+  }, [challengeId, reviewId, navigate]);
+
+  // 2) form 제출 시: updateReview 호출
+  const handleEdit = async ({ rating_stars, text }) => {
+    setLoading(true);
+    try {
+      await updateReview(reviewId, { rating_stars, text });
+      alert("리뷰가 수정되었습니다!");
+      navigate(`/challenge/${challengeId}/reviews`);
+    } catch (e) {
+      console.error("리뷰 수정 오류:", e);
+      alert("리뷰 수정에 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  // 로딩중 또는 데이터가 없으면 화면에 로딩 메시지
+  if (loading || !initialData) {
+    return (
+      <div style={{ textAlign: "center", marginTop: 40 }}>로딩 중…</div>
+    );
+  }
 
   return (
     <div>
-      <Header />
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
+          <Header />
+        </div>
       <ReviewCreateForm
         challengeId={challengeId}
-        // 아래 props는 필요할 때만!
-        // initialValue={review}
-        // mode="edit"
-        // onSubmit={handleSubmit}
+        mode="edit"
+        initialData={initialData}
+        onSubmit={handleEdit}
       />
     </div>
   );

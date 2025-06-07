@@ -7,7 +7,12 @@ const cors = require('cors');
 // Express 앱 구성
 const { rawConnection: db, sequelize } = require('./database/db.js');
 const express = require('express');
+const path    = require('path'); 
 const app = express();
+
+const upload = require('./config/multer.js');
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // 미들웨어
 app.use(express.json());
@@ -26,6 +31,8 @@ const attendanceRoutes = require('./routes/attendance.js');
 const reviewRoutes = require('./routes/reviewRoutes.js');
 const bookmarkRoutes = require('./routes/bookmarkRoutes.js');
 const attachmentRoutes = require('./routes/attachmentRoutes.js');
+const interestsRouter = require('./routes/interest.js');
+const visionsRouter = require('./routes/visions.js');
 const timeRecommendationRoutes = require('./routes/timeRecommendations');
 const regionRouter = require('./routes/regionRouter'); 
 const boardRoute = require('./routes/boardRoute'); // 게시판 API 라우터
@@ -65,6 +72,8 @@ app.use('/api', attendanceRoutes);
 app.use('/api', reviewRoutes);
 app.use('/api', bookmarkRoutes);
 app.use('/api', attachmentRoutes);
+app.use('/api/interests', interestsRouter);
+app.use('/api/visions', visionsRouter);
 
 
 module.exports = app; // app을 모듈로 내보냄

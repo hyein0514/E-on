@@ -1,223 +1,373 @@
-import { useState, useEffect } from "react";
+// src/components/Challenge/ChallengeCreateForm.jsx
+
+import { useEffect, useState } from "react";
+import axiosInstance from "../../api/axiosInstance";
+import { useNavigate } from "react-router-dom";
 import styles from "../../styles/Challenge/ChallengeCreateForm.module.css";
 
-const ChallengeCreateForm = ({
-  mode = "create",       // "edit" | "create"
-  initialData = {},      // 수정 시: 기존 챌린지 데이터
-  onSubmit,              // 폼 제출 시 실행할 함수(등록/수정 API 등)
-}) => {
-  const isEdit = mode === "edit";
+const ChallengeCreateForm = ({ mode = "create", initialData = {} }) => {
+  const isEdit   = mode === "edit";
+  const navigate = useNavigate();
 
-  // 초기값 세팅 (생성/수정 모두 대응)
-  const [title, setTitle] = useState(initialData.title || "");
-  const [content, setContent] = useState(initialData.content || "");
-  const [field, setField] = useState(initialData.field || "교과");
-  const [keywords, setKeywords] = useState(initialData.keywords || []);
-  const [keywordInput, setKeywordInput] = useState("");
-  const [limitEnabled, setLimitEnabled] = useState(initialData.limitEnabled || false);
-  const [limit, setLimit] = useState(initialData.limit || "");
-  const [minAge, setMinAge] = useState(initialData.minAge || 8);
-  const [maxAge, setMaxAge] = useState(initialData.maxAge || 16);
-  const [startDate, setStartDate] = useState(initialData.startDate || "");
-  const [endDate, setEndDate] = useState(initialData.endDate || "");
-  const [deadline, setDeadline] = useState(initialData.deadline || "");
-  const [isRegular, setIsRegular] = useState(initialData.isRegular || "정기");
-  const [repeatCycle, setRepeatCycle] = useState(initialData.repeatCycle || "주 1회");
-  const [allowJoinMid, setAllowJoinMid] = useState(initialData.allowJoinMid || "허용");
-  const [days, setDays] = useState(initialData.days || []);
-  const [phone, setPhone] = useState(initialData.phone || "");
-  const [file, setFile] = useState(null);
-  // ⭐ 상태 (수정일 때만 보여줌)
-  const [status, setStatus] = useState(initialData.status || "모집중");
+  // ────────────────── 1) 상태 선언 ──────────────────
+  // (A) 관심사/진로 옵션 및 선택된 ID
+  const [interestOptions, setInterestOptions] = useState([]);
+  const [visionOptions,   setVisionOptions]   = useState([]);
+  const [interestIds,     setInterestIds]     = useState(initialData.interestIds || []);
+  const [visionIds,       setVisionIds]       = useState(initialData.visionIds   || []);
+
+  // (B) 텍스트 필드들
+  const [title,            setTitle]            = useState(initialData.title        || "");
+  const [content,          setContent]          = useState(initialData.content      || "");
+  const [maximumPeople,    setMaximumPeople]    = useState(initialData.maximum_people || 1);
+  const [minAge,           setMinAge]           = useState(initialData.minAge       || 8);
+  const [maxAge,           setMaxAge]           = useState(initialData.maxAge       || 16);
+  const [startDate,        setStartDate]        = useState(initialData.startDate    || "");
+  const [endDate,          setEndDate]          = useState(initialData.endDate      || "");
+  const [deadline,         setDeadline]         = useState(initialData.deadline     || "");
+  const [isRegular,        setIsRegular]        = useState(initialData.isRegular    || "정기");
+  const [repeatCycle,      setRepeatCycle]      = useState(initialData.repeatCycle  || "주 1회");
+  const [allowJoinMid,     setAllowJoinMid]     = useState(initialData.allowJoinMid || "허용");
+  const [days,             setDays]             = useState(initialData.days        || []);
+  const [phone,            setPhone]            = useState(initialData.phone       || "");
+  const [status,           setStatus]           = useState(initialData.status      || "모집중");
+
+  // (C) 편집 모드: 기존 첨부파일 보여주기
+  const [initialAttachments, setInitialAttachments] = useState([]);
+
+  // (D) 새로 선택한 파일들
+  const [photos,   setPhotos]   = useState([]); // 이미지
+  const [consents, setConsents] = useState([]); // 동의서 (문서 or 이미지)
 
   const dayOptions = ["월", "화", "수", "목", "금", "토", "일"];
 
-  // 키워드 추가/삭제
-  const addKeyword = () => {
-    if (keywordInput && !keywords.includes(keywordInput)) {
-      setKeywords([...keywords, keywordInput]);
-      setKeywordInput("");
-    }
-  };
-  const removeKeyword = (kw) => setKeywords(keywords.filter(k => k !== kw));
-
-  // useEffect로 초기값 동기화 (수정시)
+  // ────────────────── 2) 관심사/진로 옵션 불러오기 ──────────────────
   useEffect(() => {
-    if (isEdit && initialData) {
+    axiosInstance.get("/interests").then((res) => setInterestOptions(res.data));
+    axiosInstance.get("/visions").then((res) => setVisionOptions(res.data));
+  }, []);
+
+  // ────────────────── 3) 편집 모드 초기 세팅 ──────────────────
+  useEffect(() => {
+    if (isEdit && initialData && Object.keys(initialData).length > 0) {
+      // (a) 기존 필드 초기화
       setTitle(initialData.title || "");
-      setContent(initialData.content || "");
-      setField(initialData.field || "교과");
-      setKeywords(initialData.keywords || []);
-      setLimitEnabled(initialData.limitEnabled || false);
-      setLimit(initialData.limit || "");
-      setMinAge(initialData.minAge || 8);
-      setMaxAge(initialData.maxAge || 16);
-      setStartDate(initialData.startDate || "");
-      setEndDate(initialData.endDate || "");
-      setDeadline(initialData.deadline || "");
-      setIsRegular(initialData.isRegular || "정기");
-      setRepeatCycle(initialData.repeatCycle || "주 1회");
-      setAllowJoinMid(initialData.allowJoinMid || "허용");
-      setDays(initialData.days || []);
-      setPhone(initialData.phone || "");
-      setStatus(initialData.status || "모집중");
-      // file은 업로드 전이니 세팅 안 함
+      setContent(initialData.content || initialData.description || "");
+      setMaximumPeople(initialData.maximum_people || 1);
+      setMinAge(initialData.minAge || initialData.minimum_age || 8);
+      setMaxAge(initialData.maxAge || initialData.maximum_age || 16);
+      setStartDate(
+        initialData.startDate ||
+        initialData.duration?.start?.slice(0, 10) ||
+        ""
+      );
+      setEndDate(
+        initialData.endDate ||
+        initialData.duration?.end?.slice(0, 10) ||
+        ""
+      );
+      setDeadline(
+        initialData.deadline ||
+        initialData.application_deadline?.slice(0, 10) ||
+        ""
+      );
+      setIsRegular(
+        initialData.isRegular !== undefined
+          ? initialData.isRegular
+          : initialData.is_recuming
+          ? "정기"
+          : "비정기"
+      );
+      setRepeatCycle(
+        initialData.repeatCycle ||
+          (initialData.repeat_type === "WEEKLY"
+            ? "주 1회"
+            : initialData.repeat_type === "BIWEEKLY"
+            ? "격주"
+            : initialData.repeat_type === "MONTHLY"
+            ? "월 1회"
+            : "정기 아님")
+      );
+      setAllowJoinMid(
+        initialData.allowJoinMid !== undefined
+          ? initialData.allowJoinMid
+          : initialData.intermediate_participation
+          ? "허용"
+          : "비허용"
+      );
+      setDays(
+        initialData.days
+          ? initialData.days.map((d) => {
+              const map = {
+                Monday: "월",
+                Tuesday: "화",
+                Wednesday: "수",
+                Thursday: "목",
+                Friday: "금",
+                Saturday: "토",
+                Sunday: "일",
+              };
+              return map[d] || d;
+            })
+          : []
+      );
+      setPhone(initialData.phone || initialData.creator_contact || "");
+      setStatus(
+        initialData.status ||
+          (initialData.challenge_state === "모집중"
+            ? "ACTIVE"
+            : initialData.challenge_state === "마감"
+            ? "CLOSED"
+            : initialData.challenge_state === "취소됨"
+            ? "CANCELLED"
+            : "ACTIVE")
+      );
+
+      setInterestIds(
+        initialData.interestIds ||
+          (initialData.interests
+            ? initialData.interests.map((i) => i.interest_id || i.id)
+            : [])
+      );
+      setVisionIds(
+        initialData.visionIds ||
+          (initialData.visions
+            ? initialData.visions.map((v) => v.vision_id || v.id)
+            : [])
+      );
+
+      // (b) 기존 첨부파일 목록을 state에 담아둠
+      if (initialData.attachments) {
+        setInitialAttachments(initialData.attachments);
+      }
     }
-    // eslint-disable-next-line
   }, [initialData, isEdit]);
 
-  // 폼 제출
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formData = {
-      title,
-      content,
-      field,
-      keywords,
-      limit: limitEnabled ? limit : null,
-      minAge,
-      maxAge,
-      startDate,
-      endDate,
-      deadline,
-      isRegular,
-      repeatCycle: isRegular === "정기" ? repeatCycle : "정기 아님",
-      allowJoinMid,
-      days,
-      phone,
-      status: isEdit ? status : "모집중", // 생성 시는 기본값, 수정 시만 status 반영
-      // file 등은 따로 처리 필요시 별도
-    };
-    if (onSubmit) {
-      onSubmit(formData, file);
-    } else {
-      alert(isEdit ? "수정 완료!" : "등록 완료!");
+  // ────────────────── 4) 체크박스 토글 ──────────────────
+  const toggleInterest = (id) => {
+    setInterestIds((ids) =>
+      ids.includes(id) ? ids.filter((i) => i !== id) : [...ids, id]
+    );
+  };
+  const toggleVision = (id) => {
+    setVisionIds((ids) =>
+      ids.includes(id) ? ids.filter((i) => i !== id) : [...ids, id]
+    );
+  };
+
+  // ────────────────── 5) 첨부파일 삭제 핸들러 (편집 모드) ──────────────────
+  const handleDeleteAttachment = async (attachmentId) => {
+    if (!window.confirm("정말로 이 첨부파일을 삭제하시겠습니까?")) return;
+    try {
+      await axiosInstance.delete(`/attachments/${attachmentId}`);
+      setInitialAttachments((prev) =>
+        prev.filter((att) => att.attachment_id !== attachmentId)
+      );
+      alert("첨부파일이 삭제되었습니다.");
+    } catch (err) {
+      console.error("첨부파일 삭제 실패:", err.response || err);
+      alert("첨부파일 삭제 중 오류가 발생했습니다.");
     }
   };
 
+  // ────────────────── 6) 폼 제출 핸들러 ──────────────────
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // (A) JSON 메타데이터 객체
+    const reqBody = {
+      title:              title,
+      description:        content,
+      minimum_age:        minAge,
+      maximum_age:        maxAge,
+      maximum_people:     Number(maximumPeople),
+      application_deadline: deadline ? deadline + "T23:59:59" : null,
+      start_date:         startDate ? startDate + "T07:00:00" : null,
+      end_date:           endDate   ? endDate   + "T07:30:00" : null,
+      is_recuming:        isRegular === "정기",
+      repeat_type:
+        isRegular === "정기"
+          ? repeatCycle === "주 1회"
+            ? "WEEKLY"
+            : repeatCycle === "격주"
+            ? "BIWEEKLY"
+            : repeatCycle === "월 1회"
+            ? "MONTHLY"
+            : "NONE"
+          : "NONE",
+      intermediate_participation: allowJoinMid === "허용",
+      days:                days.map((d) => {
+        switch (d) {
+          case "월": return "Monday";
+          case "화": return "Tuesday";
+          case "수": return "Wednesday";
+          case "목": return "Thursday";
+          case "금": return "Friday";
+          case "토": return "Saturday";
+          case "일": return "Sunday";
+          default:   return d;
+        }
+      }),
+      interestIds:         interestIds,
+      visionIds:           visionIds,
+      creator_contact:     phone,
+      user_id:             1, // 실제 로그인 유저 ID로 교체 필요
+      ...(isEdit && {
+        challenge_state: status === "모집중" ? "ACTIVE" : "CLOSED",
+      }),
+    };
+
+    try {
+      if (isEdit) {
+        // ───────────────── 수정 모드 ─────────────────
+        const challengeId = initialData.challenge_id;
+
+        // (1) JSON PATCH
+        await axiosInstance.patch(`/challenges/${challengeId}`, reqBody);
+
+        // (2) photos / consents 업로드
+        if (photos.length > 0 || consents.length > 0) {
+          const uploadForm = new FormData();
+          photos.forEach((f)   => uploadForm.append("photos",   f));
+          consents.forEach((f) => uploadForm.append("consents", f));
+
+          await axiosInstance.post(
+            `/challenges/${challengeId}/attachments`,
+            uploadForm,
+            { headers: { "Content-Type": "multipart/form-data" } }
+          );
+        }
+
+        alert("챌린지 수정 완료!");
+      } else {
+        // ───────────────── 생성 모드 ─────────────────
+        const formData = new FormData();
+        formData.append("meta", JSON.stringify(reqBody));
+        photos.forEach((f)   => formData.append("photos",   f));
+        consents.forEach((f) => formData.append("consents", f));
+
+        await axiosInstance.post("/challenges", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        alert("챌린지 생성 완료!");
+      }
+
+      navigate("/challenge");
+    } catch (error) {
+      console.error(error.response?.data || error.message);
+      alert(error.response?.data?.error || "오류가 발생했습니다.");
+    }
+  };
+
+  // ────────────────── 7) 렌더링 ──────────────────
   return (
     <form className={styles.formContainer} onSubmit={handleSubmit}>
       <div className={styles.flexRow}>
-        {/* 좌측 컬럼 */}
+        {/* ─────────── 왼쪽 컬럼 ─────────── */}
         <div className={styles.column}>
           {/* 제목 */}
           <div className={styles.field}>
             <label className={styles.label}>제목</label>
-            <input className={styles.input} value={title} onChange={e => setTitle(e.target.value)} required />
-          </div>
-          {/* 내용 */}
-          <div className={styles.field}>
-            <label className={styles.label}>내용</label>
-            <textarea className={styles.input} style={{ minHeight: 90, resize: "vertical" }}
-              value={content}
-              onChange={e => setContent(e.target.value)}
+            <input
+              className={styles.input}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               required
             />
           </div>
-          {/* 신청자 */}
-          <div className={styles.field} style={{ marginBottom: 28 }}>
-            <label className={styles.label}>신청자</label>
-            <input className={styles.input} value="일반 사용자" readOnly />
-          </div>
-          {/* 활동 분야 */}
+
+          {/* 내용 */}
           <div className={styles.field}>
-            <label className={styles.label}>활동 분야</label>
-            <div style={{ display: "flex", gap: 18 }}>
-              {["교과", "비교과", "진로"].map(f => (
-                <label key={f} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <label className={styles.label}>내용</label>
+            <textarea
+              className={styles.input}
+              style={{ minHeight: 90, resize: "vertical" }}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* 관심사 (복수 선택) */}
+          <div className={styles.field}>
+            <label className={styles.label}>관심사 선택 (복수 가능)</label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {interestOptions.map((opt) => (
+                <label
+                  key={opt.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    padding: "2px 6px",
+                    borderRadius: "6px",
+                    background: interestIds.includes(opt.id)
+                      ? "#c7d2fe"
+                      : "#f1f5f9",
+                    fontWeight: interestIds.includes(opt.id) ? 600 : 400,
+                    cursor: "pointer",
+                  }}
+                >
                   <input
-                    type="radio"
-                    name="field"
-                    value={f}
-                    checked={field === f}
-                    onChange={() => setField(f)}
-                    style={{ accentColor: "#2563eb" }}
+                    type="checkbox"
+                    checked={interestIds.includes(opt.id)}
+                    onChange={() => toggleInterest(opt.id)}
                   />
-                  {f}
+                  {opt.name}
                 </label>
               ))}
             </div>
-            {/* 키워드 */}
-            <div style={{ marginTop: 30 }}>
-              <label className={styles.label} style={{ marginBottom: "3px" }}>하위분류(키워드, 엔터로 추가):</label>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <input
-                  className={styles.input}
-                  value={keywordInput}
-                  onChange={e => setKeywordInput(e.target.value)}
-                  onKeyDown={e => (e.key === "Enter" ? (addKeyword(), e.preventDefault()) : null)}
-                  placeholder="키워드를 입력하고 엔터"
-                  style={{ flex: 1, minWidth: 0 }}
-                />
-                <button type="button" onClick={addKeyword} className={styles.toggle}>추가</button>
-              </div>
-              <div style={{ marginTop: 7, display: "flex", gap: 6, flexWrap: "wrap" }}>
-                {keywords.map(kw => (
-                  <span
-                    key={kw}
-                    style={{
-                      background: "#e5e7eb",
-                      color: "#333",
-                      borderRadius: 6,
-                      padding: "5px 11px",
-                      fontSize: "14px",
-                      marginRight: "5px",
-                      display: "inline-flex",
-                      alignItems: "center"
-                    }}
-                  >
-                    {kw}
-                    <button
-                      type="button"
-                      style={{
-                        marginLeft: 5,
-                        background: "none",
-                        border: "none",
-                        color: "#888",
-                        cursor: "pointer"
-                      }}
-                      onClick={() => removeKeyword(kw)}
-                    >×</button>
-                  </span>
-                ))}
-              </div>
+          </div>
+
+          {/* 진로(비전) (복수 선택) */}
+          <div className={styles.field} style={{ marginTop: 18 }}>
+            <label className={styles.label}>진로(비전) 선택 (복수 가능)</label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {visionOptions.map((opt) => (
+                <label
+                  key={opt.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    padding: "2px 6px",
+                    borderRadius: "6px",
+                    background: visionIds.includes(opt.id)
+                      ? "#fcd34d"
+                      : "#f1f5f9",
+                    fontWeight: visionIds.includes(opt.id) ? 600 : 400,
+                    cursor: "pointer",
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={visionIds.includes(opt.id)}
+                    onChange={() => toggleVision(opt.id)}
+                  />
+                  {opt.name}
+                </label>
+              ))}
             </div>
           </div>
+
           {/* 모집 인원 */}
           <div className={styles.field}>
             <label className={styles.label}>모집 인원</label>
-            <label style={{ display: "inline-flex", alignItems: "center", gap: 4, marginRight: 10 }}>
-              <input
-                type="radio"
-                name="limitEnabled"
-                checked={!limitEnabled}
-                onChange={() => setLimitEnabled(false)}
-                style={{ accentColor: "#2563eb" }}
-              />
-              무제한
-            </label>
-            <label style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-              <input
-                type="radio"
-                name="limitEnabled"
-                checked={limitEnabled}
-                onChange={() => setLimitEnabled(true)}
-                style={{ accentColor: "#2563eb" }}
-              />
-              제한
-            </label>
-            {limitEnabled && (
-              <input
-                type="number"
-                min={1}
-                className={styles.input}
-                style={{ width: 90, display: "inline-block", marginLeft: 8 }}
-                value={limit}
-                onChange={e => setLimit(e.target.value.replace(/\D/, ""))}
-                placeholder="모집 인원"
-              />
-            )}
+            <input
+              type="number"
+              min={1}
+              className={styles.input}
+              style={{ width: 120 }}
+              value={maximumPeople}
+              onChange={(e) =>
+                setMaximumPeople(e.target.value.replace(/\D/, ""))
+              }
+              placeholder="모집 인원(최소 1)"
+              required
+            />
           </div>
+
           {/* 연령 */}
           <div className={styles.field}>
             <label className={styles.label}>연령</label>
@@ -226,36 +376,48 @@ const ChallengeCreateForm = ({
                 <span style={{ fontSize: 15, fontWeight: 500 }}>최소</span>
                 <select
                   value={minAge}
-                  onChange={e => setMinAge(Number(e.target.value))}
+                  onChange={(e) => setMinAge(Number(e.target.value))}
                   className={styles.ageInput}
                 >
-                  {Array.from({ length: 9 }, (_, i) => 8 + i).map(n => (
-                    <option key={n} value={n}>{n}</option>
+                  {Array.from({ length: 9 }, (_, i) => 8 + i).map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
                   ))}
                 </select>
               </div>
-              <span style={{ fontSize: 16, fontWeight: 400, margin: "0 5px" }}>~</span>
+              <span
+                style={{ fontSize: 16, fontWeight: 400, margin: "0 5px" }}
+              >
+                ~
+              </span>
               <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <span style={{ fontSize: 15, fontWeight: 500 }}>최대</span>
                 <select
                   value={maxAge}
-                  onChange={e => setMaxAge(Number(e.target.value))}
+                  onChange={(e) => setMaxAge(Number(e.target.value))}
                   className={styles.ageInput}
                 >
-                  {Array.from({ length: 9 }, (_, i) => 8 + i).map(n => (
-                    <option key={n} value={n}>{n}</option>
+                  {Array.from({ length: 9 }, (_, i) => 8 + i).map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
           </div>
-          {/* --------- ★ 상태(수정일 때만) --------- */}
+
+          {/* 편집 모드일 때만: 상태 */}
           {isEdit && (
             <div className={styles.field}>
               <label className={styles.label}>상태</label>
               <div style={{ display: "flex", gap: 16 }}>
-                {["모집중", "진행중", "마감"].map(s => (
-                  <label key={s} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                {["모집중", "마감","취소됨"].map((s) => (
+                  <label
+                    key={s}
+                    style={{ display: "flex", alignItems: "center", gap: 4 }}
+                  >
                     <input
                       type="radio"
                       name="status"
@@ -270,10 +432,9 @@ const ChallengeCreateForm = ({
               </div>
             </div>
           )}
-          {/* ----------------------------------- */}
         </div>
 
-        {/* 우측 컬럼 */}
+        {/* ─────────── 오른쪽 컬럼 ─────────── */}
         <div className={styles.column}>
           {/* 활동 일정 */}
           <div className={styles.field}>
@@ -281,35 +442,41 @@ const ChallengeCreateForm = ({
             <input
               type="date"
               value={startDate}
-              onChange={e => setStartDate(e.target.value)}
+              onChange={(e) => setStartDate(e.target.value)}
               className={styles.input}
               style={{ width: 160, display: "inline-block" }}
-            />{" ~ "}
+            />
+            {"  ~  "}
             <input
               type="date"
               value={endDate}
-              onChange={e => setEndDate(e.target.value)}
+              onChange={(e) => setEndDate(e.target.value)}
               className={styles.input}
               style={{ width: 160, display: "inline-block" }}
             />
           </div>
+
           {/* 신청 마감일 */}
           <div className={styles.field}>
             <label className={styles.label}>신청 마감일</label>
             <input
               type="date"
               value={deadline}
-              onChange={e => setDeadline(e.target.value)}
+              onChange={(e) => setDeadline(e.target.value)}
               className={styles.input}
               style={{ width: 160 }}
             />
           </div>
+
           {/* 정기 여부 */}
           <div className={styles.field}>
             <label className={styles.label}>정기 여부</label>
             <div style={{ display: "flex", gap: 16 }}>
-              {["정기", "비정기"].map(type => (
-                <label key={type} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              {["정기", "비정기"].map((type) => (
+                <label
+                  key={type}
+                  style={{ display: "flex", alignItems: "center", gap: 4 }}
+                >
                   <input
                     type="radio"
                     name="isRegular"
@@ -323,13 +490,17 @@ const ChallengeCreateForm = ({
               ))}
             </div>
           </div>
+
           {/* 반복 주기 */}
           {isRegular === "정기" && (
             <div className={styles.field}>
               <label className={styles.label}>반복 주기</label>
               <div style={{ display: "flex", gap: 14 }}>
-                {["주 1회", "격주", "월 1회", "정기 아님"].map(opt => (
-                  <label key={opt} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                {["주 1회", "격주", "월 1회", "정기 아님"].map((opt) => (
+                  <label
+                    key={opt}
+                    style={{ display: "flex", alignItems: "center", gap: 4 }}
+                  >
                     <input
                       type="radio"
                       name="repeatCycle"
@@ -344,12 +515,16 @@ const ChallengeCreateForm = ({
               </div>
             </div>
           )}
+
           {/* 중도 참여 */}
           <div className={styles.field}>
             <label className={styles.label}>중도 참여</label>
             <div style={{ display: "flex", gap: 16 }}>
-              {["허용", "비허용"].map(opt => (
-                <label key={opt} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              {["허용", "비허용"].map((opt) => (
+                <label
+                  key={opt}
+                  style={{ display: "flex", alignItems: "center", gap: 4 }}
+                >
                   <input
                     type="radio"
                     name="allowJoinMid"
@@ -363,19 +538,24 @@ const ChallengeCreateForm = ({
               ))}
             </div>
           </div>
-          {/* 요일 */}
+
+          {/* 요일 선택 */}
           <div className={styles.field}>
             <label className={styles.label}>요일</label>
             <div style={{ display: "flex", gap: 10 }}>
-              {dayOptions.map(d => (
-                <label key={d} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+              {dayOptions.map((d) => (
+                <label
+                  key={d}
+                  style={{ display: "flex", alignItems: "center", gap: 3 }}
+                >
                   <input
                     type="checkbox"
                     checked={days.includes(d)}
                     onChange={() =>
-                      setDays(days.includes(d)
-                        ? days.filter(x => x !== d)
-                        : [...days, d]
+                      setDays(
+                        days.includes(d)
+                          ? days.filter((x) => x !== d)
+                          : [...days, d]
                       )
                     }
                     style={{ accentColor: "#2563eb" }}
@@ -385,32 +565,118 @@ const ChallengeCreateForm = ({
               ))}
             </div>
           </div>
+
           {/* 전화번호 */}
           <div className={styles.field}>
             <label className={styles.label}>개설자 전화번호</label>
             <input
               className={styles.input}
               value={phone}
-              onChange={e => setPhone(e.target.value.replace(/[^0-9-]/g, ""))}
+              onChange={(e) =>
+                setPhone(e.target.value.replace(/[^0-9-]/g, ""))
+              }
               placeholder="010-1234-5678"
             />
           </div>
-          {/* 첨부파일 */}
-          <div className={styles.field}>
-            <label className={styles.label}>첨부파일</label>
-            <label className={styles.fileLabel}>
-              파일선택
-              <input
-                type="file"
-                style={{ display: "none" }}
-                onChange={e => setFile(e.target.files[0])}
-              />
+
+          {/* ── 기존 첨부파일 목록 (편집 모드) ── */}
+          {isEdit && initialAttachments.length > 0 && (
+            <div className={styles.field} style={{ marginTop: 18 }}>
+              <label className={styles.label}>기존 첨부파일</label>
+              <ul style={{ paddingLeft: 20, margin: 0 }}>
+                {initialAttachments.map((att) => (
+                  <li
+                    key={att.attachment_id}
+                    style={{
+                      marginBottom: 8,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                    }}
+                  >
+                    <a
+                      href={`${import.meta.env.VITE_BASE_URL.replace(
+                        /\/api\/?$/,
+                        ""
+                      )}${att.url}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: "#2563eb",
+                        textDecoration: "underline",
+                      }}
+                    >
+                      {att.attachment_name}
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleDeleteAttachment(att.attachment_id)
+                      }
+                      style={{
+                        background: "#f87171",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: 4,
+                        padding: "2px 8px",
+                        fontSize: 12,
+                        cursor: "pointer",
+                      }}
+                    >
+                      삭제
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* ── 새 사진 업로드 (multiple) ── */}
+          <div className={styles.field} style={{ marginTop: 18 }}>
+            <label className={styles.label}>사진 업로드 (여러 개)</label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={(e) => setPhotos(Array.from(e.target.files))}
+            />
+            {photos.length > 0 && (
+              <div style={{ marginTop: 5, color: "#444" }}>
+                {photos.map((f, idx) => (
+                  <div key={idx}>{f.name}</div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* ── 새 동의서 업로드 (multiple) ── */}
+          <div className={styles.field} style={{ marginTop: 18 }}>
+            <label className={styles.label}>
+              보호자 동의서 업로드 (문서·이미지 혼합 가능)
             </label>
-            {file && <div style={{ marginTop: 5, color: "#444" }}>{file.name}</div>}
+            <input
+              type="file"
+              accept="image/*,.pdf,.doc,.docx"
+              multiple
+              onChange={(e) => setConsents(Array.from(e.target.files))}
+            />
+            {consents.length > 0 && (
+              <div style={{ marginTop: 5, color: "#444" }}>
+                {consents.map((f, idx) => (
+                  <div key={idx}>{f.name}</div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
-      <button type="submit" className={styles.button}>
+
+      {/* 등록/수정 버튼 */}
+      <button
+        type="submit"
+        className={styles.button}
+        style={{ marginTop: 20 }}
+      >
         {isEdit ? "수정" : "등록"}
       </button>
     </form>

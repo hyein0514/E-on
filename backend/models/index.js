@@ -1,4 +1,3 @@
-// 모델 초기화 및 관계 설정 파일
 const fs = require("fs");
 const path = require("path");
 const Sequelize = require("sequelize");

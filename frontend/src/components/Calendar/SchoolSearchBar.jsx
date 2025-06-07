@@ -13,6 +13,7 @@ import {
     getSchoolSchedule,
     getSchoolScheduleByGrade,
     getPrevSchoolScheduleByGrade,
+    getAllSchoolSchedule,
 } from "../../api/schoolApi";
 import debounce from "lodash.debounce";
 
@@ -66,7 +67,7 @@ const SchoolSearchBar = () => {
         if (searchType.type === "school") {
             if (!selectedSchool) return alert("학교를 선택해주세요.");
 
-            const { schoolCode, name, schoolType } = selectedSchool;
+            const { schoolCode, name, schoolType, atptCode } = selectedSchool;
 
             if (schoolType === "중학교") {
                 setSearchType((prev) => ({
@@ -81,24 +82,16 @@ const SchoolSearchBar = () => {
             }
 
             try {
-                let res;
+                const year = searchType.year === "prev" ? "prev" : undefined;
+                const grade = searchType.grade || undefined;
 
-                if (searchType.year === "prev" && searchType.grade) {
-                    // 작년 학사일정 + 학년별 조회
-                    res = await getPrevSchoolScheduleByGrade(
-                        schoolCode,
-                        searchType.grade
-                    );
-                } else if (searchType.grade) {
-                    // 올해 학년별 조회
-                    res = await getSchoolScheduleByGrade(
-                        schoolCode,
-                        searchType.grade
-                    );
-                } else {
-                    // 학년 정보 없으면 그냥 올해 일정 조회
-                    res = await getSchoolSchedule(schoolCode);
-                }
+                // 통합된 API 호출
+                const res = await getAllSchoolSchedule(
+                    schoolCode,
+                    atptCode,
+                    year,
+                    grade
+                );
 
                 setSelectedValue(name);
                 setSchedules(res.data);
@@ -106,6 +99,33 @@ const SchoolSearchBar = () => {
             } catch (err) {
                 console.error("❌ 학교 학사일정 조회 실패", err);
             }
+
+            // try {
+            //     let res;
+
+            //     if (searchType.year === "prev" && searchType.grade) {
+            //         // 작년 학사일정 + 학년별 조회
+            //         res = await getPrevSchoolScheduleByGrade(
+            //             schoolCode,
+            //             searchType.grade
+            //         );
+            //     } else if (searchType.grade) {
+            //         // 올해 학년별 조회
+            //         res = await getSchoolScheduleByGrade(
+            //             schoolCode,
+            //             searchType.grade
+            //         );
+            //     } else {
+            //         // 학년 정보 없으면 그냥 올해 일정 조회
+            //         res = await getSchoolSchedule(schoolCode);
+            //     }
+
+            //     setSelectedValue(name);
+            //     setSchedules(res.data);
+            //     console.log("✅ 학교 학사일정: ", res.data);
+            // } catch (err) {
+            //     console.error("❌ 학교 학사일정 조회 실패", err);
+            // }
         } else if (searchType.type === "region") {
             if (!selectedRegion) return alert("지역을 선택해주세요.");
 
@@ -198,6 +218,11 @@ const SchoolSearchBar = () => {
                                     }
 
                                     setSuggestions([]);
+
+                                    // ✅ 상태가 정확히 선택된 직후 handleSearch 실행
+                                    setTimeout(() => {
+                                        handleSearch(); // 상태 업데이트 후 실행 보장
+                                    }, 0);
                                 }}>
                                 {searchType.type === "school"
                                     ? item.name
@@ -207,7 +232,7 @@ const SchoolSearchBar = () => {
                     </ul>
                 )}
                 <button
-                    type="submit"
+                    type="button"
                     className={styles.button}
                     onClick={handleSearch}>
                     검색하기

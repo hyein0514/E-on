@@ -18,6 +18,10 @@ const Post = sequelize.define('Post', {
     type: DataTypes.BIGINT,
     allowNull: false,
   },
+  title: {
+    type: DataTypes.STRING(255),
+    allowNull: false,
+  },
   content: {
     type: DataTypes.TEXT,
   },

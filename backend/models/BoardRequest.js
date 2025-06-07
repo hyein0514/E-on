@@ -7,6 +7,7 @@ const BoardRequest = sequelize.define('BoardRequest', {
     type: DataTypes.BIGINT,
     allowNull: false,
     primaryKey: true,
+    autoIncrement: true,
   },
   user_id: {
     type: DataTypes.BIGINT,
@@ -14,6 +15,10 @@ const BoardRequest = sequelize.define('BoardRequest', {
   },
   requested_board_name: {
     type: DataTypes.STRING(255),
+  },
+  requested_board_type: {               // 추가된 필드
+    type: DataTypes.STRING(255),
+    allowNull: false,
   },
   request_reason: {                    // 추가된 필드
     type: DataTypes.TEXT,

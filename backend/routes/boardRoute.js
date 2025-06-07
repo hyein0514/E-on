@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const boardController = require('../controllers/boardController');
 
-//router.get('/', boardControllers.apfhweofawef); // 모든 게시판 조회 api (디자인 보고 보류)
 // 게시판 전체 목록 조회
 router.get('/', boardController.getBoardList);
 
@@ -40,5 +39,6 @@ router.post('/board-requests', boardController.createBoardRequest);
 router.get('/board-requests', boardController.getAllBoardRequests);
 
 // 게시판 개설 승인
+router.patch('board-requests/:request_id', boardController.updateBoardRequestStatus);
 
 module.exports = router;

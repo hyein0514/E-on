@@ -1,6 +1,6 @@
 const { sequelize, Sequelize } = require('../database/db');
 const { DataTypes } = Sequelize;
-const { User } = require('./User');
+const User = require('./User');
 const Challenge     = require('./Challenge');
 
 const ParticipatingChallenge = sequelize.define('ParticipatingChallenge', {
@@ -15,8 +15,6 @@ const ParticipatingChallenge = sequelize.define('ParticipatingChallenge', {
 }, {
   tableName: 'ParticipatingChallenge',
   timestamps: false,
-//   createdAt: 'created_at',
-//   updatedAt: 'updated_at'
 });
 
 ParticipatingChallenge.belongsTo(User,      { foreignKey:'user_id',      as:'participant' });

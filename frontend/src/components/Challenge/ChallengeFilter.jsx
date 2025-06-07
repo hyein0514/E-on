@@ -1,7 +1,6 @@
 const filterOptions = [
   { label: "전체", value: "all" },
   { label: "모집중", value: "open" },
-  { label: "진행중", value: "progress" },
   { label: "마감", value: "closed" },
 ];
 

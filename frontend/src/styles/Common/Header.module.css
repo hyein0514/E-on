@@ -4,8 +4,8 @@
     align-items: center;
     width: 1280px;
     height: 140px;
-    background-color:antiquewhite;
-    border: #333 solid 2px;
+    /* background-color: antiquewhite;
+    border: #333 solid 2px; */
 }
 
 img {
@@ -25,7 +25,7 @@ img {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 80px; /* ← 여백을 navItem 개수만큼 자동 적용 */
+    gap: 100px; /* ← 여백을 navItem 개수만큼 자동 적용 */
     margin: 0 40px;
 }
 
@@ -42,4 +42,13 @@ img {
 .navLink {
     text-decoration: none;
     color: #333;
+}
+
+.notification {
+    width: 36px;
+    height: 36px;
+}
+
+li {
+    list-style: none;
 }

@@ -2,22 +2,33 @@ import styles from "../../styles/Calendar/ViewNavigator.module.css";
 import { useContext, useEffect } from "react";
 import { ViewContext } from "../../contexts/ViewContext";
 import { SearchTypeContext } from "../../contexts/SearchTypeContext";
+import { CurrentDateContext } from "../../contexts/CurrentDateContext";
+import dayjs from "dayjs";
 
 const ViewNavigator = () => {
-    const { currentView, setCurrentView } = useContext(ViewContext);
+    const { selectedValue, currentView, setCurrentView } =
+        useContext(ViewContext);
     const { searchType, setSearchType } = useContext(SearchTypeContext);
+    const { currentDate, setCurrentDate } = useContext(CurrentDateContext);
+
     const handleViewTypeChange = (event) => {
         setCurrentView(event.target.value);
     };
 
-    // useEffect(() => {
-    //     console.log("SearchTypeContext: ", searchType);
-    // }, [searchType]);
+    useEffect(() => {
+        if (searchType.year === "prev") {
+            // currentDate를 1년 전으로 변경
+            setCurrentDate(currentDate.subtract(1, "year"));
+        } else {
+            // 올해(현재 날짜)로 복원
+            setCurrentDate(dayjs());
+        }
+    }, [searchType.year, setCurrentDate]);
 
     return (
         <div className={styles.viewNavigator}>
             <div className={styles.left}>
-                <div className={styles.name}>가가초등학교</div>
+                <div className={styles.name}>{selectedValue}</div>
                 <div className={styles.text}>학사일정</div>
                 <div className={styles.selectGrade}>
                     <select
@@ -31,14 +42,45 @@ const ViewNavigator = () => {
                         }}
                         value={searchType.grade || 1} // 초기값 세팅
                     >
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
+                        {[1, 2, 3, 4, 5, 6]
+                            .filter((grade) =>
+                                searchType.schoolType === "middle"
+                                    ? grade <= 3
+                                    : true
+                            )
+                            .map((grade) => (
+                                <option key={grade} value={grade}>
+                                    {grade}
+                                </option>
+                            ))}
                     </select>
                     <span className={styles.selectText}>학년</span>
+                </div>
+                <div
+                    className={styles.chooseYearView}
+                    onClick={() => {
+                        if (searchType.type === "region") {
+                            setSearchType((prev) => ({
+                                ...prev,
+                                schoolType:
+                                    prev.schoolType === "elementary"
+                                        ? "middle"
+                                        : "elementary",
+                            }));
+                        } else {
+                            setSearchType((prev) => ({
+                                ...prev,
+                                year: prev.year === "prev" ? null : "prev",
+                            }));
+                        }
+                    }}>
+                    {searchType.type === "region"
+                        ? searchType.schoolType === "elementary"
+                            ? "→ 중학교 학사일정 보러가기"
+                            : "→ 초등학교 학사일정 보러가기"
+                        : searchType.year === "prev"
+                        ? "→ 올해 학사일정 보러가기"
+                        : "→ 작년 학사일정 보러가기"}
                 </div>
             </div>
             <div className={styles.viewRadio}>

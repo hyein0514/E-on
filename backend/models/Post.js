@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../database/db.js');
-const { User } = require('./User.js');
+const User = require('./User');
 const { Board } = require('./Board.js')
 
 const Post = sequelize.define('Post', {
@@ -16,6 +16,10 @@ const Post = sequelize.define('Post', {
   },
   user_id: {
     type: DataTypes.BIGINT,
+    allowNull: false,
+  },
+  title: {
+    type: DataTypes.STRING(255),
     allowNull: false,
   },
   content: {
@@ -44,6 +48,10 @@ Post.belongsTo(User, {
 
 Board.hasMany(Post, {
   foreignKey: 'board_id',
+  onDelete: 'CASCADE'
+});
+User.hasMany(Post, {
+  foreignKey: 'user_id',
   onDelete: 'CASCADE'
 });
 

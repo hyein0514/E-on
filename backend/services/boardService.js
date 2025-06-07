@@ -1,6 +1,7 @@
 const { Board } = require('../models/Board');
 const { Post } = require('../models/Post');
-const { User } = require('../models/User'); 
+const { User } = require('../models/User');
+const { Comment } = require('../models/Comment');
 const { Se } = require('sequelize');
 const axios = require("axios");
 
@@ -22,7 +23,7 @@ async function getBoardList(board_id) {
 async function getBoardPost(board_id) {
     try {
         const boardPosts = await Post.findAll({
-            attributes: [ 'title', 'created_at', 'user_id'],
+            attributes: [ 'post_id', 'title', 'created_at', 'user_id'],
             where: { board_id },
             order: [['created_at', 'DESC']],
             limit: 10,                         // 최대 10개만
@@ -40,31 +41,28 @@ async function getBoardPost(board_id) {
 };
 
 // 게시글 상세 조회
-async function getPost(post_id) {
-    try {
-        const posts = await Post.findOne({
-            attributes: [ 'title', 'content', 'created_at', 'user_id'],
-            where: { post_id },
-            include: [{
-                model: User,
-                attributes: ['name'],      // 작성자 닉네임
-            }]
-        });
-
-        return posts;
-    } catch (error) {
-        console.error("게시글 조회 실패:", error.message);
-        throw error;
-    }
+async function getPostWithComments(post_id) {
+    return await Post.findOne({
+        where: { post_id },
+        include: [{
+            model: User,
+            attributes: ['name']
+            },
+            {
+                model: Comment,
+                attributes: [ 'comment_id', 'content', 'created_at'],
+                include: [{
+                    model: User,
+                    attributes: ['name'],
+                }]
+            }
+        ]
+    });
 };
 
-//  게시글 작성
-//async function createPost({board_id, user_id, content}) {
-
-//};
 
 module.exports = {
     getBoardList,
     getBoardPost,
-    getPost,
+    getPostWithComments,
 };

@@ -50,7 +50,7 @@ async function getPostWithComments(post_id) {
             },
             {
                 model: Comment,
-                attributes: ['content', 'created_at'],
+                attributes: [ 'comment_id', 'content', 'created_at'],
                 include: [{
                     model: User,
                     attributes: ['name'],

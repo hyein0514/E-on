@@ -7,6 +7,7 @@ const BoardRequest = sequelize.define('BoardRequest', {
     type: DataTypes.BIGINT,
     allowNull: false,
     primaryKey: true,
+    autoIncrement: true,
   },
   user_id: {
     type: DataTypes.BIGINT,

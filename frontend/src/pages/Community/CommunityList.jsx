@@ -136,7 +136,9 @@ useEffect(() => {
       onClick={() => navigate(`/community/${boardId}/write`)}>글쓰기</button>
       
       {/* 게시판 개설 신청 버튼 */}
-      <button className={styles.createButton}>게시판 개설 신청</button>
+      <button className={styles.createButton}
+      onClick={() => navigate("/community/board-requests")}
+      >게시판 개설 신청</button>
     </div>
   );
 };

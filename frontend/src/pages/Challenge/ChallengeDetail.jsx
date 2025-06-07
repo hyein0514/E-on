@@ -23,12 +23,6 @@ const ChallengeDetail = () => {
     setBookmarked(!!res.data.is_bookmarked);
 
     try {
-      // // 참여 기록 있으면 참여상태 설정
-      // const participationRes = await getParticipationDetailForUser(id, userId);
-      // setParticipationState(participationRes.data?.participating_state || null);
-      // setIsJoined(['신청', '참여', 'APPROVED'].includes(participationRes.data?.participating_state));
-      // setParticipationId(participationRes.data?.participating_id || null);
-      // 변경된 방식: res.data.my_participation 안에 참여 정보가 들어 있습니다.
         const participationRes = await getParticipationDetailForUser(id, userId);
         const mp = participationRes.data?.my_participation || null;
         if (mp) {
@@ -63,7 +57,9 @@ const ChallengeDetail = () => {
 
   return (
     <div>
-      <Header />
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
+          <Header />
+        </div>
       <ChallengeDetailContent
         challenge={challenge}
         bookmarked={bookmarked}

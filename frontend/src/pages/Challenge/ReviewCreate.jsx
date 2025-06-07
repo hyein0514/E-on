@@ -33,7 +33,9 @@ const ReviewCreate = () => {
 
   return (
     <div>
-      <Header />
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
+          <Header />
+        </div>
       <ReviewCreateForm challengeId={challengeId} onSubmit={handleCreate} />
       {loading && (
         <div style={{ textAlign: "center", marginTop: 20 }}>저장 중…</div>

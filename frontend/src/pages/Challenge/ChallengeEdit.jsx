@@ -81,7 +81,9 @@ const ChallengeEdit = () => {
 
   return (
     <div>
-      <Header />
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
+          <Header />
+        </div>
       <h2 style={{ margin: "40px 0 28px 0", textAlign: "center" }}>챌린지 수정</h2>
       <ChallengeCreateForm mode="edit" initialData={challenge}
       onSubmit={handleUpdate} 

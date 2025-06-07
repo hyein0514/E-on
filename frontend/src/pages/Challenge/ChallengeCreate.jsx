@@ -106,11 +106,10 @@ const ChallengeCreate = () => {
 
   return (
     <div>
-      <Header />
-      {/*
-        ChallengeCreateForm 컴포넌트가 onSubmit(formData, photoFile, consentFile)
-        형태로 호출하도록 바뀌어야 합니다.
-      */}
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
+          <Header />
+        </div>
+      
       <ChallengeCreateForm mode="create" onSubmit={handleSubmit} />
     </div>
   );

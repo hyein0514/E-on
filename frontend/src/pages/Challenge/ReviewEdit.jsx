@@ -67,8 +67,9 @@ const ReviewEdit = () => {
 
   return (
     <div>
-      <Header />
-      {/* mode="edit"과 initialData를 내려주면, 폼이 미리 값을 채워줍니다 */}
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
+          <Header />
+        </div>
       <ReviewCreateForm
         challengeId={challengeId}
         mode="edit"

@@ -58,7 +58,9 @@ const ReviewList = () => {
 
   return (
     <div>
-      <Header />
+      <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
+          <Header />
+        </div>
 
       <div
         style={{

@@ -1,5 +1,3 @@
-// src/pages/Challenge/Challenge.jsx
-
 import { useState, useEffect } from "react";
 import Header from "../../components/Common/Header";
 import ChallengeSearchSection from "../../components/Challenge/ChallengeSearchSelection";
@@ -179,8 +177,9 @@ const Challenge = () => {
   return (
     <div style={{ width: "100%", display: "flex", justifyContent: "center", margin: "10px 0" }}>
       <div style={{ width: "90%", minWidth: "440px", margin: "10px auto" }}>
-        {/* Header */}
-        <Header />
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
+          <Header />
+        </div>
 
         {/* 검색/필터/생성 섹션 */}
         <ChallengeSearchSection

@@ -243,7 +243,7 @@ exports.list = async (req, res, next) => {
       distinct: true,               // 조인으로 인한 중복 방지
       limit,
       offset,
-      order: [['created_at', 'DESC']]
+      order: [['challenge_id', 'DESC']]
     });
 
     /* ── 5) 로그인 유저 참여정보 매핑 ───────────────────────── */

@@ -2,7 +2,7 @@ function extractCityName(address) {
     if (!address || typeof address !== "string") return ""; // 주소가 없거나 문자열이 아니면 빈 문자열 반환
 
     const parts = address.split(" ");
-    console.log(parts);
+    // console.log(parts);
     if (parts.length >= 2) {
         if (parts[0].includes("도")) {
             return parts[1]; // ex: 경기도 고양시 → 고양시

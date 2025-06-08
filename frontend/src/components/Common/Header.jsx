@@ -3,7 +3,7 @@
 import styles from "./../../styles/Common/Header.module.css";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.svg";
-import notification from "../../assets/notification.svg"
+import notification from "../../assets/notification.svg";
 
 const Header = () => {
     return (
@@ -26,6 +26,11 @@ const Header = () => {
                         </Link>
                     </li>
                     <li className={styles.navItem}>
+                        <Link to="/recommendation/time" className={styles.navLink}>
+                            AI 맞춤 추천
+                        </Link>
+                    </li>
+                    <li className={styles.navItem}>
                         <Link to="/community" className={styles.navLink}>
                             커뮤니티
                         </Link>
@@ -36,7 +41,10 @@ const Header = () => {
                         </Link>
                     </li>
                     <li>
-                        <img src={notification} className={styles.notification} />
+                        <img
+                            src={notification}
+                            className={styles.notification}
+                        />
                     </li>
                 </ul>
             </div>

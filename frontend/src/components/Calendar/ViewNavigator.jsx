@@ -25,15 +25,15 @@ const ViewNavigator = () => {
             // 올해(현재 날짜)로 복원
             setCurrentDate(dayjs());
         }
-    }, [searchType.year, setCurrentDate]);
+    }, [searchType.year]);
 
     const cityName =
         searchType.type === "school" && schoolAddress
             ? extractCityName(schoolAddress)
             : "";
 
-    console.log("schoolAddress: ", schoolAddress);
-    console.log("cityName: ", cityName);
+    // console.log("schoolAddress: ", schoolAddress);
+    // console.log("cityName: ", cityName);
 
     return (
         <div className={styles.viewNavigator}>

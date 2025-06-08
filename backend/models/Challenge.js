@@ -86,7 +86,7 @@ const Challenge = sequelize.define('Challenge',{
       }
     },{
         tableName: 'Challenge',
-        timestamps:false,
+        timestamps: false,
         createdAt: 'created_at',
         updatedAt: 'updated_at',
     });

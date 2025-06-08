@@ -3,7 +3,8 @@ const { DataTypes } = Sequelize;
 const ChallengeDay = require('./ChallengeDay');
 const Interests = require('./Interests')
 const Visions = require('./Visions')
-const { User } = require('./User');
+const User = require('./User');
+
  
 const Challenge = sequelize.define('Challenge',{
     // 1) 기본키
@@ -19,10 +20,12 @@ const Challenge = sequelize.define('Challenge',{
     title:{
         type: DataTypes.STRING,
         allowNull : false,
+        field: 'challenge_title',
     },
     description: {
         type: DataTypes.TEXT,        
         allowNull: false,
+        field: 'challenge_description',
     },
     // 최소·최대 연령
     minimum_age: {
@@ -83,7 +86,7 @@ const Challenge = sequelize.define('Challenge',{
       }
     },{
         tableName: 'Challenge',
-        timestamps:true,
+        timestamps:false,
         createdAt: 'created_at',
         updatedAt: 'updated_at',
     });

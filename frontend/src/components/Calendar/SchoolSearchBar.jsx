@@ -70,7 +70,8 @@ const SchoolSearchBar = () => {
         if (searchType.type === "school") {
             if (!selectedSchool) return alert("학교를 선택해주세요.");
 
-            const { schoolCode, name, address, schoolType, atptCode } = selectedSchool;
+            const { schoolCode, name, address, schoolType, atptCode } =
+                selectedSchool;
 
             setSchoolAdress(address);
 
@@ -104,7 +105,6 @@ const SchoolSearchBar = () => {
             } catch (err) {
                 console.error("❌ 학교 학사일정 조회 실패", err);
             }
-
         } else if (searchType.type === "region") {
             if (!selectedRegion) return alert("지역을 선택해주세요.");
 
@@ -188,11 +188,12 @@ const SchoolSearchBar = () => {
                         name="searchType"
                         value="school"
                         checked={searchType.type === "school"}
-                        onChange={() =>
+                        onChange={() => {
                             setSearchType((prev) => {
                                 return { ...prev, type: "school" };
-                            })
-                        }
+                            });
+                            setSchoolAdress("서울특별시 송파구 송이로 45");
+                        }}
                     />
                     학교별
                 </label>

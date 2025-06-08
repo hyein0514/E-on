@@ -14,7 +14,6 @@ backend/
 │   └── userModel.js
 ├── routes/                # URL 별로 컨트롤러 연결
 │   └── userRoutes.js
-├── views/                 # (선택) 템플릿 엔진 사용 시
 ├── database/              # DB 연결 설정
 │   └── db.js
 ├── utils/                 # 유틸 함수 모음

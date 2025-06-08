@@ -2,6 +2,8 @@ const { Op } = require('sequelize');
 const ParticipatingChallenge  = require('../models/ParticipatingChallenge');
 const ParticipatingAttendance = require('../models/participatingAttendance');
 const Challenge               = require('../models/Challenge');
+const User = require('../models/User');
+
 
 /*  출석 추가 -------------------------------------------------- */
 exports.add = async (req, res, next) => {
@@ -9,7 +11,7 @@ exports.add = async (req, res, next) => {
     const partId = req.params.id;
     const { attendance_date, attendance_state, memo } = req.body;
 
-     if (!['출석', '결석', '지각'].includes(attendance_state)) {
+     if (!['출석', '결석'].includes(attendance_state)) {
       return res.status(400).json({ error: 'attendance_state must be 출석, 결석, or 지각' });
     }
 
@@ -37,26 +39,52 @@ exports.add = async (req, res, next) => {
 exports.listByChallenge = async (req, res, next) => {
   try {
     const challengeId = req.params.id;
-    const { from, to } = req.query;               // YYYY-MM-DD
+    const { date, from, to } = req.query;   // YYYY-MM-DD
 
-    // 챌린지 존재 여부 확인
+    // 1) 챌린지 존재 여부
     const challenge = await Challenge.findByPk(challengeId);
     if (!challenge) return res.status(404).json({ error: '챌린지 없음' });
 
-    // 참여 → 출석 JOIN
-    const rows = await ParticipatingAttendance.findAll({
-      include:[{
-        model: ParticipatingChallenge,
-        attributes:['participating_id','user_id'],
-        where:{ challenge_id: challengeId }
-      }],
-      where:{
-        attendance_date:{
+    /* 2) 날짜 조건 만들기
+       - date  : 단일 날짜
+       - from ~ to : 기간
+       - 없으면 조건 없이 LEFT JOIN (모든 출석들)
+    */
+    let dateCondition = undefined;
+    if (date) {
+      dateCondition = { attendance_date: date };
+    } else if (from || to) {
+      dateCondition = {
+        attendance_date: {
           [Op.between]: [from || '1000-01-01', to || '9999-12-31']
         }
-      },
-      order:[['attendance_date','ASC']]
+      };
+    }
+
+    /* 3) 쿼리 : 참여자 전체 + (해당 날짜/기간의) 출석 LEFT JOIN */
+    const rows = await ParticipatingChallenge.findAll({
+      where: { challenge_id: challengeId },
+      include: [
+        // 3-1) 유저 이름
+        {
+          model: User,
+          as   : 'participant',
+          attributes: ['user_id', 'name']
+        },
+        // 3-2) 출석 LEFT JOIN
+        {
+          model: ParticipatingAttendance,
+          as   : 'attendances',        // ★ 모델에서 hasMany(..., { as:'attendances' })
+          required: false,             // ★ LEFT JOIN 핵심
+          where   : dateCondition      // 없으면 전체, 있으면 조건
+        }
+      ],
+      order: [
+        [{ model: User, as: 'participant' }, 'user_id', 'ASC'],
+        [{ model: ParticipatingAttendance, as: 'attendances' }, 'attendance_date', 'ASC']
+      ]
     });
+
     res.json(rows);
   } catch (err) { next(err); }
 };

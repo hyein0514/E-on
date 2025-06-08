@@ -13,24 +13,32 @@ const statusStyle = {
   },
 };
 
-function formatDateRange(start, end) {
-  // "2025-04-06" ~ "2025-07-06" → "2025년 4월 6일 ~ 2025년 7월 6일"
-  const toKoreanDate = (dateStr) => {
-    if (!dateStr) return "";
-    const d = new Date(dateStr);
-    return `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
-  };
-  return `${toKoreanDate(start)} ~ ${toKoreanDate(end)}`;
-}
+function formatDateRange(start, end) { /* ... */ }
 
 const ChallengeListItem = ({
-  id, status, title, startDate, endDate, onApply
+  challenge_id,
+  challenge_state,
+  title,
+  start_date,
+  end_date,
+  onApply,
+  my_participation
 }) => {
   const navigate = useNavigate();
 
-  // 상세페이지로 이동 핸들러
+  // ① challenge_state → 한국어
+  const statusMap = { ACTIVE: "모집중", CLOSED: "마감", CANCELLED: "취소됨" };
+  const status = statusMap[challenge_state] || challenge_state;
+
+  // ② 참여 여부
+  const isJoined =
+    !!my_participation && my_participation.participating_state !== "취소";
+  const participationId = my_participation?.participating_id;
+  const participationState = my_participation?.participating_state;
+
+  // ③ 상세 페이지 이동 함수
   const handleGoDetail = () => {
-    navigate(`/challenge/${id}`);
+    navigate(`/challenge/${challenge_id}`);
   };
 
   return (
@@ -40,14 +48,14 @@ const ChallengeListItem = ({
         alignItems: "center",
         background: "#fff",
         borderRadius: "12px",
-        border: "2px solid #a3a3a3", 
+        border: "2px solid #a3a3a3",
         padding: "12px 16px",
         marginBottom: "17px",
         gap: "26px",
         minHeight: "68px",
         cursor: "pointer"
       }}
-      onClick={handleGoDetail}
+      onClick={handleGoDetail}   // ← 이 부분이 있어야 클릭 시 디테일로 이동
     >
       {/* 상태 박스 */}
       <div
@@ -60,26 +68,35 @@ const ChallengeListItem = ({
           padding: "7px 0",
           ...statusStyle[status]
         }}
-        onClick={e => e.stopPropagation()} // 상태박스 클릭시 상세로 이동 안 하려면
+        onClick={(e) => e.stopPropagation()} // 상태 박스 클릭은 디테일 이동 방지
       >
         {status}
       </div>
+
       {/* 챌린지명 & 날짜 */}
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: "17px", fontWeight: "bold", marginBottom: "5px" }}>
           {title}
         </div>
-        <div style={{ fontSize: "14px", color: "#6b7280" }}>{formatDateRange(startDate, endDate)}</div>
+        <div style={{ fontSize: "14px", color: "#6b7280" }}>
+          {formatDateRange(start_date, end_date)}
+        </div>
       </div>
-      {/* 신청하기 버튼 */}
+
+      {/* 신청하기/참여취소 버튼 */}
       <button
-        onClick={e => {
-          e.stopPropagation(); // 버튼 클릭시 상세로 이동 막기
-          onApply();
+        onClick={(e) => {
+          e.stopPropagation();   // 버튼 클릭 시 부모 onClick(=상세이동) 방지
+          onApply({
+            challenge_id,
+            isJoined,
+            participationId,
+            participationState
+          });
         }}
         style={{
-          background: "#f3f4f6",
-          color: "#1f2937",
+          background: isJoined ? "#fef2f2" : "#f3f4f6",
+          color: isJoined ? "#e11d48" : "#1f2937",
           border: "none",
           borderRadius: "7px",
           padding: "10px 23px",
@@ -89,9 +106,10 @@ const ChallengeListItem = ({
           transition: "background 0.15s"
         }}
       >
-        신청하기
+        {isJoined ? "참여 취소" : "신청하기"}
       </button>
     </div>
   );
 };
+
 export default ChallengeListItem;

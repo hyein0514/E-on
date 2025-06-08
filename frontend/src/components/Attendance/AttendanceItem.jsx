@@ -1,4 +1,4 @@
-const AttendanceItem = ({ num, name, status, reason, onStatus, onReason, onDelete }) => (
+const AttendanceItem = ({ num, name,date, status, reason, onStatus, onReason, onDelete }) => (
   <div style={{ marginBottom: 25 }}>
     {/* 상단: 번호/이름/버튼 */}
     <div
@@ -12,6 +12,7 @@ const AttendanceItem = ({ num, name, status, reason, onStatus, onReason, onDelet
       <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
         <span style={{ fontWeight: 600, fontSize: 20 }}>{num}</span>
         <span style={{ fontWeight: "bold", fontSize: 18 }}>{name}</span>
+        <span style={{ color: "#888", fontSize: 16, marginLeft: 8 }}>{date}</span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
         <button

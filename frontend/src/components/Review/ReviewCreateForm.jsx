@@ -1,21 +1,51 @@
-import { useState } from "react";
+// src/components/Review/ReviewCreateForm.jsx
 
-const ReviewCreateForm = ({ challengeId }) => {
+import { useState, useEffect } from "react";
+
+const ReviewCreateForm = ({
+  challengeId,
+  mode = "create",     // "create" or "edit"
+  initialData = null,  // 수정 시: { review_id, user_id, rating_stars, text, writer, review_date }
+  onSubmit,            // submit 이후 호출할 콜백 (선택사항)
+}) => {
+  // form 상태: rating, text
+  // (title 필드는 예시에서 따로 API 스펙 없음 → title 입력란은 제거했습니다)
   const [rating, setRating] = useState(0);
-  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+
+  // 수정 모드라면 초기값을 한 번 설정
+  useEffect(() => {
+    if (mode === "edit" && initialData) {
+      setRating(initialData.rating_stars || 0);
+      setContent(initialData.text || "");
+    }
+  }, [mode, initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`리뷰 등록!\n별점: ${rating}\n제목: ${title}\n내용: ${content}`);
+    // 검증: rating은 1~5, content 빈문자열 아님
+    if (rating < 1 || content.trim() === "") return;
+
+    // onSubmit 콜백이 전달된 경우, 부모가 API 호출을 처리할 수 있도록 전달
+    if (onSubmit) {
+      onSubmit({ rating_stars: rating, text: content });
+      return;
+    }
+
+    // onSubmit이 없으면 단순 alert
+    alert(
+      mode === "create"
+        ? `리뷰 등록!\n별점: ${rating}\n내용: ${content}`
+        : `리뷰 수정!\n별점: ${rating}\n내용: ${content}`
+    );
   };
 
   return (
     <form
       onSubmit={handleSubmit}
       style={{
-        width: "80vw",             // 화면 80%
-        maxWidth: 1100,            // 최대 1100px
+        width: "80vw",
+        maxWidth: 1100,
         margin: "40px auto",
         background: "#fff",
         borderRadius: 14,
@@ -24,54 +54,42 @@ const ReviewCreateForm = ({ challengeId }) => {
         border: "1.5px solid #e5e7eb",
       }}
     >
-      <div style={{
-        fontWeight: 700,
-        fontSize: 28,
-        marginBottom: 36,
-        textAlign: "left",
-        letterSpacing: "-1px"
-      }}>
-        리뷰 작성
+      <div
+        style={{
+          fontWeight: 700,
+          fontSize: 28,
+          marginBottom: 36,
+          textAlign: "left",
+          letterSpacing: "-1px",
+        }}
+      >
+        {mode === "create" ? "리뷰 작성" : "리뷰 수정"}
       </div>
 
-      {/* 리뷰 타이틀 & 별점 */}
+      {/* 별점 */}
       <div style={{ textAlign: "center", marginBottom: 30 }}>
-        <div style={{ fontWeight: 700, fontSize: 24, marginBottom: 18 }}>리뷰</div>
+        <div style={{ fontWeight: 700, fontSize: 24, marginBottom: 18 }}>
+          평점 선택
+        </div>
         <div>
-          {[1,2,3,4,5].map(num => (
+          {[1, 2, 3, 4, 5].map((num) => (
             <span
               key={num}
               style={{
                 fontSize: 54,
                 color: num <= rating ? "#facc15" : "#e5e7eb",
                 cursor: "pointer",
-                margin: "0 10px"
+                margin: "0 10px",
               }}
               onClick={() => setRating(num)}
               role="button"
               aria-label={`${num}점`}
-            >★</span>
+            >
+              ★
+            </span>
           ))}
         </div>
       </div>
-
-      {/* 제목 입력 */}
-      <input
-        style={{
-          width: "100%",
-          padding: "14px 16px",
-          borderRadius: 8,
-          border: "1.5px solid #e5e7eb",
-          fontSize: 17,
-          marginBottom: 18,
-          background: "#fafafa"
-        }}
-        type="text"
-        placeholder="리뷰 제목을 입력하세요."
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-        required
-      />
 
       {/* 내용 입력 */}
       <textarea
@@ -84,11 +102,11 @@ const ReviewCreateForm = ({ challengeId }) => {
           fontSize: 17,
           marginBottom: 32,
           background: "#fafafa",
-          resize: "vertical"
+          resize: "vertical",
         }}
         placeholder="리뷰 내용을 입력하세요."
         value={content}
-        onChange={e => setContent(e.target.value)}
+        onChange={(e) => setContent(e.target.value)}
         required
       />
 
@@ -99,17 +117,17 @@ const ReviewCreateForm = ({ challengeId }) => {
           width: "180px",
           display: "block",
           margin: "0 auto",
-          background: "#d4d4d4",
-          color: "#222",
+          background: rating > 0 && content.trim() !== "" ? "#2563eb" : "#d4d4d4",
+          color: "#fff",
           border: "none",
           borderRadius: 8,
           fontWeight: "bold",
           fontSize: 19,
           padding: "13px 0",
-          cursor: "pointer",
-          letterSpacing: 2
+          cursor: rating > 0 && content.trim() !== "" ? "pointer" : "not-allowed",
+          letterSpacing: 2,
         }}
-        disabled={rating === 0 || title.trim() === "" || content.trim() === ""}
+        disabled={rating === 0 || content.trim() === ""}
       >
         저장
       </button>

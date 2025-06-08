@@ -3,6 +3,7 @@ const { Post } = require('../models/Post');
 const { Board } = require('../models/Board');
 const { Comment } = require('../models/Comment');
 const { BoardRequest } = require('../models/BoardRequest');
+const { User } = require('../models/User');
 
 exports.getBoardList = async (req, res) => {
   try {
@@ -31,6 +32,7 @@ exports.getBoard = async (req, res) => {
     }
 };
 
+// 게시판의 게시글 목록 조회
 exports.getBoardPost = async (req, res) => {
     try {
         const { board_id } = req.params;
@@ -234,7 +236,7 @@ exports.deleteComment = async (req, res) => {
 
 // 게시판 개설 요청
 exports.createBoardRequest = async (req, res) => {
-    const { user_id, requested_board_name, request_reason } = req.body;
+    const { user_id, requested_board_name, requested_board_type, request_reason } = req.body;
 
     if (!user_id || !requested_board_name) {
         return res.status(400).json({ error: 'user_id와 requested_board_name은 필수입니다.'});
@@ -244,6 +246,7 @@ exports.createBoardRequest = async (req, res) => {
         const newRequest = await BoardRequest.create({
             user_id,
             requested_board_name,
+            requested_board_type,
             request_reason,
             request_date: new Date(),
             request_status: '대기',
@@ -258,7 +261,7 @@ exports.createBoardRequest = async (req, res) => {
     }
 };
 
-// 게시판 개설 신청 목록 조회 API
+// 게시판 개설 신청 목록 조회
 exports.getAllBoardRequests = async (req, res) => {
     try {
         const requests = await BoardRequest.findAll({
@@ -274,4 +277,40 @@ exports.getAllBoardRequests = async (req, res) => {
         console.error(error);
         res.status(500).json({error: '게시판 신청 목록 조회 중 오류 발생'});
     }
+};
+
+// 게시판 개설 승인
+// jwt 연동 시 관리자만 접근할 수 있게 수정
+exports.updateBoardRequestStatus = async (req, res) => {
+  const { request_id } = req.params;
+  const { request_status } = req.body;
+
+  try {
+    const request = await BoardRequest.findOne({ where: { request_id } });
+
+    if (!request) {
+      return res.status(404).json({ error: '해당 신청 내역을 찾을 수 없습니다.' });
+    }
+
+    await BoardRequest.update(
+      { request_status },
+      { where: { request_id } }
+    );
+
+    // 게시판 개설 승인 시 board 테이블에 게시판 생성
+    if (request_status == '승인') {
+      const requested_board_name = request.requested_board_name;
+      const requested_board_type = request.requested_board_type;
+      await Board.create({
+        board_name: requested_board_name,
+        board_type: requested_board_type,
+        created_at: new Date(),
+      });
+    }
+
+    res.status(200).json({message: `게시판 신청이 '${request_status}' 처리되었습니다.`});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: '상태 변경 중 오류가 발생했습니다.' });
+  }
 };

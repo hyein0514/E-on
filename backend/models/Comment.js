@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../database/db.js');
-const { User } = require('./User.js');
+const User = require('./User');
 const { Post } = require('./Post.js');
 
 const Comment = sequelize.define('Comment', {
@@ -34,6 +34,10 @@ Comment.belongsTo(User, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 Comment.belongsTo(Post, { foreignKey: 'post_id', onDelete: 'CASCADE' });
 User.hasMany(Comment, {
   foreignKey: 'user_id',
+});
+Post.hasMany(Comment, {
+  foreignKey: 'post_id',
+  onDelete: 'CASCADE'
 });
 
 module.exports = { Comment };

@@ -26,7 +26,7 @@ import RecommendationResult from "../pages/Suggestion/RecommendationResult";
 const AppRoutes = () => {
     return (
         <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Calendar />} />
             <Route path="/login" element={<Login />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/challenge" element={<Challenge />} />
@@ -38,12 +38,10 @@ const AppRoutes = () => {
             <Route path="/challenge/:id" element={<ChallengeDetail />} />
             <Route path="/challenge/:id/edit" element={<ChallengeEdit />} />
             <Route path="/challenge/:challengeId/review/:reviewId/edit" element={<ReviewEdit />} />
-            
             <Route path="/recommendation/time" element={<TimeRecommendation />} /> 
             <Route path="/suggestion/preferences" element={<PreferenceInterest />} />
             <Route path="/suggestion/preferences/vision" element={<PreferenceVision />} />
             <Route path="/suggestion/recommendation" element={<RecommendationResult />} />
-
             <Route path="/community" element={<CommunityList />} />
             {/*<Route
                 path="/community"

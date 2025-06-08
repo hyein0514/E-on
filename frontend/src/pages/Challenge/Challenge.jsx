@@ -5,6 +5,7 @@ import ChallengeList from "../../components/Challenge/ChallengeList";
 import Pagination from "../../components/Challenge/Pagination";
 import { getChallengeList, participateChallenge, cancelParticipation } from "../../api/challengeApi";
 import axiosInstance from "../../api/axiosInstance";
+import styles from "../../styles/Pages/Challenge.module.css"
 
 const itemsPerPage = 5;
 
@@ -175,9 +176,9 @@ const Challenge = () => {
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   return (
-    <div style={{ width: "100%", display: "flex", justifyContent: "center", margin: "10px 0" }}>
+    <div className={styles.container} style={{ width: "100%", display: "flex", justifyContent: "center", margin: "10px 0" }}>
       <div style={{ width: "90%", minWidth: "440px", margin: "10px auto" }}>
-        <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
+        <div className={styles.header} style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
           <Header />
         </div>
 

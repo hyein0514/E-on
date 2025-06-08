@@ -6,7 +6,7 @@ if (!apiKey) {
 }
 
 // 1. 서울특별시 내 초등, 중학교 검색
-// 사용자가 입력한 키워드(query)를 포함하는 서울 소재 학교 목록만 조회
+// 사용자가 입력한 키워드(query)를 포함하는 학교 목록만 조회
 async function searchSchools(query) {
     const url = "https://open.neis.go.kr/hub/schoolInfo"; // 학교기본정보 조회 API URL
 

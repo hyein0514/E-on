@@ -3,12 +3,14 @@ import { useContext, useEffect } from "react";
 import { ViewContext } from "../../contexts/ViewContext";
 import { SearchTypeContext } from "../../contexts/SearchTypeContext";
 import { CurrentDateContext } from "../../contexts/CurrentDateContext";
+import extractCityName from "../../utils/extractCityNameUtil";
 import dayjs from "dayjs";
 
 const ViewNavigator = () => {
     const { selectedValue, currentView, setCurrentView } =
         useContext(ViewContext);
-    const { searchType, setSearchType } = useContext(SearchTypeContext);
+    const { searchType, setSearchType, schoolAddress } =
+        useContext(SearchTypeContext);
     const { currentDate, setCurrentDate } = useContext(CurrentDateContext);
 
     const handleViewTypeChange = (event) => {
@@ -25,10 +27,20 @@ const ViewNavigator = () => {
         }
     }, [searchType.year, setCurrentDate]);
 
+    const cityName =
+        searchType.type === "school" && schoolAddress
+            ? extractCityName(schoolAddress)
+            : "";
+
+    console.log("schoolAddress: ", schoolAddress);
+    console.log("cityName: ", cityName);
+
     return (
         <div className={styles.viewNavigator}>
             <div className={styles.left}>
-                <div className={styles.name}>{selectedValue}</div>
+                <div className={styles.name}>
+                    {selectedValue} {cityName && ` (${cityName})`}
+                </div>
                 <div className={styles.text}>학사일정</div>
                 <div className={styles.selectGrade}>
                     <select

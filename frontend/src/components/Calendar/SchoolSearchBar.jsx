@@ -10,17 +10,20 @@ import {
 } from "../../api/regionApi";
 import {
     searchSchoolsByName,
-    getSchoolSchedule,
-    getSchoolScheduleByGrade,
-    getPrevSchoolScheduleByGrade,
+    // getSchoolSchedule,
+    // getSchoolScheduleByGrade,
+    // getPrevSchoolScheduleByGrade,
     getAllSchoolSchedule,
 } from "../../api/schoolApi";
+// import extractCityName from "../../utils/extractCityNameUtil"
 import debounce from "lodash.debounce";
 
 const SchoolSearchBar = () => {
-    const { searchType, setSearchType } = useContext(SearchTypeContext);
+    const { searchType, setSearchType, setSchoolAdress } =
+        useContext(SearchTypeContext);
     const { setSelectedValue, setSchedules } = useContext(ViewContext);
     const [inputValue, setInputValue] = useState("");
+    const [isFocused, setIsFocused] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
     const [selectedSchool, setSelectedSchool] = useState(null);
     const [selectedRegion, setSelectedRegion] = useState(null);
@@ -67,7 +70,10 @@ const SchoolSearchBar = () => {
         if (searchType.type === "school") {
             if (!selectedSchool) return alert("학교를 선택해주세요.");
 
-            const { schoolCode, name, schoolType, atptCode } = selectedSchool;
+            const { schoolCode, name, address, schoolType, atptCode } =
+                selectedSchool;
+
+            setSchoolAdress(address);
 
             if (schoolType === "중학교") {
                 setSearchType((prev) => ({
@@ -99,37 +105,11 @@ const SchoolSearchBar = () => {
             } catch (err) {
                 console.error("❌ 학교 학사일정 조회 실패", err);
             }
-
-            // try {
-            //     let res;
-
-            //     if (searchType.year === "prev" && searchType.grade) {
-            //         // 작년 학사일정 + 학년별 조회
-            //         res = await getPrevSchoolScheduleByGrade(
-            //             schoolCode,
-            //             searchType.grade
-            //         );
-            //     } else if (searchType.grade) {
-            //         // 올해 학년별 조회
-            //         res = await getSchoolScheduleByGrade(
-            //             schoolCode,
-            //             searchType.grade
-            //         );
-            //     } else {
-            //         // 학년 정보 없으면 그냥 올해 일정 조회
-            //         res = await getSchoolSchedule(schoolCode);
-            //     }
-
-            //     setSelectedValue(name);
-            //     setSchedules(res.data);
-            //     console.log("✅ 학교 학사일정: ", res.data);
-            // } catch (err) {
-            //     console.error("❌ 학교 학사일정 조회 실패", err);
-            // }
         } else if (searchType.type === "region") {
             if (!selectedRegion) return alert("지역을 선택해주세요.");
 
             const { region_name } = selectedRegion;
+            setSchoolAdress("");
 
             // console.log("📍 선택된 지역: ", region_name);
 
@@ -149,8 +129,55 @@ const SchoolSearchBar = () => {
             }
         }
     };
+    //     if (searchType.type === "school") {
+    //         if (!school) return alert("학교를 선택해주세요.");
 
-    // useEffect(() => console.log(searchType), [searchType]);
+    //         const { schoolCode, name, schoolType, atptCode } = school;
+
+    //         const mappedSchoolType =
+    //             schoolType === "중학교" ? "middle" : "elementary";
+    //         setSearchType((prev) => ({
+    //             ...prev,
+    //             schoolType: mappedSchoolType,
+    //         }));
+
+    //         try {
+    //             const year = searchType.year === "prev" ? "prev" : undefined;
+    //             const grade = searchType.grade || undefined;
+
+    //             const res = await getAllSchoolSchedule(
+    //                 schoolCode,
+    //                 atptCode,
+    //                 year,
+    //                 grade
+    //             );
+
+    //             setSelectedValue(name);
+    //             setSchedules(res.data);
+    //             console.log("✅ 학교 학사일정: ", res.data);
+    //         } catch (err) {
+    //             console.error("❌ 학교 학사일정 조회 실패", err);
+    //         }
+    //     } else if (searchType.type === "region") {
+    //         if (!region) return alert("지역을 선택해주세요.");
+    //         const { region_name } = region;
+
+    //         try {
+    //             const res = searchType.grade
+    //                 ? await searchAverageScheduleByGrade(
+    //                       region_name,
+    //                       searchType.grade
+    //                   )
+    //                 : await searchAverageScheduleByName(region_name);
+
+    //             setSelectedValue(region_name);
+    //             setSchedules(res.data.data);
+    //             console.log("✅ 평균 학사일정: ", res.data);
+    //         } catch (err) {
+    //             console.error("❌ 평균 학사일정 조회 실패", err);
+    //         }
+    //     }
+    // };
 
     return (
         <div className={styles.searchBarContainer}>
@@ -161,11 +188,12 @@ const SchoolSearchBar = () => {
                         name="searchType"
                         value="school"
                         checked={searchType.type === "school"}
-                        onChange={() =>
+                        onChange={() => {
                             setSearchType((prev) => {
                                 return { ...prev, type: "school" };
-                            })
-                        }
+                            });
+                            setSchoolAdress("서울특별시 송파구 송이로 45");
+                        }}
                     />
                     학교별
                 </label>
@@ -190,10 +218,12 @@ const SchoolSearchBar = () => {
                     type="text"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
+                    onFocus={() => setIsFocused(true)}
                     placeholder={placeholder}
                     className={styles.input}
+                    onBlur={() => setTimeout(() => setIsFocused(false), 150)} // blur 시 잠깐 delay (클릭 허용)
                 />
-                {suggestions.length > 0 && (
+                {isFocused && suggestions.length > 0 && (
                     <ul className={styles.suggestionsList}>
                         {suggestions.map((item, index) => (
                             // 검색어 자동완성이 아래에 리스트로 뜨도록 함
@@ -218,11 +248,6 @@ const SchoolSearchBar = () => {
                                     }
 
                                     setSuggestions([]);
-
-                                    // ✅ 상태가 정확히 선택된 직후 handleSearch 실행
-                                    setTimeout(() => {
-                                        handleSearch(); // 상태 업데이트 후 실행 보장
-                                    }, 0);
                                 }}>
                                 {searchType.type === "school"
                                     ? item.name

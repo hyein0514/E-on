@@ -17,7 +17,11 @@ const ParticipatingAttendance = sequelize.define('ParticipatingAttendance', {
     type: DataTypes.ENUM('출석','결석','지각'),
     allowNull: false
   },
-  memo: DataTypes.TEXT
+ memo: DataTypes.TEXT,
+ participating_id: {
+   type: DataTypes.BIGINT,
+   allowNull: false
+ }
 }, {
   tableName : 'ParticipatingAttendance',  
   timestamps: false
@@ -25,7 +29,8 @@ const ParticipatingAttendance = sequelize.define('ParticipatingAttendance', {
 
 /* FK 연결 */
 ParticipatingAttendance.belongsTo(ParticipatingChallenge, {
-  foreignKey:'participating_id'
+  foreignKey:'participating_id',
+  as: 'participant'
 });
 ParticipatingChallenge.hasMany(ParticipatingAttendance, {
   foreignKey:'participating_id',

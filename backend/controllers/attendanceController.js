@@ -45,11 +45,6 @@ exports.listByChallenge = async (req, res, next) => {
     const challenge = await Challenge.findByPk(challengeId);
     if (!challenge) return res.status(404).json({ error: '챌린지 없음' });
 
-    /* 2) 날짜 조건 만들기
-       - date  : 단일 날짜
-       - from ~ to : 기간
-       - 없으면 조건 없이 LEFT JOIN (모든 출석들)
-    */
     let dateCondition = undefined;
     if (date) {
       dateCondition = { attendance_date: date };
@@ -86,7 +81,11 @@ exports.listByChallenge = async (req, res, next) => {
     });
 
     res.json(rows);
-  } catch (err) { next(err); }
+  } catch (err) {
+    console.error('[Attendance.listByChallenge] Error message:', err.message);
+    console.error(err.stack);
+    return res.status(500).json({ error: err.message });
+  }
 };
 
 /* 출석 수정 -------------------------------------------------- */

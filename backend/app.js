@@ -52,11 +52,8 @@ app.use('/averageSchedule', averageScheduleRoute);
 app.use('/regions', regionRouter);
 app.use('/boards', boardRoute);
 
-app.use('/api/schoolScheduleRoute', require('./routes/schoolScheduleRoute'));
+
 app.use('/api', require('./routes/select'));
-
-
-app.use('/api/schoolSchedule', schoolScheduleRoute); // 학사 일정 API 라우터
 
 app.use('/api/time-recommendations', timeRecommendationRoutes);
 

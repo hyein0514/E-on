@@ -4,11 +4,11 @@ const { signupStep1, signupStep2, sendEmailCode, verifyEmailCode, signupStep3, l
 const { isLoggedIn, isNotLoggedIn } = require('../middleware/auth');
 const router = express.Router();
 
-router.post('/join/step1',    isNotLoggedIn, signupStep1);
-router.post('/join/step2',    isNotLoggedIn, signupStep2);
-router.post('/join/email',    isNotLoggedIn, sendEmailCode);
-router.post('/verify-email',  isNotLoggedIn, verifyEmailCode);
-router.post('/join/step3',    isNotLoggedIn, signupStep3);
+router.post('/join/step1',    /*isNotLoggedIn,*/ signupStep1);
+router.post('/join/step2',    /*isNotLoggedIn,*/ signupStep2);
+router.post('/join/email',    /*isNotLoggedIn,*/ sendEmailCode);
+router.post('/verify-email',  /*isNotLoggedIn,*/ verifyEmailCode);
+router.post('/join/step3',    /*isNotLoggedIn,*/ signupStep3);
 
 router.post('/login',         isNotLoggedIn, login);
 router.get('/logout',         isLoggedIn,    logout);

@@ -3,15 +3,15 @@ import React from 'react';
 import { NavLink, Routes, Route, Navigate, useParams } from 'react-router-dom';
 
 import MyInfo            from './MyInfo';
-import ChangePassword    from './ChangePassword';
+// import ChangePassword    from './ChangePassword';
 import InterestPage      from './InterestPage';
 import ActivityHistory   from './ActivityHistory';
-import CalendarPage      from './CalendarPage';
+// import CalendarPage      from './CalendarPage';
 import NotificationPage  from './NotificationPage';
 import DeactivateAccount from './DeactivateAccount';
-import AIRecHistory      from './AIRecHistory';
-import DraftManager      from './DraftManager';
-import NotFound          from './NotFound';
+// import AIRecHistory      from './AIRecHistory';
+// import DraftManager      from './DraftManager';
+import NotFound          from '../NotFound';
 
 const MyPage = () => {
   const { userId } = useParams();
@@ -41,14 +41,14 @@ const MyPage = () => {
 
           {/* 서브페이지들 */}
           <Route path="info"         element={<MyInfo />} />
-          <Route path="password"     element={<ChangePassword />} />
+          {/* <Route path="password"     element={<ChangePassword />} /> */}
           <Route path="interest"     element={<InterestPage />} />
           <Route path="history"      element={<ActivityHistory />} />
-          <Route path="calendar"     element={<CalendarPage />} />
+          {/* <Route path="calendar"     element={<CalendarPage />} /> */}
           <Route path="notification" element={<NotificationPage />} />
           <Route path="deactivate"   element={<DeactivateAccount />} />
-          <Route path="ai-history"   element={<AIRecHistory />} />
-          <Route path="draft"        element={<DraftManager />} />
+          {/* <Route path="ai-history"   element={<AIRecHistory />} /> */}
+          {/* <Route path="draft"        element={<DraftManager />} /> */}
 
           {/* 없는 경로 */}
           <Route path="*" element={<NotFound />} />

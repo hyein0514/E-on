@@ -1,15 +1,35 @@
-// controllers/user.js
+// backend/controllers/user.js
 const bcrypt = require('bcrypt');
 const { User } = require('../models');
 
 /**
+ * [GET] /api/user/me
+ *   - 내 정보 조회
+ */
+exports.getMyInfo = async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: '로그인이 필요합니다.' });
+    }
+    const me = await User.findByPk(req.user.user_id, {
+      attributes: { exclude: ['pw', 'refresh_token'] },
+    });
+    if (!me) {
+      return res.status(404).json({ success: false, message: '유저를 찾을 수 없습니다.' });
+    }
+    res.json({ success: true, user: me });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
  * [PUT] /api/user/me
  * Body: { name, emailNotification, currentPassword }
+ *   - 내 정보 업데이트
  */
 exports.updateMyInfo = async (req, res, next) => {
   const { name, emailNotification, currentPassword } = req.body;
-
-  // 1) 입력 검증
   if (!currentPassword) {
     return res.status(400).json({ message: '현재 비밀번호를 입력해주세요.' });
   }
@@ -19,14 +39,11 @@ exports.updateMyInfo = async (req, res, next) => {
   }
 
   try {
-    // 2) 현재 pw 확인
     const user = await User.scope('withPassword').findByPk(req.user.user_id);
     const match = await bcrypt.compare(currentPassword, user.pw);
     if (!match) {
       return res.status(400).json({ message: '현재 비밀번호가 일치하지 않습니다.' });
     }
-
-    // 3) 업데이트
     await User.update(
       {
         ...(name && { name }),
@@ -34,10 +51,49 @@ exports.updateMyInfo = async (req, res, next) => {
       },
       { where: { user_id: req.user.user_id } }
     );
-
-    return res.json({ success: true, message: '회원 정보가 수정되었습니다.' });
+    res.json({ success: true, message: '회원 정보가 수정되었습니다.' });
   } catch (err) {
-    console.error(err);
+    next(err);
+  }
+};
+
+/**
+ * [PUT] /api/user/me/password
+ * Body: { currentPassword, newPassword }
+ *   - 비밀번호 변경
+ */
+exports.changePassword = async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: '모든 필드를 입력해주세요.' });
+  }
+  try {
+    const user = await User.scope('withPassword').findByPk(req.user.user_id);
+    const match = await bcrypt.compare(currentPassword, user.pw);
+    if (!match) {
+      return res.status(400).json({ message: '현재 비밀번호가 일치하지 않습니다.' });
+    }
+    user.pw = newPassword;
+    await user.save();
+    res.json({ success: true, message: '비밀번호가 변경되었습니다.' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/**
+ * [DELETE] /api/user/me
+ *   - 계정 탈퇴(soft-delete)
+ */
+exports.deactivateAccount = async (req, res, next) => {
+  try {
+    await User.update(
+      { accountStatus: 'inactive', deactivatedAt: new Date() },
+      { where: { user_id: req.user.user_id } }
+    );
+    req.logout(() => {}); // 세션 종료
+    res.json({ success: true, message: '계정이 비활성화되었습니다.' });
+  } catch (err) {
     next(err);
   }
 };

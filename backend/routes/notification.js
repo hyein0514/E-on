@@ -1,6 +1,6 @@
 // backend/routes/notification.js
 const express = require('express');
-const { isLoggedIn } = require('../middlewares/auth');
+const { isLoggedIn } = require('../middleware/auth');
 const notificationController = require('../controllers/notification');
 
 const router = express.Router();

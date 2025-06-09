@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const passport = require('passport');
 const transporter = require('../config/mail');
-const { User } = require('../models');
+const User = require('../models/User');
 
 exports.signupStep1 = (req,res)=>{ req.session.signup={ userType:req.body.userType }; res.json({success:true}); };
 exports.signupStep2 = (req,res)=>{

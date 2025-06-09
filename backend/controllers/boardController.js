@@ -3,7 +3,7 @@ const { Post } = require('../models/Post');
 const { Board } = require('../models/Board');
 const { Comment } = require('../models/Comment');
 const { BoardRequest } = require('../models/BoardRequest');
-const { User } = require('../models/User');
+const User = require('../models/User');
 
 exports.getBoardList = async (req, res) => {
   try {

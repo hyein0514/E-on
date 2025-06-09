@@ -4,7 +4,7 @@ const KakaoStrategy  = require('passport-kakao').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const NaverStrategy  = require('passport-naver').Strategy;
 const bcrypt = require('bcrypt');
-const { User } = require('../models');
+const User = require('../models/User');
 
 module.exports = () => {
   passport.serializeUser((user, done) => done(null, user.id));
@@ -75,25 +75,25 @@ module.exports = () => {
   ));
 
   // Naver
-  passport.use(new NaverStrategy({
-      clientID:process.env.NAVER_CLIENT_ID,
-      clientSecret:process.env.NAVER_CLIENT_SECRET,
-      callbackURL:'/auth/naver/callback'
-    },
-    async (_a,_r,profile,done)=>{
-      try {
-        const ex = await User.findOne({ where:{ sns_id:profile.id, provider:'naver' }});
-        if (ex) return done(null, ex);
-        const newUser = await User.create({
-          email:profile.emails?.[0]?.value||null,
-          password:null, provider:'naver', sns_id:profile.id,
-          naver_nickname:profile.displayName,
-          naver_profile_image:profile._json?.profile_image||null,
-          name:profile.displayName||'네이버 사용자',
-          nickname:'', profileImage:null
-        });
-        done(null,newUser);
-      } catch(e){ done(e); }
-    }
-  ));
+  // passport.use(new NaverStrategy({
+  //     clientID:process.env.NAVER_CLIENT_ID,
+  //     clientSecret:process.env.NAVER_CLIENT_SECRET,
+  //     callbackURL:'/auth/naver/callback'
+  //   },
+  //   async (_a,_r,profile,done)=>{
+  //     try {
+  //       const ex = await User.findOne({ where:{ sns_id:profile.id, provider:'naver' }});
+  //       if (ex) return done(null, ex);
+  //       const newUser = await User.create({
+  //         email:profile.emails?.[0]?.value||null,
+  //         password:null, provider:'naver', sns_id:profile.id,
+  //         naver_nickname:profile.displayName,
+  //         naver_profile_image:profile._json?.profile_image||null,
+  //         name:profile.displayName||'네이버 사용자',
+  //         nickname:'', profileImage:null
+  //       });
+  //       done(null,newUser);
+  //     } catch(e){ done(e); }
+  //   }
+  // ));
 };

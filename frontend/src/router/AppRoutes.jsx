@@ -27,6 +27,7 @@ import RecommendationResult from '../pages/Suggestion/RecommendationResult';
 import MyPage       from '../pages/MyPage/MyPage';
 import PrivateRoutes from './PrivateRoutes';
 import NotFound      from '../pages/NotFound';
+import Signup from '../pages/Auth/Signup';
 
 const AppRoutes = () => (
   <Routes>
@@ -34,6 +35,7 @@ const AppRoutes = () => (
     <Route path="/" element={<Navigate to="/calendar" replace />} />
 
     {/* 공개 페이지 */}
+    <Route path="/signup" element={<Signup />} />
     <Route path="/login" element={<Login />} />
     <Route path="/calendar" element={<Calendar />} />
     <Route path="/challenge" element={<Challenge />} />

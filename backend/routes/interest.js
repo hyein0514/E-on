@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const ctrl = require('../controllers/interest');
-const { isLoggedIn } = require('../middlewares/auth');
+const { isLoggedIn } = require('../middleware/auth');
 
 // [GET] /api/interests/categories
 router.get(

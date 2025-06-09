@@ -4,6 +4,12 @@ const router = express.Router();
 const ctrl = require('../controllers/interest');
 const { isLoggedIn } = require('../middleware/auth');
 
+router.get(
+  '/',
+  isLoggedIn,
+  ctrl.getCategories
+);
+
 // [GET] /api/interests/categories
 router.get(
   '/categories',

@@ -244,7 +244,7 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {} }) => {
         photos.forEach((f)   => formData.append("photos",   f));
         consents.forEach((f) => formData.append("consents", f));
 
-        await axiosInstance.post("/challenges", formData, {
+        await axiosInstance.post("/api/challenges", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
 

@@ -1,8 +1,35 @@
+// routes/interest.js
 const express = require('express');
 const router = express.Router();
-const interestController = require('../controllers/interestController');
+const ctrl = require('../controllers/interest');
+const { isLoggedIn } = require('../middlewares/auth');
 
-// GET /api/interests
-router.get('/', interestController.getAll);
+// [GET] /api/interests/categories
+router.get(
+  '/categories',
+  isLoggedIn,
+  ctrl.getCategories
+);
+
+// [GET] /api/interests/list/:categoryCode
+router.get(
+  '/list/:categoryCode',
+  isLoggedIn,
+  ctrl.getList
+);
+
+// [GET] /api/interests/my
+router.get(
+  '/my',
+  isLoggedIn,
+  ctrl.getMy
+);
+
+// [POST] /api/interests/my
+router.post(
+  '/my',
+  isLoggedIn,
+  ctrl.saveMy
+);
 
 module.exports = router;

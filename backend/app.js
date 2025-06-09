@@ -1,76 +1,80 @@
-//app.js
-// dotenv 패키지 사용해 환경변수 로드
-require('dotenv').config();
-// cors 패키지 사용해 CORS 설정
-const cors = require('cors');
-
-// Express 앱 구성
-const { rawConnection: db, sequelize } = require('./database/db.js');
+// app.js
+require('dotenv').config();                // 환경변수 로드
 const express = require('express');
-const path    = require('path'); 
+const path    = require('path');
+const cors    = require('cors');
+const session = require('express-session');
+const passport = require('passport');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
+
+// DB 연결 (rawConnection은 기존 쿼리용, sequelize는 Sequelize ORM용)
+const { rawConnection: db, sequelize } = require('./database/db.js');
+
+// Passport 설정 (local, kakao, google, naver)
+require('./config/passport')();
+
 const app = express();
 
-const upload = require('./config/multer.js');
-
+// 업로드 폴더 정적 서빙
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// 미들웨어
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// CORS 설정 (클라이언트 도메인 허용)
 app.use(cors({
-  origin: 'http://localhost:5173',  // 개발용
-  // origin: '도메인 URL', // 운영용
-  credentials: true // 클라이언트에서 쿠키를 사용할 수 있도록 설정
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
 }));
 
-const schoolScheduleRoute = require('./routes/schoolScheduleRoute'); // 학사 일정 API 라우터
-const averageScheduleRoute = require('./routes/averageScheduleRouter'); // 지역별 평균 시간표 API 라우터
-const challengeRoutes = require('./routes/challengeRoutes');
-const participationRoutes = require('./routes/participationRoutes');
-const attendanceRoutes = require('./routes/attendance.js');
-const reviewRoutes = require('./routes/reviewRoutes.js');
-const bookmarkRoutes = require('./routes/bookmarkRoutes.js');
-const attachmentRoutes = require('./routes/attachmentRoutes.js');
-const interestsRouter = require('./routes/interest.js');
-const visionsRouter = require('./routes/visions.js');
-const timeRecommendationRoutes = require('./routes/timeRecommendations');
-const regionRouter = require('./routes/regionRouter'); 
-const boardRoute = require('./routes/boardRoute'); // 게시판 API 라우터
-const recommendationRoutes = require('./routes/recommendations');
-const preferenceRoutes = require('./routes/preferencesRoutes');
-app.use(cors()); // ✅ CORS 사용
-app.use('/api', recommendationRoutes);
+// Body parser
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// 세션 + Passport
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: new SequelizeStore({ db: sequelize }),  // 세션을 DB에 저장
+  cookie: { httpOnly: true, secure: false }      // HTTPS 환경이면 secure: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+// ───────────────────────────────────────────────
+// 인증 라우트
+app.use('/auth', require('./routes/auth'));
+
+app.use('/api/user',      require('./routes/user'));
+app.use('/api/interests', require('./routes/interest'));
+app.use('/api/activity', require('./routes/activity'));
+app.use('/api/notification', require('./routes/notification'));
+
+
+app.use('/schoolSchedule',         require('./routes/schoolScheduleRoute'));
+app.use('/averageSchedule',        require('./routes/averageScheduleRouter'));
+app.use('/regions',                require('./routes/regionRouter'));
+app.use('/boards',                 require('./routes/boardRoute'));
+
+app.use('/api/recommendations',       require('./routes/recommendations'));
+app.use('/api/preferences',           require('./routes/preferencesRoutes'));
+app.use('/api/select',                require('./routes/select'));
+app.use('/api/time-recommendations',  require('./routes/timeRecommendations'));
+app.use('/api/challenges',            require('./routes/challengeRoutes'));
+app.use('/api/participation',         require('./routes/participationRoutes'));
+app.use('/api/attendance',            require('./routes/attendance'));
+app.use('/api/reviews',               require('./routes/reviewRoutes'));
+app.use('/api/bookmarks',             require('./routes/bookmarkRoutes'));
+app.use('/api/attachments',           require('./routes/attachmentRoutes'));
+app.use('/api/visions',               require('./routes/visions'));
+
+// 테스트용 헬로우 엔드포인트
 app.get('/api/hello', (req, res) => {
   res.json({ message: 'Hello from Node.js!' });
 });
-app.use('/api/preferences', preferenceRoutes);
-// 학사 일정 API 라우터
 
-app.use('/schoolSchedule', schoolScheduleRoute);
-app.use('/averageSchedule', averageScheduleRoute);
-app.use('/regions', regionRouter);
-app.use('/boards', boardRoute);
-
-
-app.use('/api', require('./routes/select'));
-
-app.use('/api/time-recommendations', timeRecommendationRoutes);
-
-app.get('/api/users', (req, res) => {
-  db.query('SELECT * FROM users', (err, results) => {
-    if (err) return res.status(500).send('DB 에러: ' + err.message);
-    res.json(results);
-  });
+// 에러 핸들러 (마지막에)
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ message: 'Internal Server Error' });
 });
-app.use('/api', challengeRoutes);
-app.use('/api', participationRoutes);
-app.use('/api', attendanceRoutes);
-app.use('/api', reviewRoutes);
-app.use('/api', bookmarkRoutes);
-app.use('/api', attachmentRoutes);
-app.use('/api/interests', interestsRouter);
-app.use('/api/visions', visionsRouter);
 
-
-module.exports = app; // app을 모듈로 내보냄
+module.exports = app;

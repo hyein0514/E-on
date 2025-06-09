@@ -43,8 +43,8 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {} }) => {
 
   // ────────────────── 2) 관심사/진로 옵션 불러오기 ──────────────────
   useEffect(() => {
-    axiosInstance.get("/interests").then((res) => setInterestOptions(res.data));
-    axiosInstance.get("/visions").then((res) => setVisionOptions(res.data));
+    axiosInstance.get("api/interests/categories").then((res) => setInterestOptions(res.data));
+    axiosInstance.get("api/visions").then((res) => setVisionOptions(res.data));
   }, []);
 
   // ────────────────── 3) 편집 모드 초기 세팅 ──────────────────

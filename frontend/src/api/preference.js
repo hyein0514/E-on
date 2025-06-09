@@ -3,25 +3,25 @@ import axios from "./axiosInstance";
 
 // 관심 분야 대분류
 export const getInterestCategories = async () => {
-  const res = await axios.get("/api/preferences/interests/categories"); //엔드포인트 수정해야함
+  const res = await axios.get("/api/interests/categories"); //엔드포인트 수정해야함
   return res.data;
 };
 
 // 선택된 대분류의 소분류 리스트
 export const getInterestsByCategory = async (categoryCode) => {
-  const res = await axios.get(`/api/preferences/interests?categoryCode=${categoryCode}`);
+  const res = await axios.get(`/api/interests?categoryCode=${categoryCode}`);
   return res.data;
 };
 
 // 진로 희망 대분류
 export const getVisionCategories = async () => {
-  const res = await axios.get("/api/preferences/visions/categories");
+  const res = await axios.get("/api/visions/categories");
   return res.data;
 };
 
 // 진로 희망 소분류
 export const getVisionsByCategory = async (categoryCode) => {
-  const res = await axios.get(`/api/preferences/visions?categoryCode=${categoryCode}`);
+  const res = await axios.get(`/api/visions?categoryCode=${categoryCode}`);
   return res.data;
 };
 

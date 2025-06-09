@@ -59,7 +59,7 @@ app.use('/api/preferences',           require('./routes/preferencesRoutes'));
 app.use('/api/select',                require('./routes/select'));
 app.use('/api/time-recommendations',  require('./routes/timeRecommendations'));
 app.use('/api/challenges',            require('./routes/challengeRoutes'));
-app.use('/api/participation',         require('./routes/participationRoutes'));
+app.use('/api/participations',         require('./routes/participationRoutes'));
 app.use('/api/attendance',            require('./routes/attendance'));
 app.use('/api/reviews',               require('./routes/reviewRoutes'));
 app.use('/api/bookmarks',             require('./routes/bookmarkRoutes'));

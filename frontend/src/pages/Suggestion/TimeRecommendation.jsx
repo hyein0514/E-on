@@ -40,7 +40,7 @@ const TimeRecommendation = () => {
                 <h2 className={styles.title}>|</h2>
                 <h2 className={styles.title}>
                     <Link
-                        to="/suggestion/recommendation"
+                        to="/suggestion/preferences"
                         className={styles.navLink}>
                         🙌 개인별 추천 활동
                     </Link>

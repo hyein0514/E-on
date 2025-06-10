@@ -40,7 +40,7 @@ const Challenge = () => {
   };
 
   useEffect(() => {
-    axiosInstance.get("/api/interests/categories")
+    axiosInstance.get("/api/interests")
       .then((res) => setInterestOptions(res.data))
       .catch((err) => console.error("관심사 조회 실패:", err));
 

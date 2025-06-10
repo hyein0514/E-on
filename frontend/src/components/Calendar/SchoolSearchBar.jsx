@@ -19,7 +19,7 @@ import {
 import debounce from "lodash.debounce";
 
 const SchoolSearchBar = () => {
-    const { searchType, setSearchType, setSchoolAdress } =
+    const { searchType, setSearchType, schoolAddress, setSchoolAdress } =
         useContext(SearchTypeContext);
     const { setSelectedValue, setSchedules } = useContext(ViewContext);
     const [inputValue, setInputValue] = useState("");
@@ -189,10 +189,12 @@ const SchoolSearchBar = () => {
                         value="school"
                         checked={searchType.type === "school"}
                         onChange={() => {
+                            if (!schoolAddress) {
+                                setSchoolAdress("서울특별시 송파구 송이로 45");
+                            }
                             setSearchType((prev) => {
                                 return { ...prev, type: "school" };
                             });
-                            setSchoolAdress("서울특별시 송파구 송이로 45");
                         }}
                     />
                     학교별

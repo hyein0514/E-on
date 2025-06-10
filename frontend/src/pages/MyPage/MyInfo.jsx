@@ -1,10 +1,10 @@
 // src/pages/MyPage/MyInfo.jsx
-import { useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import api from '../../api/api';
-import { useAuth } from '../../hooks/useAuth';
+import { AuthContext } from '../../contexts/AuthContext';
 
 export default function MyInfo() {
-  const { user, setUser } = useAuth();
+  const { user, setUser } = useContext(AuthContext);
 
   const [name, setName]                       = useState('');
   const [nickname, setNickname]               = useState('');

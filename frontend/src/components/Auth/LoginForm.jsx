@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import { useState, useContext } from 'react';
+import { AuthContext } from '../../contexts/AuthContext';
 
 export default function LoginForm({ onSuccess }) {
-  const { login } = useAuth();
+  const { login } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

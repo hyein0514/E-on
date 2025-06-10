@@ -4,7 +4,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    historyApiFallback: true, // SPA 라우팅 처리
     proxy: {
       '/api': {
         target: 'http://localhost:4000', // <- 백엔드 서버 주소

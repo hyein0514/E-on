@@ -1,39 +1,26 @@
-import React, { createContext, useContext, useState } from 'react';
-import axios from 'axios';
+// src/contexts/AuthContext.jsx
+import { createContext, useState } from 'react';
 
-const AuthContext = createContext();
+export const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  
-  // axios 기본 설정: 쿠키 전송
-  axios.defaults.withCredentials = true;
-  axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null); // { username: "jungho", ... }
 
-  const signup = async ({ name, email, age, code, password, confirm }) => {
-    const res = await axios.post('/auth/join/step3', {
-      name, email, age, code, password, confirm
-    });
-    setUser(res.data.user);
-    return res.data;
+  const login = (userData) => {
+    setUser(userData); // 로그인 시 유저 데이터 저장
   };
 
-  const login = async ({ email, password }) => {
-    const res = await axios.post('/auth/login', { email, password });
-    setUser(res.data.user);
-    return res.data;
-  };
-
-  const logout = async () => {
-    await axios.post('/auth/logout');
+  const logout = () => {
     setUser(null);
   };
 
+  const isLoggedIn = !!user;
+
   return (
-    <AuthContext.Provider value={{ user, signup, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoggedIn }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export default AuthProvider;

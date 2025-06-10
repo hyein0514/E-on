@@ -1,3 +1,5 @@
+// src/components/Challenge/ChallengeCreateForm.jsx
+
 import { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
@@ -41,8 +43,8 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {} }) => {
 
   // ────────────────── 2) 관심사/진로 옵션 불러오기 ──────────────────
   useEffect(() => {
-    axiosInstance.get("api/interests/categories").then((res) => setInterestOptions(res.data));
-    axiosInstance.get("api/visions").then((res) => setVisionOptions(res.data));
+    axiosInstance.get("/interests").then((res) => setInterestOptions(res.data));
+    axiosInstance.get("/visions").then((res) => setVisionOptions(res.data));
   }, []);
 
   // ────────────────── 3) 편집 모드 초기 세팅 ──────────────────
@@ -157,7 +159,7 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {} }) => {
   const handleDeleteAttachment = async (attachmentId) => {
     if (!window.confirm("정말로 이 첨부파일을 삭제하시겠습니까?")) return;
     try {
-      await axiosInstance.delete(`/api/attachments/${attachmentId}`);
+      await axiosInstance.delete(`/attachments/${attachmentId}`);
       setInitialAttachments((prev) =>
         prev.filter((att) => att.attachment_id !== attachmentId)
       );
@@ -221,7 +223,7 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {} }) => {
         const challengeId = initialData.challenge_id;
 
         // (1) JSON PATCH
-        await axiosInstance.patch(`/api/challenges/${challengeId}`, reqBody);
+        await axiosInstance.patch(`/challenges/${challengeId}`, reqBody);
 
         // (2) photos / consents 업로드
         if (photos.length > 0 || consents.length > 0) {
@@ -230,7 +232,7 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {} }) => {
           consents.forEach((f) => uploadForm.append("consents", f));
 
           await axiosInstance.post(
-            `/api/challenges/${challengeId}/attachments`,
+            `/challenges/${challengeId}/attachments`,
             uploadForm,
             { headers: { "Content-Type": "multipart/form-data" } }
           );
@@ -244,7 +246,7 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {} }) => {
         photos.forEach((f)   => formData.append("photos",   f));
         consents.forEach((f) => formData.append("consents", f));
 
-        await axiosInstance.post("/api/challenges", formData, {
+        await axiosInstance.post("/challenges", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
 

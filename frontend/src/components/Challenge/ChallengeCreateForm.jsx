@@ -1,5 +1,3 @@
-// src/components/Challenge/ChallengeCreateForm.jsx
-
 import { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";

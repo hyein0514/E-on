@@ -40,11 +40,11 @@ const Challenge = () => {
   };
 
   useEffect(() => {
-    axiosInstance.get("/interests")
+    axiosInstance.get("/api/interests")
       .then((res) => setInterestOptions(res.data))
       .catch((err) => console.error("관심사 조회 실패:", err));
 
-    axiosInstance.get("/visions")
+    axiosInstance.get("/api/visions")
       .then((res) => setVisionOptions(res.data))
       .catch((err) => console.error("비전 조회 실패:", err));
   }, []);

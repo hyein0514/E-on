@@ -3,7 +3,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 import Home                 from '../pages/Home';
-import Login                from '../pages/Auth/Login';
+import Login                from '../pages/Auth/LoginPage';
 import Calendar             from '../pages/Calendar/Calendar';
 import Challenge            from '../pages/Challenge/Challenge';
 import Suggestion           from '../pages/Suggestion/Suggestion';
@@ -27,7 +27,7 @@ import RecommendationResult from '../pages/Suggestion/RecommendationResult';
 import MyPage       from '../pages/MyPage/MyPage';
 import PrivateRoutes from './PrivateRoutes';
 import NotFound      from '../pages/NotFound';
-import Signup from '../pages/Auth/Signup';
+import Signup from '../pages/Auth/SignupPage';
 
 const AppRoutes = () => (
   <Routes>

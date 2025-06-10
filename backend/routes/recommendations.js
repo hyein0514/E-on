@@ -4,7 +4,7 @@ const router = express.Router();
 const { sequelize } = require('../database/db');
 
 // GET /api/recommendations/:userId
-router.get('/recommendations/:userId', async (req, res) => {
+router.get('/:userId', async (req, res) => {
   const userId = parseInt(req.params.userId);
 
   try {

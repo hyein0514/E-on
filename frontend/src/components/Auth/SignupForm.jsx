@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import api from '../../api/api';
-import { useAuth } from '../../hooks/useAuth';
+import { AuthContext } from '../../contexts/AuthContext';
 
 export default function SignupForm({ onFinish }) {
-  const { signup } = useAuth();
+  const { signup } = useContext(AuthContext);
   const [step, setStep] = useState(1);
   const [data, setData] = useState({
     userType: 'student',

@@ -1,14 +1,15 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
 import Header from '../components/Common/Header';
-import HomePage from '../pages/Home';
-import Login from '../pages/Auth/LoginPage';
-import Signup from '../pages/Auth/SignupPage';
-import MyPage from '../pages/MyPage/MyPage';
+import HomePage from '../pages/HomePage';
+import Login from '../pages/Auth/Login';
+import Signup from '../pages/Auth/Signup';
+import MyPage from '../pages/MyPage';
 import ProtectedRoute from '../components/Auth/ProtectedRoute';
-import { useAuth } from '../hooks/useAuth';
 
 export default function AppRouter() {
-  const { user } = useAuth();
+  const { isLoggedIn } = useContext(AuthContext);
 
   return (
     <BrowserRouter>

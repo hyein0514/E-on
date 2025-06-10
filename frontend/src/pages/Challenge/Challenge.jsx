@@ -133,7 +133,7 @@ const Challenge = () => {
 
   // 챌린지 생성 페이지로 이동 (예시)
   const handleCreate = () => {
-    // 예: navigate("/challenge/create");
+    navigate("/challenge/create");
   };
 
   // 참여 / 참여 취소 로직

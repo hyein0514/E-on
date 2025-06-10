@@ -14,9 +14,9 @@ backend/
 │   └── userModel.js
 ├── routes/                # URL 별로 컨트롤러 연결
 │   └── userRoutes.js
-├── views/                 # (선택) 템플릿 엔진 사용 시
 ├── database/              # DB 연결 설정
 │   └── db.js
+├── utils/                 # 유틸 함수 모음
 ├── app.js                 # 앱 구성 (미들웨어, 라우터 등 설정)
 └── index.js               # 서버 실행 진입점
 ```
@@ -29,6 +29,7 @@ backend/
 frontend/
 ├── public/                # 정적 파일 (favicon, index.html 등)
 ├── src/
+│   ├── api/               # API 요청 처리 (axios, 서버 api 등)
 │   ├── assets/            # 이미지, 폰트 등 static 리소스
 │   ├── components/        # 재사용 가능한 UI 컴포넌트
 │   ├── pages/             # 라우팅되는 각 페이지 (Home, Login 등)
@@ -36,7 +37,6 @@ frontend/
 │   ├── hooks/             # 커스텀 훅 (useAuth 등)
 │   ├── utils/             # 유틸 함수 모음
 │   ├── constants/         # 상수 (API 주소, 메시지 등)
-│   ├── services/          # API 요청 처리 (axios 등)
 │   ├── contexts/          # 전역 상태 관리 (React Context API)
 │   ├── router/            # react-router 설정
 │   ├── styles/            # 전역 스타일 또는 Tailwind 설정

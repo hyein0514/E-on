@@ -1,0 +1,59 @@
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem 2rem 2rem;
+}
+
+.headerRow {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.selectRow {
+    margin-top: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.selectRow select,
+.selectRow button {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cardList {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    justify-items: center;
+    align-items: stretch;
+    min-height: 200px;
+    padding-bottom: 40px;
+}
+
+.emptyMessage {
+    margin-top: 3rem;
+    font-size: 16px;
+    color: #666;
+    text-align: center;
+}
+
+.navLink {
+    margin: 0 20px;
+    padding-bottom: 5px;
+    color: #333;
+    text-decoration: none;
+    list-style-type: none;
+    display: inline-block;
+}

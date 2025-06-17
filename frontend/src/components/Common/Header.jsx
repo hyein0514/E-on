@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 import styles from "./../../styles/Common/Header.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.svg";
-import notification from "../../assets/notification.svg";
+// import notification from "../../assets/notification.svg";
 import { useAuth } from "../../hooks/useAuth";
 
 export default function Header() {
@@ -12,9 +12,9 @@ export default function Header() {
     const handleLogout = async () => {
         try {
             await logout();
-            navigate('/');
+            navigate("/");
         } catch (error) {
-            console.error('Logout failed:', error);
+            console.error("Logout failed:", error);
         }
     };
 
@@ -26,7 +26,10 @@ export default function Header() {
                 </Link>
             </div>
             <div className={styles.navContainer}>
-                <ul className={styles.navList}>
+                <ul
+                    className={`${styles.navList} ${
+                        user ? styles.navListSmallGap : styles.navListLargeGap
+                    }`}>
                     <li className={styles.navItem}>
                         <Link to="/calendar" className={styles.navLink}>
                             학사 일정
@@ -38,7 +41,9 @@ export default function Header() {
                         </Link>
                     </li>
                     <li className={styles.navItem}>
-                        <Link to="/recommendation/time" className={styles.navLink}>
+                        <Link
+                            to="/recommendation/time"
+                            className={styles.navLink}>
                             AI 맞춤 추천
                         </Link>
                     </li>
@@ -49,21 +54,20 @@ export default function Header() {
                     </li>
 
                     {user ? (
-                        <>   
-                        <li className={styles.navItem}>
-                            <Link to={`/mypage`} className={styles.navLink}>
-                                마이페이지
-                            </Link>
-                        </li>
-                        <li className={styles.navItem}>
-                            <button
-                                type="button"
-                                onClick={handleLogout}
-                                className={`${styles.navItem} ${styles.navLink}`}
-                            >
-                                로그아웃
-                            </button>
-                        </li>
+                        <>
+                            <li className={styles.navItem}>
+                                <Link to={`/mypage`} className={styles.navLink}>
+                                    마이페이지
+                                </Link>
+                            </li>
+                            <li className={styles.navItem}>
+                                <button
+                                    type="button"
+                                    onClick={handleLogout}
+                                    className={`${styles.navItem} ${styles.navLink}`}>
+                                    로그아웃
+                                </button>
+                            </li>
                         </>
                     ) : (
                         <li className={styles.navItem}>
@@ -73,13 +77,13 @@ export default function Header() {
                         </li>
                     )}
 
-                    <li className={styles.navItem}>
+                    {/* <li className={styles.navItem}>
                         <img
                             src={notification}
                             alt="Notification"
                             className={styles.notification}
                         />
-                    </li>
+                    </li> */}
                 </ul>
             </div>
         </header>

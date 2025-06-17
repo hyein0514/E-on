@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import api from '../../api/api';
+import api from '../../api/axiosInstance';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function SignupForm({ onFinish }) {

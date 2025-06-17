@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 
 const ReviewCreateForm = ({
   challengeId,
-  mode = "create",     // "create" or "edit"
-  initialData = null,  // 수정 시: { review_id, user_id, rating_stars, text, writer, review_date }
-  onSubmit,            // submit 이후 호출할 콜백 (선택사항)
+  mode = "create",     
+  initialData = null, 
+  onSubmit,            
 }) => {
   // form 상태: rating, text
   // (title 필드는 예시에서 따로 API 스펙 없음 → title 입력란은 제거했습니다)

@@ -23,17 +23,6 @@ const AttendanceList = ({ challengeId, date }) => {
       try {
         // date 파라미터를 꼭 넘겨야, 백엔드에서 해당 날짜 출석만 LEFT JOIN으로 가져옵니다
         const res = await getChallengeAttendances(challengeId, date);
-
-        /* 응답 예상 구조
-           [
-             {
-               participating_id,
-               participant: { user_id, name },
-               attendances: [ { attendance_id, attendance_state, memo } ]  // 배열 (길이가 0 또는 1)
-             },
-             ...
-           ]
-        */
         setRows(
           res.data.map((p) => ({
             participationId: p.participating_id,

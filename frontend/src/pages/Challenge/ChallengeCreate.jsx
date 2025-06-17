@@ -4,19 +4,12 @@ import { createChallenge, uploadAttachment } from "../../api/challengeApi";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Common/Header";
 import ChallengeCreateForm from "../../components/Challenge/ChallengeCreateForm";
+import { useAuth } from "../../hooks/useAuth";
 
 const ChallengeCreate = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
 
-  /**
-   * formData: ChallengeCreateForm 에서 넘겨주는 객체 (
-   *   title, content, minimum_age, maximum_age, maximum_people, application_deadline, 
-   *   start_date, end_date, is_recuming, repeat_type, intermediate_participation, 
-   *   days, interestIds, visionIds, creator_contact, user_id 등
-   * )
-   * photoFile: <input type="file" accept="image/*" />에서 선택된 File 객체 (사진)
-   * consentFile: <input type="file" accept=".pdf,.doc,.docx" />에서 선택된 File 객체 (보호자 동의서)
-   */
   const handleSubmit = async (formData, photoFile, consentFile) => {
     try {
       // 1) 백엔드가 요구하는 필드 이름으로 재매핑
@@ -71,7 +64,7 @@ const ChallengeCreate = () => {
         interestIds: formData.interestIds,
         visionIds: formData.visionIds,
         creator_contact: formData.phone,
-        user_id: 1, // 실제 유저 정보로 교체 필요
+        user_id: user.user_id,
       };
 
       // 2) 챌린지 생성 요청 (createChallenge)
@@ -110,7 +103,7 @@ const ChallengeCreate = () => {
           <Header />
         </div>
       
-      <ChallengeCreateForm mode="create" onSubmit={handleSubmit} />
+      <ChallengeCreateForm mode="create" onSubmit={handleSubmit} user_id={user.user_id} />
     </div>
   );
 };

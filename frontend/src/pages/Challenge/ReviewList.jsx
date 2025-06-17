@@ -23,26 +23,6 @@ const ReviewList = () => {
       setLoading(true);
       try {
         const res = await getChallengeReviews(challengeId);
-        /* 
-          API 응답 형식 예시 (포스트맨에서 가져온 대로):
-          [
-            {
-              review_id: 1,
-              rating_stars: 5,
-              text: "운동 습관에 큰 도움이 되었어요!",
-              is_edited: false,
-              review_date: "2025-06-30T20:10:10.000Z",
-              user_id: 1,
-              challenge_id: 1,
-              writer: {
-                user_id: 1,
-                name: "김하린"
-              }
-            },
-            ...
-          ]
-        */
-        // 그대로 상태에 담아두면, ReviewListSection에서 필요한 필드를 꺼내 쓰면 됩니다.
         setReviews(res.data);
       } catch (e) {
         console.error("리뷰 조회 오류:", e);

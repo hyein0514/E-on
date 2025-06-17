@@ -8,9 +8,17 @@ const ParticipatingChallenge = sequelize.define('ParticipatingChallenge', {
     type: DataTypes.BIGINT, primaryKey:true, autoIncrement:true
   },
   participating_state: {
-    type: DataTypes.ENUM('신청','취소'),
+    type: DataTypes.ENUM('신청', '진행 중', '완료', '취소'),
     allowNull: false,
     defaultValue: '신청'
+  },
+  challenge_id: { // ★ FK 추가
+    type: DataTypes.BIGINT,
+    allowNull: false
+  },
+  user_id: { // ★ FK 추가
+    type: DataTypes.BIGINT,
+    allowNull: false
   }
 }, {
   tableName: 'ParticipatingChallenge',

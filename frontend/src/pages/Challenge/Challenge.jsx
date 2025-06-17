@@ -42,6 +42,10 @@ const Challenge = () => {
   };
 
   useEffect(() => {
+  console.log('[Challenge] 로그인한 유저:', user);  // user_id, name 등
+}, [user]);
+
+  useEffect(() => {
     axiosInstance.get("/api/interests")
       .then((res) => setInterestOptions(res.data))
       .catch((err) => console.error("관심사 조회 실패:", err));
@@ -88,7 +92,6 @@ const Challenge = () => {
         params.date = date; // "YYYY-MM-DD"
       }
 
-      console.log("▶ fetchChallenges 에서 보낼 params:", { minAge, maxAge, ...params });
 
       // 3) 나이 필터
       if (minAge) params.minAge = minAge;
@@ -140,6 +143,7 @@ const Challenge = () => {
 
   // 참여 / 참여 취소 로직
   const handleApply = async ({ challenge_id, isJoined, participationId, participationState }) => {
+    console.log('[handleApply] user_id:', userId, 'challenge_id:', challenge_id, 'isJoined:', isJoined, 'participationId:', participationId, 'participationState:', participationState);
     if (actionLoading) return;
     setActionLoading(true);
 

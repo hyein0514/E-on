@@ -37,6 +37,13 @@ const PreferenceInterest = () => {
   };
 
   const handleNext = async () => {
+// ✅ 예외 처리 추가: 선택 항목이 없으면 경고 후 return
+    if (selectedInterests.length === 0) {
+      alert("관심 분야를 최소 1개 이상 선택해주세요.");
+      return;
+    }
+
+
     try {
       // ✅ 서버가 기대하는 건 interest_id 배열이므로 변환
       const interestIds = selectedInterests

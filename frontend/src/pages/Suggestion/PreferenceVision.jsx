@@ -37,6 +37,13 @@ const PreferenceVision = () => {
   };
 
   const handleNext = async () => {
+
+     // ✅ 예외 처리 추가: 선택하지 않은 경우 경고창 표시
+    if (selectedVisions.length === 0) {
+      alert("진로 희망을 최소 1개 이상 선택해주세요.");
+      return;
+    }
+    
     try {
       // ✅ 선택된 vision_detail 값을 vision_id로 매핑
       const visionIds = selectedVisions

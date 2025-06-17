@@ -45,14 +45,16 @@ const RecommendationResult = () => {
             {recommendations.length === 0 ? (
                 <p>추천된 챌린지가 없습니다.</p>
             ) : (
-                recommendations.map((item) =>
-                    item ? (
-                        <PersonalRecommendationCard
-                            key={item.challenge_id}
-                            challenge={item}
-                        />
-                    ) : null
-                )
+                <div className={styles.cardList}>
+                    {recommendations.map((item) =>
+                        item ? (
+                            <PersonalRecommendationCard
+                                key={item.challenge_id}
+                                challenge={item}
+                            />
+                        ) : null
+                    )}
+                </div>
             )}
         </div>
     );

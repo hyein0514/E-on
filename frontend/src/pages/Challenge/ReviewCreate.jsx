@@ -5,19 +5,20 @@ import ReviewCreateForm from "../../components/Review/ReviewCreateForm";
 import { useParams, useNavigate } from "react-router-dom";
 import { createReview } from "../../api/challengeApi";
 import { useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
 
 const ReviewCreate = () => {
   const { challengeId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const { user, loading: authLoading } = useAuth();
 
   // 폼이 제출되면 API 호출
   const handleCreate = async ({ rating_stars, text }) => {
     setLoading(true);
     try {
-      // user_id는 로그인된 유저 ID로 교체하세요 (여기서는 1로 가정)
       await createReview(challengeId, {
-        user_id: 1,
+        user_id: user.user_id,
         rating_stars,
         text,
       });

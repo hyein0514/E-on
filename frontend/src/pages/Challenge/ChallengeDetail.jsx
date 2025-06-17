@@ -3,10 +3,13 @@ import Header from "../../components/Common/Header";
 import ChallengeDetailContent from "../../components/Challenge/ChallengeDetailContent";
 import { useEffect, useState } from "react";
 import { getChallengeDetail, getParticipationDetailForUser } from "../../api/challengeApi";
+import { useAuth } from "../../hooks/useAuth";
 
 const ChallengeDetail = () => {
   const { id } = useParams();
-  const userId = 1; // 임시
+  const { user, loading: authLoading } = useAuth();
+  const userId = user?.user_id;
+
   const [challenge, setChallenge] = useState(null);
   const [loading, setLoading] = useState(true);
   const [bookmarked, setBookmarked] = useState(false);

@@ -1,51 +1,76 @@
-// src/contexts/AuthContext.jsx
-import { createContext, useState, useEffect } from 'react';
-import api from '../api/api';
+import { createContext, useEffect, useState } from "react";
+import api from "../api/axiosInstance";
 
 export const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+// 마이페이지 리다이렉션 문제 해결
+// AuthContext에서 user === undefined 상태랑 loading을 구분해서 제공
+function AuthProvider({ children }) {
+    const [user, setUser] = useState(undefined); //
+    const [loading, setLoading] = useState(true);
 
-  // 1) 마운트 시 세션 확인
-  useEffect(() => {
-    api.get('/api/user/me')
-      .then(res => {
-        if (res.data.success) setUser(res.data.user);
-      })
-      .catch(() => setUser(null));
-  }, []);
+    const signup = async ({
+        name,
+        email,
+        age,
+        code,
+        password,
+        confirm,
+        type,
+        agreements,
+    }) => {
+        try {
+            console.log("📦 signup axios 요청 보냄");
+            const res = await api.post("/auth/join/step3", {
+                name,
+                email,
+                age,
+                code,
+                password,
+                confirm,
+                type,
+                agreements,
+            });
+            console.log("✅ signup axios 성공", res.data);
+            setUser(res.data.user);
+            return res.data;
+        } catch (err) {
+            console.error("❌ signup axios 에러", err);
+            throw err;
+        }
+    };
 
-  // 2) 이메일/비밀번호 로그인
-  const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
-    setUser(res.data.user);
-    return res;
-  };
+    const login = async ({ email, password }) => {
+        const res = await api.post("/auth/login", { email, password });
+        setUser(res.data.user);
+        return res.data;
+    };
 
-  // 3) 로그아웃
-  const logout = async () => {
-    await api.get('/auth/logout');
-    setUser(null);
-  };
+    const logout = async () => {
+        await api.post("/auth/logout");
+        setUser(null);
+    };
 
-  // 4) 최종 회원가입 (step3)
-  const signup = data => api.post('/auth/join/step3', data);
+    // useEffect → 변경 필요
+    useEffect(() => {
+        const fetchMe = async () => {
+            try {
+                const res = await api.get("/api/user/me"); // ✅ 변경된 경로
+                setUser(res.data.user);
+            } catch {
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchMe();
+    }, []);
 
-  // 5) 로그인 여부
-  const isLoggedIn = Boolean(user);
-
-  return (
-    <AuthContext.Provider value={{
-      user,
-      isLoggedIn,
-      login,
-      logout,
-      signup
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
+    return (
+        <AuthContext.Provider value={{ user, loading, signup, login, logout }}>
+            {children}
+        </AuthContext.Provider>
+    );
 }
 
 export default AuthProvider;

@@ -1,3 +1,4 @@
+//InterestCategory.js
 const { sequelize, Sequelize } = require('../database/db');
 const { DataTypes } = Sequelize;
 

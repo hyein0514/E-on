@@ -1,14 +1,13 @@
 const express = require('express');
-const passport = require('passport');
-const { signupStep1, signupStep2, sendEmailCode, verifyEmailCode, signupStep3, login, logout } = require('../controllers/auth');
-const { isLoggedIn, isNotLoggedIn } = require('../middleware/auth');
-const router = express.Router();
+const router  = express.Router();
+const authCtrl = require('../controllers/auth');
+const { isNotLoggedIn } = require('../middleware/auth');
 
-router.post('/join/step1',    /*isNotLoggedIn,*/ signupStep1);
-router.post('/join/step2',    /*isNotLoggedIn,*/ signupStep2);
-router.post('/join/email',    /*isNotLoggedIn,*/ sendEmailCode);
-router.post('/verify-email',  /*isNotLoggedIn,*/ verifyEmailCode);
-router.post('/join/step3',    /*isNotLoggedIn,*/ signupStep3);
+router.post('/join/step1',    isNotLoggedIn, authCtrl.signupStep1);
+router.post('/join/step2',    isNotLoggedIn, authCtrl.signupStep2);
+router.post('/join/email',    isNotLoggedIn, authCtrl.sendEmailCode);
+router.post('/verify-email',  isNotLoggedIn, authCtrl.verifyEmailCode);
+router.post('/join/step3',    isNotLoggedIn, authCtrl.signupStep3);
 
 router.post('/login',         isNotLoggedIn, login);
 router.get('/logout',         isLoggedIn,    logout);
@@ -19,5 +18,7 @@ router.get('/google',         passport.authenticate('google',{scope:['email','pr
 router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/login?error'}));
 router.get('/naver',          passport.authenticate('naver'));
 router.get('/naver/callback', passport.authenticate('naver',{failureRedirect:'/login?error'}));
+
+// router.get("/refresh", authCtrl.refresh)
 
 module.exports = router;

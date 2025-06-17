@@ -9,15 +9,11 @@ router.post('/join/email',    isNotLoggedIn, authCtrl.sendEmailCode);
 router.post('/verify-email',  isNotLoggedIn, authCtrl.verifyEmailCode);
 router.post('/join/step3',    isNotLoggedIn, authCtrl.signupStep3);
 
-router.post('/login',         isNotLoggedIn, login);
-router.get('/logout',         isLoggedIn,    logout);
+// 로그인
+router.post('/login', authCtrl.login);
 
-router.get('/kakao',          passport.authenticate('kakao'));
-router.get('/kakao/callback', passport.authenticate('kakao',{failureRedirect:'/login?error'}));
-router.get('/google',         passport.authenticate('google',{scope:['email','profile']}));
-router.get('/google/callback',passport.authenticate('google',{failureRedirect:'/login?error'}));
-router.get('/naver',          passport.authenticate('naver'));
-router.get('/naver/callback', passport.authenticate('naver',{failureRedirect:'/login?error'}));
+// 로그아웃
+router.post('/logout', authCtrl.logout);
 
 // router.get("/refresh", authCtrl.refresh)
 

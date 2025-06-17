@@ -53,7 +53,7 @@ const User = sequelize.define('User', {
   agreements: {
     type: DataTypes.JSON,
     allowNull: false,
-    defaultValue: false
+    defaultValue: {}
   }
 }, {
   tableName: 'User',

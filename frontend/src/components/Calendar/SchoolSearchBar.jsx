@@ -8,13 +8,7 @@ import {
     searchAverageScheduleByName,
     searchAverageScheduleByGrade,
 } from "../../api/regionApi";
-import {
-    searchSchoolsByName,
-    // getSchoolSchedule,
-    // getSchoolScheduleByGrade,
-    // getPrevSchoolScheduleByGrade,
-    getAllSchoolSchedule,
-} from "../../api/schoolApi";
+import { searchSchoolsByName, getAllSchoolSchedule } from "../../api/schoolApi";
 // import extractCityName from "../../utils/extractCityNameUtil"
 import debounce from "lodash.debounce";
 
@@ -75,23 +69,16 @@ const SchoolSearchBar = () => {
 
             setSchoolAdress(address);
 
-            if (schoolType === "중학교") {
-                setSearchType((prev) => ({
-                    ...prev,
-                    schoolType: "middle",
-                }));
-            } else {
-                setSearchType((prev) => ({
-                    ...prev,
-                    schoolType: "elementary",
-                }));
-            }
+            // schoolType 세팅
+            setSearchType((prev) => ({
+                ...prev,
+                schoolType: schoolType === "중학교" ? "middle" : "elementary",
+            }));
 
             try {
                 const year = searchType.year === "prev" ? "prev" : undefined;
                 const grade = searchType.grade || undefined;
 
-                // 통합된 API 호출
                 const res = await getAllSchoolSchedule(
                     schoolCode,
                     atptCode,
@@ -99,8 +86,9 @@ const SchoolSearchBar = () => {
                     grade
                 );
 
-                setSelectedValue(name);
-                setSchedules(res.data);
+                setSelectedValue(name); // 🧠 여기서만 selectedValue 직접 세팅
+                setSchedules(res.data); // 🧠 여기서만 schedules 직접 세팅
+
                 console.log("✅ 학교 학사일정: ", res.data);
             } catch (err) {
                 console.error("❌ 학교 학사일정 조회 실패", err);
@@ -111,8 +99,6 @@ const SchoolSearchBar = () => {
             const { region_name } = selectedRegion;
             setSchoolAdress("");
 
-            // console.log("📍 선택된 지역: ", region_name);
-
             try {
                 const res = searchType.grade
                     ? await searchAverageScheduleByGrade(
@@ -121,63 +107,15 @@ const SchoolSearchBar = () => {
                       )
                     : await searchAverageScheduleByName(region_name);
 
-                setSelectedValue(region_name);
-                setSchedules(res.data.data);
+                setSelectedValue(region_name); // 🧠 여기서만 selectedValue 직접 세팅
+                setSchedules(res.data.data); // 🧠 여기서만 schedules 직접 세팅
+
                 console.log("✅ 평균 학사일정: ", res.data);
             } catch (err) {
                 console.error("❌ 평균 학사일정 조회 실패", err);
             }
         }
     };
-    //     if (searchType.type === "school") {
-    //         if (!school) return alert("학교를 선택해주세요.");
-
-    //         const { schoolCode, name, schoolType, atptCode } = school;
-
-    //         const mappedSchoolType =
-    //             schoolType === "중학교" ? "middle" : "elementary";
-    //         setSearchType((prev) => ({
-    //             ...prev,
-    //             schoolType: mappedSchoolType,
-    //         }));
-
-    //         try {
-    //             const year = searchType.year === "prev" ? "prev" : undefined;
-    //             const grade = searchType.grade || undefined;
-
-    //             const res = await getAllSchoolSchedule(
-    //                 schoolCode,
-    //                 atptCode,
-    //                 year,
-    //                 grade
-    //             );
-
-    //             setSelectedValue(name);
-    //             setSchedules(res.data);
-    //             console.log("✅ 학교 학사일정: ", res.data);
-    //         } catch (err) {
-    //             console.error("❌ 학교 학사일정 조회 실패", err);
-    //         }
-    //     } else if (searchType.type === "region") {
-    //         if (!region) return alert("지역을 선택해주세요.");
-    //         const { region_name } = region;
-
-    //         try {
-    //             const res = searchType.grade
-    //                 ? await searchAverageScheduleByGrade(
-    //                       region_name,
-    //                       searchType.grade
-    //                   )
-    //                 : await searchAverageScheduleByName(region_name);
-
-    //             setSelectedValue(region_name);
-    //             setSchedules(res.data.data);
-    //             console.log("✅ 평균 학사일정: ", res.data);
-    //         } catch (err) {
-    //             console.error("❌ 평균 학사일정 조회 실패", err);
-    //         }
-    //     }
-    // };
 
     return (
         <div className={styles.searchBarContainer}>

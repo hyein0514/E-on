@@ -4,16 +4,19 @@ const express = require('express');
 const path    = require('path');
 const cors    = require('cors');
 const session = require('express-session');
-//const passport = require('passport');
+const passport = require('passport');
 const SequelizeStore = require('connect-session-sequelize')(session.Store);
 
 // DB 연결 (rawConnection은 기존 쿼리용, sequelize는 Sequelize ORM용)
 const { rawConnection: db, sequelize } = require('./database/db.js');
 
 // Passport 설정 (local, kakao, google, naver)
-//require('./config/passport')();
+require('./config/passport')();
 
 const app = express();
+
+// 프록시 환경에서 사용 
+app.set('trust proxy', 1);
 
 // 업로드 폴더 정적 서빙
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -29,15 +32,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // // 세션 + Passport
-// app.use(session({
-//   secret: process.env.SESSION_SECRET,
-//   resave: false,
-//   saveUninitialized: false,
-//   store: new SequelizeStore({ db: sequelize }),  // 세션을 DB에 저장
-//   cookie: { httpOnly: true, secure: false }      // HTTPS 환경이면 secure: true
-// }));
-// app.use(passport.initialize());
-// app.use(passport.session());
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: new SequelizeStore({ db: sequelize }),  // 세션을 DB에 저장
+  cookie: { httpOnly: true, secure: false }      // HTTPS 환경이면 secure: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // ───────────────────────────────────────────────
 // 인증 라우트

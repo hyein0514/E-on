@@ -1,6 +1,5 @@
 import { createContext, useEffect, useState } from 'react';
-import api from '../api/api';
-
+import api from '../api/axiosInstance';
 
 export const AuthContext = createContext();
 
@@ -9,7 +8,6 @@ export const AuthContext = createContext();
 function AuthProvider({ children }) {
   const [user, setUser] = useState(undefined); // 
   const [loading, setLoading] = useState(true);
-
 
   const signup = async ({ name, email, age, code, password, confirm }) => {
     const res = await api.post('/auth/join/step3', {

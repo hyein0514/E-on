@@ -1,3 +1,4 @@
+//visionController.js
 const Visions = require('../models/Visions');
 
 // 비전 전체 조회

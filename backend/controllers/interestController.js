@@ -1,3 +1,4 @@
+//interestController.js
 const Interests = require('../models/Interests');
 
 // 관심사 전체 조회

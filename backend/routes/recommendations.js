@@ -5,8 +5,8 @@ const { sequelize } = require('../database/db');
 
 // GET /api/recommendations/:userId
 router.get('/:userId', async (req, res) => {
-  //const userId = parseInt(req.params.userId);
-  const userId = 1;  // ⚠ 테스트용으로 userId를 1로 고정
+  const userId = parseInt(req.params.userId);
+  //const userId = 1;  // ⚠ 테스트용으로 userId를 1로 고정
 
   try {
     // 1. 사용자 나이 가져오기

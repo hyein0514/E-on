@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../database/db.js');
 const UserState = require('./UserState.js');
@@ -25,13 +26,17 @@ const User = sequelize.define('User', {
     allowNull: false,
     unique: true,
   },
-  pw: {
+  password: {
     type: DataTypes.STRING(255),
     allowNull: false,
+    field : 'pw',
   },
   type: {
-    type: DataTypes.ENUM('student', 'admin', 'guest'),
+    type: DataTypes.ENUM('student','parent','admin'),
     allowNull: false,
+    validate: {
+      isIn: [['student','parent','admin']]
+    }
   },
   state_code: {
     type: DataTypes.STRING(100),
@@ -45,9 +50,29 @@ const User = sequelize.define('User', {
     allowNull: false,
     defaultValue: false,
   },
+  agreements: {
+    type: DataTypes.JSON,
+    allowNull: false,
+    defaultValue: false
+  }
 }, {
   tableName: 'User',
   timestamps: false,
+  defaultScope: {
+    attributes: { exclude: ['password'] }  // 기본적으로 password는 제외
+  },
+  scopes: {
+    withPassword: {
+      attributes: { include: ['password'] }
+    }
+  },
+  hooks: {
+    beforeSave: async (user) => {
+      if (user.changed('password') && user.password) {
+        user.password = await bcrypt.hash(user.password, 12);
+      }
+    }
+  }
 });
 
 User.belongsTo(UserState, {

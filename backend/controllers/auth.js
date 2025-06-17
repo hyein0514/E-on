@@ -1,4 +1,5 @@
 // backend/controllers/auth.js
+const VALID_USER_TYPES = ['student','parent'];
 const bcrypt       = require('bcrypt');
 const passport     = require('passport');
 const transporter  = require('../config/mail');
@@ -6,7 +7,18 @@ const User         = require('../models/User');
 
 // 1단계: 회원 구분 저장
 exports.signupStep1 = (req, res) => {
-  req.session.signup = { type: req.body.userType };  // -> 모델의 'type' 컬럼과 매칭
+  const { userType } = req.body;
+  // 1) 관리자는 접근 차단
+  if (userType === 'admin') {
+    return res.status(403).json({ message: '권한이 없습니다.' });
+  }
+  // 2) 학생/부모가 아니면 에러
+  if (!VALID_USER_TYPES.includes(userType)) {
+    return res.status(400).json({ message: '유효하지 않은 회원 유형입니다.' });
+  }
+
+  // 세션에 저장
+  req.session.signup = { type: userType };
   res.json({ success: true });
 };
 
@@ -52,7 +64,7 @@ exports.verifyEmailCode = (req, res) => {
 
 // 3단계: 실제 회원 생성
 exports.signupStep3 = async (req, res, next) => {
-  const { name, email, code, password, confirm } = req.body;
+  const { name, email, code, password, confirm, age } = req.body;
   const su = req.session.signup || {};
 
   // 1단계/2단계 확인
@@ -81,6 +93,7 @@ exports.signupStep3 = async (req, res, next) => {
     const newUser = await User.create({
       name,
       email,
+      age,
       password,
       nickname: name,
       type: su.type,                    // User 모델의 'type' 컬럼
@@ -122,3 +135,9 @@ exports.logout = (req, res, next) => {
     });
   });
 };
+
+exports.refresh = async (req, res) => {
+  const userId = req.session.passport.user;
+  const user = await User.findByPk(userId);
+  return res.json({success: true, user: user.toJSON()});
+}

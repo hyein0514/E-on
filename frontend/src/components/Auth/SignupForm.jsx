@@ -6,11 +6,12 @@ export default function SignupForm({ onFinish }) {
   const { signup } = useAuth();
   const [step, setStep] = useState(1);
   const [data, setData] = useState({
-    userType: 'student',
+    type: 'student',
     agreements: [],
     email: '',
     code: '',
     name: '',
+    age: '',
     password: '',
     confirm: ''
   });
@@ -18,7 +19,7 @@ export default function SignupForm({ onFinish }) {
   const [error, setError] = useState('');
 
   const next1 = async () => {
-    await api.post('/auth/join/step1', { userType: data.userType });
+    await api.post('/auth/join/step1', { userType: data.type });
     setStep(2);
   };
 
@@ -42,10 +43,14 @@ export default function SignupForm({ onFinish }) {
       setError('비밀번호가 일치하지 않습니다.');
       return;
     }
+
+
     try {
       await signup({
         name: data.name,
         email: data.email,
+        type: data.type,
+        age: data.age,
         code: data.code,
         password: data.password,
         confirm: data.confirm
@@ -63,11 +68,11 @@ export default function SignupForm({ onFinish }) {
         <>
           <h3>1단계: 회원유형 선택</h3>
           <select
-            value={data.userType}
-            onChange={e => setData({ ...data, userType: e.target.value })}
+            value={data.type}
+            onChange={e => setData({ ...data, type: e.target.value })}
           >
+            // 학생,부모로만 받게 수정 
             <option value="student">학생</option>
-            <option value="middle">중학생</option>
             <option value="parent">부모</option>
           </select>
           <button onClick={next1}>다음</button>
@@ -131,6 +136,15 @@ export default function SignupForm({ onFinish }) {
             />
           </label>
           <label>
+            나이
+            <input
+              type="number"
+              value={data.age}
+              onChange={e => setData({ ...data, age: e.target.value })}
+              required
+            />
+          </label>
+          <label>
             비밀번호
             <input
               type="password"
@@ -148,7 +162,7 @@ export default function SignupForm({ onFinish }) {
               required
             />
           </label>
-          <button type="submit">가입 완료</button>
+          <button type="submit" onClick={finish}>가입 완료</button>
         </form>
       )}
     </div>

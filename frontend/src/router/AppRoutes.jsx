@@ -1,6 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "../pages/Home";
-import Login from "../pages/Auth/Login";
+import Login from "../pages/Auth/LoginPage";
+import Signup from "../pages/Auth/SignupPage";
+import MyInfo from "../pages/MyPage/MyInfo";
+import ChangePassword from "../pages/MyPage/ChangePassword";
+import DeactivateAccount from "../pages/MyPage/DeactivateAccount";
 import Calendar from "../pages/Calendar/Calendar";
 import Challenge from "../pages/Challenge/Challenge";
 import Suggestion from "../pages/Suggestion/Suggestion";
@@ -28,6 +32,7 @@ const AppRoutes = () => {
         <Routes>
             <Route path="/" element={<Calendar />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/challenge" element={<Challenge />} />
             <Route path="/challenge/create" element={<ChallengeCreate />} />
@@ -56,13 +61,16 @@ const AppRoutes = () => {
             <Route path="/community/board-requests" element={<BoardRequestPage />} />
 
             <Route
-                path="/mypage/:userId"
+                path="/mypage"
                 element={
                     <PrivateRoutes>
                         <MyPage />
                     </PrivateRoutes>
                 }
             />
+            <Route path="/mypage/info" element={<PrivateRoutes><MyInfo /></PrivateRoutes>} />
+            <Route path="/mypage/password" element={<PrivateRoutes><ChangePassword /></PrivateRoutes>} />
+            <Route path="/mypage/deactivate" element={<PrivateRoutes><DeactivateAccount /></PrivateRoutes>} />
         </Routes>
     );
 };

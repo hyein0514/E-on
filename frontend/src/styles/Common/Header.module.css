@@ -1,11 +1,13 @@
+/* src/styles/Common/Header.module.css */
+
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 1280px;
+    width: 100%;            /* 반응형을 위해 고정값 대신 100% */
+    max-width: 1280px;      /* 원래 최대 너비 유지 */
+    margin: 0 auto;
     height: 140px;
-    /* background-color: antiquewhite;
-    border: #333 solid 2px; */
 }
 
 img {
@@ -16,39 +18,52 @@ img {
 
 .navContainer {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     width: 100%;
 }
 
 .navList {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;  /* 아이템을 왼쪽부터 배치 */
     align-items: center;
-    gap: 80px; /* ← 여백을 navItem 개수만큼 자동 적용 */
+    gap: 80px;                     /* 항목 간 간격 조절 */
     margin: 0 40px;
+    padding: 0;
+    list-style: none;
 }
 
 .navItem {
-    margin: 0 20px;
+    display: inline-flex;     /* 글자 쪼개짐 방지와 정렬을 위해 flex */
+    align-items: center;
+    white-space: nowrap;      /* 텍스트 무조건 한 줄로 */
     padding-bottom: 5px;
     font-size: 15px;
     color: #333;
-    text-decoration: none;
-    list-style-type: none;
-    display: inline-block;
 }
 
 .navLink {
     text-decoration: none;
     color: #333;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: 0.25rem 0.5rem;
+
+    /* 버튼 기본 스타일 제거 추가 */
+    background: none;
+    border: none;
+    cursor: pointer;
+
+}
+
+button.navLink {
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
 .notification {
     width: 36px;
     height: 36px;
-}
-
-li {
-    list-style: none;
 }

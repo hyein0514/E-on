@@ -6,6 +6,7 @@ import Pagination from "../../components/Challenge/Pagination";
 import { getChallengeList, participateChallenge, cancelParticipation } from "../../api/challengeApi";
 import axiosInstance from "../../api/axiosInstance";
 import styles from "../../styles/Pages/Challenge.module.css"
+import { useAuth } from "../../hooks/useAuth";
 
 const itemsPerPage = 5;
 
@@ -16,7 +17,8 @@ const Challenge = () => {
   const [totalCount, setTotalCount] = useState(0);      // 총 아이템 수
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
-  const userId = 1; // 로그인 유저 ID (예시)
+  const { user, loading: authLoading } = useAuth();
+  const userId = user?.user_id;
 
   // ─── 필터 상태: 모달에서 내려오는 값들을 담음 ───
   const emptyFilters = {

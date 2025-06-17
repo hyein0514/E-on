@@ -18,9 +18,14 @@
 }
 
 .cardList {
-    display: flex;
-    flex-wrap: wrap;
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 20px;
+    justify-items: center;
+    align-items: stretch;
+    min-height: 200px;
+    padding-bottom: 40px;
 }
 
 .empty {

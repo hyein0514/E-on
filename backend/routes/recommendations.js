@@ -6,7 +6,6 @@ const { sequelize } = require('../database/db');
 // GET /api/recommendations/:userId
 router.get('/:userId', async (req, res) => {
   const userId = parseInt(req.params.userId);
-  //const userId = 1;  // ⚠ 테스트용으로 userId를 1로 고정
 
   try {
     // 1. 사용자 나이 가져오기
@@ -28,52 +27,49 @@ router.get('/:userId', async (req, res) => {
 
     // 2. 챌린지 추천 쿼리 실행
     const recommendations = await sequelize.query(
-  `
-  SELECT 
-      c.challenge_id,
-      c.challenge_title,
-      c.challenge_description,
-      c.minimum_age,
-      c.maximum_age,
-      c.challenge_state,
-      c.start_date,
-      c.end_date,
-      c.application_deadline,
-      c.is_recuming,
-      c.intermediate_participation,
-      CASE
-          WHEN MAX(ci.interest_id) IS NOT NULL AND MAX(cv.vision_id) IS NOT NULL THEN 2
-          WHEN MAX(ci.interest_id) IS NOT NULL OR MAX(cv.vision_id) IS NOT NULL THEN 1
-          ELSE 0
-      END AS match_score
-  FROM Challenge c
-  LEFT JOIN Challenge_Interest ci ON c.challenge_id = ci.challenge_id
-  LEFT JOIN SelectInterests si ON ci.interest_id = si.interest_id AND si.user_id = ?
-  LEFT JOIN Challenge_Vision cv ON c.challenge_id = cv.challenge_id
-  LEFT JOIN SelectVisions sv ON cv.vision_id = sv.vision_id AND sv.user_id = ?
-  WHERE c.challenge_state = 'ACTIVE'
-      AND c.minimum_age <= ?
-      AND c.maximum_age >= ?
-  GROUP BY 
-      c.challenge_id,
-      c.challenge_title,
-      c.challenge_description,
-      c.minimum_age,
-      c.maximum_age,
-      c.challenge_state,
-      c.start_date,
-      c.end_date,
-      c.application_deadline,
-      c.is_recuming,
-      c.intermediate_participation
-  HAVING match_score > 0
-  ORDER BY match_score DESC, c.start_date ASC
-  `,
-  {
-    replacements: [userId, userId, userAge, userAge],
-    type: sequelize.QueryTypes.SELECT
-  }
-);
+`
+      SELECT 
+          c.challenge_id,
+          c.challenge_title,
+          c.challenge_description,
+          c.minimum_age,
+          c.maximum_age,
+          c.challenge_state,
+          c.start_date,
+          c.end_date,
+          c.application_deadline,
+          c.is_recuming,
+          c.intermediate_participation,
+          CASE
+              WHEN mi.matched = 1 AND mv.matched = 1 THEN 2
+              WHEN mi.matched = 1 OR mv.matched = 1 THEN 1
+              ELSE 0
+          END AS match_score
+      FROM Challenge c
+      LEFT JOIN (
+          SELECT DISTINCT ci.challenge_id, 1 AS matched
+          FROM Challenge_Interest ci
+          INNER JOIN SelectInterests si ON ci.interest_id = si.interest_id
+          WHERE si.user_id = ?
+      ) mi ON c.challenge_id = mi.challenge_id
+      LEFT JOIN (
+          SELECT DISTINCT cv.challenge_id, 1 AS matched
+          FROM Challenge_Vision cv
+          INNER JOIN SelectVisions sv ON cv.vision_id = sv.vision_id
+          WHERE sv.user_id = ?
+      ) mv ON c.challenge_id = mv.challenge_id
+      WHERE 
+          c.challenge_state = 'ACTIVE'
+          AND c.minimum_age <= ?
+          AND c.maximum_age >= ?
+          AND (mi.matched = 1 OR mv.matched = 1)
+      ORDER BY match_score DESC, c.start_date ASC
+      `,
+      {
+        replacements: [userId, userId, userAge, userAge],
+        type: sequelize.QueryTypes.SELECT
+      }
+    );
 
   
 

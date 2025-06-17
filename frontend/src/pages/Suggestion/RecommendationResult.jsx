@@ -6,20 +6,25 @@ import { FaCalendarAlt } from "react-icons/fa";
 import Header from "../../components/Common/Header";
 import { Link } from "react-router-dom";
 
+console.log("📌 RecommendationResult 컴포넌트 렌더링됨");
+
+
 const RecommendationResult = () => {
     const [recommendations, setRecommendations] = useState([]);
 
     useEffect(() => {
-        const userId = localStorage.getItem("userId");
-        if (!userId) {
-            console.error("❌ userId가 localStorage에 없습니다.");
-            return;
-        }
+    const user = JSON.parse(localStorage.getItem("user")); // 전체 user 객체에서
+    const userId = JSON.parse(localStorage.getItem("user"))?.user_id; // ✅ 안전하게 추출
 
-        fetchRecommendationsByPreference(userId)
-            .then((data) => setRecommendations(data))
-            .catch((err) => console.error("추천 로딩 실패:", err));
-    }, []);
+    if (!userId) {
+        console.error("❌ user_id를 localStorage에서 찾을 수 없습니다.");
+        return;
+    }
+
+    fetchRecommendationsByPreference(userId)
+        .then((data) => setRecommendations(data))
+        .catch((err) => console.error("추천 로딩 실패:", err));
+}, []);
 
     return (
         <div className={styles.container}>

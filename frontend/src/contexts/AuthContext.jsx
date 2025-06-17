@@ -33,6 +33,10 @@ function AuthProvider({ children }) {
             });
             console.log("✅ signup axios 성공", res.data);
             setUser(res.data.user);
+
+            // ✅ localStorage 저장
+            localStorage.setItem("user", JSON.stringify(res.data.user));
+
             return res.data;
         } catch (err) {
             console.error("❌ signup axios 에러", err);
@@ -43,12 +47,20 @@ function AuthProvider({ children }) {
     const login = async ({ email, password }) => {
         const res = await api.post("/auth/login", { email, password });
         setUser(res.data.user);
+
+        // ✅ localStorage에 저장
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+
+
         return res.data;
     };
 
     const logout = async () => {
         await api.post("/auth/logout");
         setUser(null);
+
+        // ✅ localStorage 제거
+        localStorage.removeItem("user");
     };
 
     // useEffect → 변경 필요
@@ -57,6 +69,9 @@ function AuthProvider({ children }) {
             try {
                 const res = await api.get("/api/user/me"); // ✅ 변경된 경로
                 setUser(res.data.user);
+
+                // ✅ localStorage에 저장
+                localStorage.setItem("user", JSON.stringify(res.data.user));
             } catch {
                 setUser(null);
             } finally {

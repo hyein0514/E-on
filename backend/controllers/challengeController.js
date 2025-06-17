@@ -2,17 +2,6 @@ const { Op } = require('sequelize');
 const db = require('../models');
 const { ChallengeInterest, ChallengeVision, Interests, Visions, Challenge, ChallengeDay, Attachment, ParticipatingChallenge, User, Bookmark } = db;
 
-// const Challenge     = require('../models/Challenge');
-// const ChallengeDay  = require('../models/ChallengeDay');
-// const Attachment      = require('../models/Attachment');
-// const Interests       = require('../models/Interests');
-// const Visions         = require('../models/Visions');
-// const User  = require('../models/User');
-// const Bookmark = require('../models/Bookmark');
-// const ParticipatingChallenge = require('../models/ParticipatingChallenge');
-// const ChallengeInterest = require('../models/ChallengeInterest');
-// const ChallengeVision = require('../models/ChallengeVision');
-
 
 /* ───────────────────────── 챌린지 개설 ───────────────────────── */
 exports.create = async (req, res, next) => {
@@ -371,50 +360,6 @@ exports.detail = async (req, res, next) => {
       };
     }
     
-
-    // const challenge = await Challenge.findByPk(id, {
-    //   include: [
-    //     { model: User,           as: 'creator',   attributes: ['user_id','name','email'] },
-    //     { model: ChallengeDay,   as: 'days',      attributes: ['day_of_week'] },
-    //     { model: Attachment,     as: 'attachments',
-    //       attributes: ['attachment_id','url','attachment_type'] },
-    //     { model: Interests,      as: 'interests',
-    //       through:{ attributes:[] }, attributes:['interest_id','interest_detail'] },
-    //     { model: Visions,        as: 'visions',
-    //       through:{ attributes:[] }, attributes:['vision_id','vision_detail'] },
-    //       {
-    //       model: ParticipatingChallenge,
-    //       as: "participants",  // alias
-    //       where: { user_id: userId },
-    //       required: false,         // userId 참여 기록이 없어도 챌린지를 리턴하기 위해 false
-    //       attributes: ["participating_id", "participating_state"]
-    //     }
-    //   ]
-    // });
-
-    
-
-    // if (!challenge) return res.status(404).json({ error:'존재하지 않는 챌린지' });
-
-    //  // ★ 여기서 북마크 여부 체크 (user_id 있으면)
-    // // 북마크 여부 조회 (userId가 있을 때만)
-    //   let is_bookmarked = false;
-    //   if (userId) {
-    //     const bookmark = await Bookmark.findOne({
-    //       where: { challenge_id: id, user_id: userId }
-    //     });
-    //     is_bookmarked = !!bookmark;
-    //   }
-
-    //   let myParticipation = null;
-    //    if (challenge.my_participation && challenge.my_participation.length > 0) {
-    //   // 배열이지만 where:user_id이므로 인덱스 0에 값이 하나만 들어옴
-    //   const mp = challenge.my_participation[0];
-    //     myParticipation = {
-    //       participating_id:    mp.participating_id,
-    //       participating_state: mp.participating_state
-    //     };
-    //   }
 
     /* 응답 정리 */
     res.json({

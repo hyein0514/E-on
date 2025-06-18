@@ -238,7 +238,7 @@ const Challenge = () => {
           <div style={{ textAlign: "center", margin: "40px" }}>로딩 중...</div>
         ) : (
           <>
-            <ChallengeList challenges={challenges} onApply={handleApply} />
+            <ChallengeList challenges={challenges} onApply={handleApply} userAge={user?.age} />
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

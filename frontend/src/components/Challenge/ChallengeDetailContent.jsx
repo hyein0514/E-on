@@ -48,6 +48,7 @@ const ReviewPreview = ({ reviewerName, rating, comment, date }) => {
 
 const ChallengeDetailContent = ({
   challenge,
+  userAge,
   bookmarked,
   setBookmarked,
   userId,
@@ -63,9 +64,27 @@ const ChallengeDetailContent = ({
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
 
-  // ----------------------------
+  // ─────────────────────────────
+  // 0) 나이 조건 추출
+  // ─────────────────────────────
+  let minAgeNum = null, maxAgeNum = null;
+  if (typeof challenge.age_range === "string") {
+    const m = challenge.age_range.match(/(\d+)\s*~\s*(\d+)/);
+    if (m) {
+      minAgeNum = Number(m[1]);
+      maxAgeNum = Number(m[2]);
+    }
+  }
+  const canJoinByAge =
+    typeof userAge === "number" &&
+    minAgeNum !== null &&
+    maxAgeNum !== null &&
+    userAge >= minAgeNum &&
+    userAge <= maxAgeNum;
+
+  // ─────────────────────────────
   // 1) 리뷰 가져오기
-  // ----------------------------
+  // ─────────────────────────────
   useEffect(() => {
     const fetchReviews = async () => {
       setReviewsLoading(true);
@@ -90,9 +109,9 @@ const ChallengeDetailContent = ({
     fetchReviews();
   }, [challenge.challenge_id]);
 
-  // ----------------------------
+  // ─────────────────────────────
   // 2) 참여/취소 핸들러
-  // ----------------------------
+  // ─────────────────────────────
   const handleCancel = async () => {
     if (actionLoading) return;
     setActionLoading(true);
@@ -161,9 +180,9 @@ const ChallengeDetailContent = ({
     setActionLoading(false);
   };
 
-  // ----------------------------
+  // ─────────────────────────────
   // 3) 상태 한글 변환 및 기타 유틸 함수
-  // ----------------------------
+  // ─────────────────────────────
   const statusMap = {
     ACTIVE: "모집중",
     CLOSED: "마감",
@@ -186,16 +205,6 @@ const ChallengeDetailContent = ({
           challenge.duration.end
         )}`
       : "-";
-
-  let minAge = "-",
-    maxAge = "-";
-  if (challenge.age_range) {
-    const m = challenge.age_range.match(/(\d+)\s*~\s*(\d+)/);
-    if (m) {
-      minAge = m[1];
-      maxAge = m[2];
-    }
-  }
 
   const isRegular = challenge.is_recuming ? "정기" : "비정기";
   const repeatCycle =
@@ -251,28 +260,22 @@ const ChallengeDetailContent = ({
     ? formatDate(challenge.application_deadline)
     : null;
 
-  // ----------------------------
+  // ─────────────────────────────
   // 4) 첨부파일(TYPE) 분기
-  // ----------------------------
-  // challenge.attachments에서 type === "PHOTO"인 것을 찾아서 imageUrl에 담기
+  // ─────────────────────────────
   const photoObj =
     Array.isArray(challenge.attachments) &&
     challenge.attachments.find((att) => att.attachment_type === "이미지");
-
-  // challenge.attachments에서 type === "CONSENT"인 것을 찾아서 consentObj에 담기
   const consentObj =
     Array.isArray(challenge.attachments) &&
     challenge.attachments.find((att) => att.attachment_type === "문서");
 
   const BASE_URL = import.meta.env.VITE_BASE_URL || "";
-  // "/api" 뒤를 잘라내면 “http://localhost:4000”만 남음
   const STATIC_BASE = BASE_URL.replace(/\/api\/?$/, "");
 
-  console.log("BASE_URL:", BASE_URL, "STATIC_BASE:", STATIC_BASE, "consentObj.url:", consentObj?.url);
-
-  // ----------------------------
+  // ─────────────────────────────
   // 5) 삭제 & 북마크 핸들러
-  // ----------------------------
+  // ─────────────────────────────
   const handleDelete = async () => {
     if (window.confirm("정말로 이 챌린지를 삭제하시겠습니까?")) {
       try {
@@ -308,9 +311,9 @@ const ChallengeDetailContent = ({
     }
   };
 
-  // ----------------------------
+  // ─────────────────────────────
   // 6) JSX 렌더링
-  // ----------------------------
+  // ─────────────────────────────
   return (
     <div
       style={{
@@ -336,7 +339,9 @@ const ChallengeDetailContent = ({
           <span
             style={{
               border:
-                status === "모집중" ? "1.5px solid #38bdf8" : "1.5px solid #bbb",
+                status === "모집중"
+                  ? "1.5px solid #38bdf8"
+                  : "1.5px solid #bbb",
               color: status === "모집중" ? "#38bdf8" : "#bbb",
               fontWeight: 600,
               fontSize: 15,
@@ -392,19 +397,42 @@ const ChallengeDetailContent = ({
           </button>
           {/* 신청/취소 */}
           <button
+            disabled={!canJoinByAge || actionLoading}
             style={{
-              background: isJoined ? "#f3f3f3" : "#e5e7eb",
-              color: isJoined ? "#e11d48" : "#222",
+              background: !canJoinByAge
+                ? "#eee"
+                : isJoined
+                ? "#f3f3f3"
+                : "#e5e7eb",
+              color: !canJoinByAge
+                ? "#bbb"
+                : isJoined
+                ? "#e11d48"
+                : "#222",
               border: "none",
               borderRadius: 8,
               padding: "9px 28px",
               fontWeight: "bold",
               fontSize: 16,
-              cursor: "pointer",
+              cursor: !canJoinByAge ? "not-allowed" : "pointer",
             }}
-            onClick={isJoined ? handleCancel : handleJoin}
+            onClick={
+              !canJoinByAge
+                ? () => {
+                    alert(
+                      `참여 가능 연령이 아닙니다! (${minAgeNum}~${maxAgeNum}세만 신청 가능)`
+                    );
+                  }
+                : isJoined
+                ? handleCancel
+                : handleJoin
+            }
           >
-            {isJoined ? "참여 취소" : "신청하기"}
+            {!canJoinByAge
+              ? `${minAgeNum}~${maxAgeNum}세만 신청 가능`
+              : isJoined
+              ? "참여 취소"
+              : "신청하기"}
           </button>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -485,7 +513,7 @@ const ChallengeDetailContent = ({
           <InfoRow label="중도참여" value={allowJoinMid} />
           <InfoRow label="활동분야" value={fieldView} />
           <InfoRow label="인원" value={challenge.maximum_people || "-"} />
-          <InfoRow label="연령" value={`${minAge} ~ ${maxAge}`} />
+          <InfoRow label="연령" value={`${minAgeNum} ~ ${maxAgeNum}`} />
           <InfoRow label="사용자" value={creatorName} />
           <InfoRow label="이메일" value={creatorEmail} />
           <InfoRow label="전화번호" value={phone} />
@@ -609,7 +637,6 @@ const ChallengeDetailContent = ({
             보호자 동의서
           </div>
           <div>
-            {/* 1) 링크로 클릭해서 새 탭에서 열기 */}
             <a
               href={`${STATIC_BASE}${consentObj.url}`}
               target="_blank"

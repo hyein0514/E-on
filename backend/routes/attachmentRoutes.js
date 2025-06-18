@@ -13,6 +13,6 @@ router.post(
   ctrl.add
 );
 router.get('/challenges/:id/attachments',ctrl.list);
-router.delete('/attachments/:id',ctrl.remove);
+router.delete('/:id',ctrl.remove);
 
 module.exports = router;

@@ -11,7 +11,7 @@ export default function MyPage() {
 
     return (
         <div className={styles.container}>
-            <h2>마이페이지</h2>
+          {user.type === "admin" ? <h2>관리자 페이지</h2> : <h2>마이페이지</h2>}
             <div className={styles.userInfo}>
                 <p>
                     <strong>{user.name}</strong>
@@ -37,7 +37,7 @@ export default function MyPage() {
                 )}
                 {user.type === "admin" && (
                     <Link
-                        to="/mypage/board-requests"
+                        to="/admin/board-requests"
                         className={styles.menuBox}>
                         게시판 개설 요청 확인하기
                     </Link>

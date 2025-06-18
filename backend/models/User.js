@@ -80,5 +80,11 @@ User.belongsTo(UserState, {
   targetKey: 'state_code',
 });
 
+User.associate = (models) => {
+  User.hasMany(models.BoardRequest, {
+    foreignKey: 'user_id',
+  });
+};
+
 
 module.exports = User;

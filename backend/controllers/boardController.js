@@ -2,8 +2,8 @@ const boardService = require("../services/boardService");
 const { Post } = require('../models/Post');
 const { Board } = require('../models/Board');
 const { Comment } = require('../models/Comment');
-const { BoardRequest } = require('../models/BoardRequest');
-const { User } = require('../models/User');
+const BoardRequest = require('../models/BoardRequest');
+const User = require('../models/User');
 
 exports.getBoardList = async (req, res) => {
   try {
@@ -286,15 +286,18 @@ exports.createBoardRequest = async (req, res) => {
 
 // 게시판 개설 신청 목록 조회
 exports.getAllBoardRequests = async (req, res) => {
+  console.log("✅ [getAllBoardRequests] 요청 도달");
     try {
         const requests = await BoardRequest.findAll({
             include: {
                 model: User,
+                required: false,
                 attributes: ['user_id', 'name']
             },
             order: [['request_date', 'DESC']],
         });
-        req.status(200).json({ requests });
+        console.log(requests);
+        res.status(200).json({ requests });
 
     } catch (error) {
         console.error(error);
@@ -320,7 +323,7 @@ exports.updateBoardRequestStatus = async (req, res) => {
     );
 
     // 게시판 개설 승인 시 board 테이블에 게시판 생성
-    if (request_status == '승인') {
+    if (request_status == 'approved') {
       const requested_board_name = request.requested_board_name;
       const requested_board_type = request.requested_board_type;
       const board_audience = request.board_audience;

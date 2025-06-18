@@ -1,5 +1,3 @@
-// src/api/communityApi.js
-// 로그인 연동하면 Authorization 헤더 설정 필요할 수도ㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠㅠ
 import axiosInstance from "./axiosInstance";
 
 // 게시판 리스트 조회

@@ -13,6 +13,7 @@ import CommunityEdit from "../pages/Community/CommunityEdit";
 import BoardRequestPage from "../pages/Community/BoardRequestPage";
 import PostDetail from "../pages/Community/PostDetail";
 import MyPage from "../pages/MyPage/MyPage";
+import BoardRequestList from "../pages/MyPage/BoardRequestList";
 import PrivateRoutes from "./PrivateRoutes";
 import ChallengeCreate from "../pages/Challenge/ChallengeCreate";
 import ChallengeDetail from "../pages/Challenge/ChallengeDetail";
@@ -25,7 +26,6 @@ import TimeRecommendation from "../pages/Suggestion/TimeRecommendation";
 import PreferenceInterest from "../pages/Suggestion/PreferenceInterest";
 import PreferenceVision from "../pages/Suggestion/PreferenceVision";
 import RecommendationResult from "../pages/Suggestion/RecommendationResult";
-import BoardRequest from "../pages/MyPage/BoardRequest";
 
 const AppRoutes = () => {
     return (
@@ -122,10 +122,10 @@ const AppRoutes = () => {
                 }
             />
             <Route
-                path="/mypage/board-requests"
+                path="/admin/board-requests"
                 element={
                     <PrivateRoutes>
-                        <BoardRequest />
+                        <BoardRequestList />
                     </PrivateRoutes>
                 }
             />

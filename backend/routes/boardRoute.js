@@ -6,7 +6,7 @@ const boardController = require('../controllers/boardController');
 router.get('/', boardController.getBoardList);
 
 // 게시판 상세 조회
-router.get('/:board_id', boardController.getBoard);
+//router.get('/:board_id', boardController.getBoard);
 
 // 게시글 목록 조회
 router.get('/:board_id/posts', boardController.getBoardPost);
@@ -39,6 +39,6 @@ router.post('/board-requests', boardController.createBoardRequest);
 router.get('/board-requests', boardController.getAllBoardRequests);
 
 // 게시판 개설 승인
-router.patch('board-requests/:request_id', boardController.updateBoardRequestStatus);
+router.patch('/board-requests/:request_id', boardController.updateBoardRequestStatus);
 
 module.exports = router;

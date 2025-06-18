@@ -39,6 +39,11 @@ const BoardRequest = sequelize.define('BoardRequest', {
   timestamps: false,
 });
 
-BoardRequest.belongsTo(User, { foreignKey: 'user_id', onDelete: 'CASCADE' });
+BoardRequest.associate = (models) => {
+  BoardRequest.belongsTo(models.User, {
+    foreignKey: 'user_id',
+    onDelete: 'CASCADE',
+  });
+};
 
-module.exports = { BoardRequest };
+module.exports = BoardRequest;

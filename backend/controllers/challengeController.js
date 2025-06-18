@@ -1,6 +1,6 @@
 const { Op } = require('sequelize');
 const db = require('../models');
-const { ChallengeInterest, ChallengeVision, Interests, Visions, Challenge, ChallengeDay, Attachment, ParticipatingChallenge, User, Bookmark } = db;
+const { ChallengeInterest, ChallengeVision, Interests, Visions, Challenge, ChallengeDay, Attachment, ParticipatingChallenge, User, Bookmark, Review } = db;
 
 
 /* ───────────────────────── 챌린지 개설 ───────────────────────── */
@@ -395,10 +395,18 @@ exports.update = async(req,res,next)=>{
   try{
     const id = req.params.id;
     const body = req.body;
+    const userId = body.user_id;
 
     const challenge = await Challenge.findByPk(id);
     if (!challenge) return res.status(404).json({error:'챌린지 없음'});
+      console.log('userId:', userId, typeof userId);
+      console.log('challenge.user_id:', challenge.user_id, typeof challenge.user_id);
 
+
+    if (challenge.user_id !== userId) {
+      return res.status(403).json({ error: '해당 권한이 없습니다.' });
+    }
+  
     const updatetable = [
       'title','description','minimum_age','maximum_age',
       'maximum_people','application_deadline','start_date','end_date',
@@ -438,14 +446,32 @@ exports.update = async(req,res,next)=>{
 
 
 /* ───────────────────────── 챌린지 삭제 ───────────────────────── */
-exports.remove = async(req,res,next)=>{
-  try{
+exports.remove = async (req, res, next) => {
+  try {
     const id = req.params.id;
-    const rows = await Challenge.destroy({ where:{ challenge_id:id } });
-    if (!rows) return res.status(404).json({ error:'챌린지 없음' });
+    const loginUserId = req.user.user_id; 
+
+    const challenge = await Challenge.findOne({ where: { challenge_id: id } });
+    if (!challenge) return res.status(404).json({ error: '챌린지 없음' });
+    if (challenge.user_id !== loginUserId) {
+      return res.status(403).json({ error: '삭제 권한이 없습니다.' });
+    }
+
+    // 1. 하위 데이터 먼저 삭제
+    await ChallengeDay.destroy({ where: { challenge_id: id } });
+    await ChallengeInterest.destroy({ where: { challenge_id: id } });
+    await ChallengeVision.destroy({ where: { challenge_id: id } });
+    await Review.destroy({ where: { challenge_id: id } }); 
+    await ParticipatingChallenge.destroy({ where: { challenge_id: id } }); 
+
+    // 2. 부모 Challenge 삭제
+    const rows = await Challenge.destroy({ where: { challenge_id: id } });
+    if (!rows) return res.status(404).json({ error: '챌린지 없음' });
     res.status(204).end();
-  }catch(err){next(err);}
-}
+  } catch (err) {
+    next(err);
+  }
+};
 
 /* ───────────────────────── 챌린지 상태변경 ───────────────────────── */
 exports.changeState = async(req,res,next)=>{

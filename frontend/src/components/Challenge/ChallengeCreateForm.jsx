@@ -5,6 +5,7 @@ import styles from "../../styles/Challenge/ChallengeCreateForm.module.css";
 
 
 const ChallengeCreateForm = ({ mode = "create", initialData = {}, user_id }) => {
+  console.log("ChallengeCreateForm user_id props:", user_id);
   const isEdit   = mode === "edit";
   const navigate = useNavigate();
 

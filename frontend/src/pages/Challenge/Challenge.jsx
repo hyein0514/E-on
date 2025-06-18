@@ -20,6 +20,16 @@ const Challenge = () => {
   const { user, loading: authLoading } = useAuth();
   const userId = user?.user_id;
 
+  // 로그인 모달 상태
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // 로그인 상태 감지하여 모달 띄움
+  useEffect(() => {
+    if (!authLoading && !user) {
+      setShowLoginModal(true);
+    }
+  }, [user, authLoading]);
+
   // ─── 필터 상태: 모달에서 내려오는 값들을 담음 ───
   const emptyFilters = {
     status: [],
@@ -42,8 +52,8 @@ const Challenge = () => {
   };
 
   useEffect(() => {
-  console.log('[Challenge] 로그인한 유저:', user);  // user_id, name 등
-}, [user]);
+    console.log('[Challenge] 로그인한 유저:', user);  // user_id, name 등
+  }, [user]);
 
   useEffect(() => {
     axiosInstance.get("/api/interests")
@@ -92,7 +102,6 @@ const Challenge = () => {
         params.date = date; // "YYYY-MM-DD"
       }
 
-
       // 3) 나이 필터
       if (minAge) params.minAge = minAge;
       if (maxAge) params.maxAge = maxAge;
@@ -138,7 +147,7 @@ const Challenge = () => {
 
   // 챌린지 생성 페이지로 이동 (예시)
   const handleCreate = () => {
-    navigate("/challenge/create");
+    window.location.href = "/challenge/create";
   };
 
   // 참여 / 참여 취소 로직
@@ -184,6 +193,29 @@ const Challenge = () => {
   return (
     <div className={styles.container} style={{ width: "100%", display: "flex", justifyContent: "center", margin: "10px 0" }}>
       <div style={{ width: "90%", minWidth: "440px", margin: "10px auto" }}>
+        {/* 로그인 안내 모달 */}
+        {showLoginModal && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+            background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
+          }}>
+            <div style={{
+              background: 'white', borderRadius: '12px', padding: '30px 40px', minWidth: 300,
+              boxShadow: '0 8px 24px rgba(0,0,0,0.18)'
+            }}>
+              <h3>로그인이 필요합니다</h3>
+              <div style={{ margin: '16px 0' }}>이 페이지는 로그인 후 이용하실 수 있습니다.</div>
+              <button
+                style={{ padding: '8px 16px', borderRadius: 8, background: '#486afc', color: 'white', border: 'none', cursor: 'pointer' }}
+                onClick={() => {
+                  setShowLoginModal(false);
+                  window.location.href = "/login";
+                }}
+              >로그인 하러 가기</button>
+            </div>
+          </div>
+        )}
+
         <div className={styles.header} style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>
           <Header />
         </div>
@@ -194,7 +226,7 @@ const Challenge = () => {
           setSearch={setSearch}
           onSearch={handleSearch}
           onCreate={handleCreate}
-          onClearFilters={handleClearFilters} 
+          onClearFilters={handleClearFilters}
           // 모달에 내려줄 옵션 및 콜백
           interestList={interestOptions}
           visionList={visionOptions}

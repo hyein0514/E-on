@@ -3,11 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Header from "../../components/Common/Header";
 import axios from "axios";
-import { updateChallenge } from "../../api/challengeApi"; // PATCH 함수
+import { updateChallenge } from "../../api/challengeApi"; 
+import { useAuth } from "../../hooks/useAuth";
 
 const ChallengeEdit = () => {
   const { id } = useParams();
   const [challenge, setChallenge] = useState(null);
+  const { user, loading } = useAuth();
 
   const navigate = useNavigate();
 
@@ -85,7 +87,7 @@ const ChallengeEdit = () => {
           <Header />
         </div>
       <h2 style={{ margin: "40px 0 28px 0", textAlign: "center" }}>챌린지 수정</h2>
-      <ChallengeCreateForm mode="edit" initialData={challenge}
+      <ChallengeCreateForm mode="edit" initialData={challenge} user_id={user.user_id} 
       onSubmit={handleUpdate} 
       />
     </div>

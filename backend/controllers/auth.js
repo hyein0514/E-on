@@ -96,6 +96,15 @@ exports.signupStep3 = async (req, res, next) => {
             .status(400)
             .json({ message: "이전 단계가 완료되지 않았습니다." });
     }
+
+    // admin 타입 차단 재확인 (혹시 모를 조작 대비)
+    if (su.type === "admin") {
+        clearSignupSession(req);
+        return res
+            .status(403)
+            .json({ message: "관리자 계정은 생성할 수 없습니다." });
+    }
+
     // 이메일·코드 확인
     if (email !== req.session.emailForCode || code !== req.session.emailCode) {
         // 세션 정리
@@ -128,7 +137,7 @@ exports.signupStep3 = async (req, res, next) => {
             age,
             password,
             // nickname: name, // 테이블 구조와 달라서 주석 처리
-            state_code: 'active',
+            state_code: "active",
             type: su.type, // User 모델의 'type' 컬럼
             agreements: su.agreements, // JSON 컬럼
         });
@@ -143,42 +152,42 @@ exports.signupStep3 = async (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
-  passport.authenticate("local", async (err, user, info) => {
-    if (err) return next(err);
-    if (!user) return res.status(401).json({ message: info.message });
+    passport.authenticate("local", async (err, user, info) => {
+        if (err) return next(err);
+        if (!user) return res.status(401).json({ message: info.message });
 
-    try {
-      const foundUser = await User.findByPk(user.user_id, {
-        attributes: ['user_id', 'email', 'state_code', 'type', 'name'],
-      });
-      console.log("🧨 로그인 시도 유저:", {
-        id: user.user_id,
-        email: foundUser.email,
-        state_code: foundUser.state_code,
-      });
+        try {
+            const foundUser = await User.findByPk(user.user_id, {
+                attributes: ["user_id", "email", "state_code", "type", "name"],
+            });
+            console.log("🧨 로그인 시도 유저:", {
+                id: user.user_id,
+                email: foundUser.email,
+                state_code: foundUser.state_code,
+            });
 
-      // 강제 차단 테스트
-      if (!foundUser) {
-        console.log("❌ DB에서 유저 못 찾음");
-        return res.status(403).json({ message: '유저 없음' });
-      }
+            // 강제 차단 테스트
+            if (!foundUser) {
+                console.log("❌ DB에서 유저 못 찾음");
+                return res.status(403).json({ message: "유저 없음" });
+            }
 
-      if (foundUser.state_code !== 'active') {
-        console.log("🚫 비활성화 계정 로그인 시도 차단됨");
-        return res.status(403).json({ message: '비활성화된 계정입니다.' });
-      }
+            if (foundUser.state_code !== "active") {
+                console.log("🚫 비활성화 계정 로그인 시도 차단됨");
+                return res
+                    .status(403)
+                    .json({ message: "비활성화된 계정입니다." });
+            }
 
-      req.login(foundUser, (loginErr) => {
-        if (loginErr) return next(loginErr);
-        return res.json({ success: true, user: foundUser.toJSON() });
-      });
-    } catch (e) {
-      return next(e);
-    }
-  })(req, res, next);
+            req.login(foundUser, (loginErr) => {
+                if (loginErr) return next(loginErr);
+                return res.json({ success: true, user: foundUser.toJSON() });
+            });
+        } catch (e) {
+            return next(e);
+        }
+    })(req, res, next);
 };
-
-
 
 // 로그아웃
 exports.logout = (req, res, next) => {

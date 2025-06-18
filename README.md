@@ -6,19 +6,25 @@
 
 ```text
 backend/
-├── controllers/           # 요청을 받아서 응답 처리 (req, res)
-│   └── userController.js
-├── services/              # 비즈니스 로직 처리 (데이터베이스와 API 요청 등)
-│   └── userService.js
-├── models/                # DB 모델 정의 또는 쿼리 처리
-│   └── userModel.js
-├── routes/                # URL 별로 컨트롤러 연결
-│   └── userRoutes.js
-├── database/              # DB 연결 설정
-│   └── db.js
-├── utils/                 # 유틸 함수 모음
-├── app.js                 # 앱 구성 (미들웨어, 라우터 등 설정)
-└── index.js               # 서버 실행 진입점
+├── config/               # 설정 파일
+├── controllers/          # 라우터 로직 분리 (요청 핸들러)
+├── database/             # DB 연결 설정
+├── middleware/           # 미들웨어 (로그인 체크, 에러 처리 등)
+├── migrations/           # Sequelize migration 파일
+├── models/               # Sequelize 모델 정의
+├── public/               # 정적 파일 제공 디렉토리
+├── routes/               # API 라우팅 모듈
+├── services/             # 비즈니스 로직 처리
+├── uploads/              # 사용자 업로드 파일 저장소
+├── utils/                # 재사용 가능한 유틸 함수
+├── scripts/              # ⚙️ 초기 설정용 실행 스크립트
+├── node_modules/
+├── .env
+├── app.js                # Express 앱 설정
+├── Dockerfile
+├── index.js              # 서버 실행 진입점
+├── package-lock.json
+└── package.json
 ```
 
 ---

@@ -1,4 +1,5 @@
 import { createContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import api from "../api/axiosInstance";
 
 export const AuthContext = createContext();
@@ -35,8 +36,17 @@ function AuthProvider({ children }) {
             console.log("✅ signup axios 성공", res.data);
             setUser(res.data.user);
 
-            // ✅ localStorage 저장
             localStorage.setItem("user", JSON.stringify(res.data.user));
+            toast(`${res.data.user.name}님, 회원가입이 완료되었습니다!`, {
+                icon: "💜",
+                style: {
+                    background: "#f7f8fc", // 연보라 배경
+                    color: "#2d2d2d",
+                    borderLeft: "4px solid #b37bd6", // 포인트 보라
+                    fontWeight: "bold",
+                },
+                progressClassName: "custom-progress-bar",
+            });
 
             return res.data;
         } catch (err) {
@@ -49,9 +59,17 @@ function AuthProvider({ children }) {
         const res = await api.post("/auth/login", { email, password });
         setUser(res.data.user);
 
-        // ✅ localStorage에 저장
         localStorage.setItem("user", JSON.stringify(res.data.user));
-
+        toast(`${res.data.user.name}님, 환영합니다!`, {
+            icon: "💜",
+            style: {
+                background: "#f7f8fc", // 연보라 배경
+                color: "#2d2d2d",
+                borderLeft: "4px solid #b37bd6", // 포인트 보라
+                fontWeight: "bold",
+            },
+            progressClassName: "custom-progress-bar",
+        });
 
         return res.data;
     };
@@ -60,8 +78,17 @@ function AuthProvider({ children }) {
         await api.post("/auth/logout");
         setUser(null);
 
-        // ✅ localStorage 제거
         localStorage.removeItem("user");
+        toast("로그아웃 되었습니다.", {
+            icon: "💜",
+            style: {
+                background: "#f7f8fc", // 연보라 배경
+                color: "#2d2d2d", // 텍스트 보라
+                borderLeft: "4px solid #b37bd6", // 포인트 보라
+                fontWeight: "bold",
+            },
+            progressClassName: "custom-progress-bar",
+        });
     };
 
     // useEffect → 변경 필요

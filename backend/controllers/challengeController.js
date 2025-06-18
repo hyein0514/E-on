@@ -6,10 +6,14 @@ const { ChallengeInterest, ChallengeVision, Interests, Visions, Challenge, Chall
 /* ───────────────────────── 챌린지 개설 ───────────────────────── */
 exports.create = async (req, res, next) => {
   const body = req.body.meta ? JSON.parse(req.body.meta) : req.body;
-  const files = req.files ?? []
-  
+  // multer upload.fields 구조에 맞게!
+  const filesObj    = req.files ?? {};
+  const photosArr   = filesObj.photos   || [];
+  const consentsArr = filesObj.consents || [];
+
   try {
-    //필수값 검증
+    // 필수값 검증 등은 동일...
+
     const {
       title, description,
       minimum_age, maximum_age, maximum_people,
@@ -23,15 +27,11 @@ exports.create = async (req, res, next) => {
       visionIds   = []              
     } = body; 
 
-    /*  필수값 검증 */
     if (!title || !description || !creator_contact || !user_id) {
       return res.status(400).json({ error: '필수 필드 누락' });
     }
 
-    // 트랜잭션 시작
-    //t는 트랜잭션 나타내는 객체로, 모든 쿼리에 {transaction:t} 옵션을 넘김
     const result = await Challenge.sequelize.transaction(async (t) => {
-      // Challenge INSERT
       const challenge = await Challenge.create({
         title, description,
         minimum_age, maximum_age, maximum_people,
@@ -42,7 +42,7 @@ exports.create = async (req, res, next) => {
         user_id 
       }, { transaction: t });
 
-      // 요일 INSERT -> days배열요소 d하나당 {챌린지 id,요일}객체 만들어서 bulkcreate로 한번에 삽입
+      // 요일 INSERT
       if (is_recuming && days.length) {
         const bulk = days.map(d => ({
           challenge_id: challenge.challenge_id,
@@ -50,23 +50,33 @@ exports.create = async (req, res, next) => {
         }));
         await ChallengeDay.bulkCreate(bulk, { transaction: t });
       }
-      console.log("프론트에서 넘어온 interestIds:", interestIds);
-      console.log("프론트에서 넘어온 visionIds:", visionIds);
 
       // 관심/진로 매핑
       if (interestIds.length) await challenge.addInterests(interestIds, { transaction: t });
       if (visionIds.length)   await challenge.addVisions(visionIds,   { transaction: t });
   
-       // 첨부파일
-       if (files.length) {
-        const attachRows = files.map(f => ({
+      // **첨부파일 처리 부분 수정**
+      const attachRows = [];
+      photosArr.forEach(f => {
+        attachRows.push({
           challenge_id    : challenge.challenge_id,
           attachment_name : f.originalname,
-          url             : `/uploads/${f.filename}`,   // 실제 경로 or CDN URL
-          attachment_type : f.mimetype.startsWith('image') ? '이미지' : '기타'
-        }));
-        await Attachment.bulkCreate(attachRows, { transaction:t });
+          url             : `/uploads/${f.filename}`,
+          attachment_type : '이미지'
+        });
+      });
+      consentsArr.forEach(f => {
+        attachRows.push({
+          challenge_id    : challenge.challenge_id,
+          attachment_name : f.originalname,
+          url             : `/uploads/${f.filename}`,
+          attachment_type : '문서'
+        });
+      });
+      if (attachRows.length) {
+        await Attachment.bulkCreate(attachRows, { transaction: t });
       }
+
       // 최종결과 재조회
       return Challenge.findByPk(challenge.challenge_id, {
         include:[
@@ -76,6 +86,7 @@ exports.create = async (req, res, next) => {
         transaction: t
       });
     });
+
     res.status(201).json({
       challenge_id: result.challenge_id,
       title: result.title,
@@ -105,6 +116,7 @@ exports.create = async (req, res, next) => {
     next(err);
   }
 };
+
 
 /* ───────────────────────── 챌린지 조회 ───────────────────────── */
 

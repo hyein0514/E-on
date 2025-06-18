@@ -14,9 +14,19 @@ const participationCtrl = require('../controllers/participationController');
 const router = express.Router();
 
 // 1. 챌린지 생성
+
+// router.post(
+//   '/',
+//   upload.array('files'),
+//   challengeCtrl.create
+// );
+
 router.post(
   '/',
-  upload.array('files'),
+  upload.fields([
+    { name: 'photos', maxCount: 5 },
+    { name: 'consents', maxCount: 1 }
+  ]),
   challengeCtrl.create
 );
 

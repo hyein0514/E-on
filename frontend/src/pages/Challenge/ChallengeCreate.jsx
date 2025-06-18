@@ -97,6 +97,8 @@ const ChallengeCreate = () => {
     }
   };
 
+  if (loading || !user) return <div>로딩 중...</div>; 
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0',paddingLeft: '150px' }}>

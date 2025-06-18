@@ -51,10 +51,15 @@ exports.list = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const id = req.params.id;
+    const loginUserId = req.user.user_id;
     const { rating_stars, text } = req.body;
 
     const row = await Review.findByPk(id);
     if (!row) return res.status(404).json({ error:'리뷰 없음' });
+
+    if (row.user_id !== loginUserId) {
+      return res.status(403).json({ error: '수정 권한이 없습니다.' });
+    }
 
     if (rating_stars !== undefined) row.rating_stars = rating_stars;
     if (text !== undefined)         row.text = text;
@@ -68,9 +73,22 @@ exports.update = async (req, res, next) => {
 /* 16) 리뷰 삭제 ----------------------------------------------- */
 exports.remove = async (req, res, next) => {
   try {
-    const id   = req.params.id;
-    const rows = await Review.destroy({ where:{ review_id:id }});
-    if (!rows) return res.status(404).json({ error:'리뷰 없음' });
-    res.status(204).end();
-  } catch (err) { next(err); }
+    const id = req.params.id;
+    const loginUserId = req.user.user_id; 
+    const row = await Review.findByPk(id);
+    if (!row) return res.status(404).json({ error: '리뷰 없음' });
+
+    if (row.user_id !== loginUserId) {
+      return res.status(403).json({ error: '삭제 권한이 없습니다.' });
+    }
+
+    await row.destroy();
+
+    console.log(`[리뷰 삭제] 리뷰ID:${id} by 유저:${loginUserId}`);
+    res.status(204).send(); 
+  } catch (err) {
+    console.error('리뷰 삭제 중 오류:', err); 
+    res.status(500).json({ error: '리뷰 삭제 중 서버 오류가 발생했습니다.' });
+  }
 };
+

@@ -16,6 +16,10 @@ const Board = sequelize.define('Board', {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
+  board_audience: {
+      type: DataTypes.ENUM('student', 'parent', 'all'),
+      allowNull: false,
+  },
   created_at: {
     type: DataTypes.DATE,
     allowNull: false,

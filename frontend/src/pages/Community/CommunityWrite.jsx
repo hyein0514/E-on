@@ -22,7 +22,6 @@ const CommunityWrite = () => {
         try {
         setIsSubmitting(true);
         const response = await createPost(board_id, {
-            user_id: 1, // JWT 사용 시 대체 예정
             title,
             content,
         });

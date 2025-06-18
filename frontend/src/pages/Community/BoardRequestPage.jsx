@@ -7,7 +7,8 @@ import styles from "../../styles/Community/BoardRequestPage.module.css";
 const BoardRequestPage = () => {
   const [boardName, setBoardName] = useState("");
   const [description, setDescription] = useState("");
-  const [boardType, setBoardType] = useState("일반");  // 기본값
+  const [boardType, setBoardType] = useState("일반");
+  const [boardAudience, setBoardAudience] = useState("student"); // ✅ 추가
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
@@ -20,10 +21,10 @@ const BoardRequestPage = () => {
     try {
       setIsSubmitting(true);
       await createBoardRequest({
-        user_id: 1, // JWT 사용 시 대체 예정
         requested_board_name: boardName,
         request_reason: description,
         requested_board_type: boardType,
+        board_audience: boardAudience,
       });
       alert("게시판 개설 요청이 제출되었습니다.");
       navigate("/community");
@@ -63,6 +64,16 @@ const BoardRequestPage = () => {
               <option value="홍보">홍보</option>
             </select>
 
+            <label className={styles.label}>대상</label>
+            <select
+              value={boardAudience}
+              onChange={(e) => setBoardAudience(e.target.value)}
+              className={styles.select} // ✅ 기존 스타일 재사용
+            >
+              <option value="student">학생용</option>
+              <option value="parent">학부모용</option>
+            </select>
+
             <label className={styles.label}>설명</label>
             <textarea
               value={description}
@@ -70,8 +81,6 @@ const BoardRequestPage = () => {
               className={styles.textarea}
               placeholder="게시판의 목적이나 용도를 설명해주세요."
             />
-
-
 
             <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
               {isSubmitting ? "제출 중..." : "제출"}

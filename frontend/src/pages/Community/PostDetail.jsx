@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useAuth } from "../../hooks/useAuth";
 import Header from "../../components/Common/Header";
 import {
   getPost,
@@ -14,6 +15,7 @@ import styles from "../../styles/Community/PostDetail.module.css";
 const PostDetail = () => {
   const { post_id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [post, setPost] = useState(null);
   const [newComment, setNewComment] = useState("");
@@ -42,7 +44,6 @@ const PostDetail = () => {
     try {
       setIsSubmitting(true);
       await createComment(post.post_id, {
-        user_id: 1,
         content: newComment,
       });
       setNewComment("");
@@ -148,19 +149,21 @@ const PostDetail = () => {
             ) : (
               <h1 className={styles.title}>{post.title}</h1>
             )}
-            <div className={styles.actions}>
-              {isEditingPost ? (
-                <>
-                  <button className={styles.editBtn} onClick={handleSavePostEdit}>저장</button>
-                  <button className={styles.deleteBtn} onClick={handleCancelPostEdit}>취소</button>
-                </>
-              ) : (
-                <>
-                  <button className={styles.editBtn} onClick={handlePostEdit}>수정</button>
-                  <button className={styles.deleteBtn} onClick={handleDeletePost}>삭제</button>
-                </>
-              )}
-            </div>
+            {user?.user_id === post.user_id && (
+              <div className={styles.actions}>
+                {isEditingPost ? (
+                  <>
+                    <button className={styles.editBtn} onClick={handleSavePostEdit}>저장</button>
+                    <button className={styles.deleteBtn} onClick={handleCancelPostEdit}>취소</button>
+                  </>
+                ) : (
+                  <>
+                    <button className={styles.editBtn} onClick={handlePostEdit}>수정</button>
+                    <button className={styles.deleteBtn} onClick={handleDeletePost}>삭제</button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
           <div className={styles.meta}>
             <span className={styles.author}>{post.User?.name}</span>
@@ -191,7 +194,7 @@ const PostDetail = () => {
                       <span className={styles.commentAuthor}>{comment.User?.name}</span>
                       <span className={styles.commentDate}>{new Date(comment.created_at).toLocaleString()}</span>
                     </div>
-                    {editingCommentId !== comment.comment_id && (
+                    {user?.user_id === comment.user_id && editingCommentId !== comment.comment_id && (
                       <div className={styles.commentButtons}>
                         <button onClick={() => handleEditClick(comment)} className={styles.commentEditBtn}>수정</button>
                         <button onClick={() => handleDeleteComment(comment.comment_id)} className={styles.commentDeleteBtn}>삭제</button>

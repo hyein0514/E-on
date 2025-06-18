@@ -20,6 +20,10 @@ const BoardRequest = sequelize.define('BoardRequest', {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
+  board_audience: {
+      type: DataTypes.ENUM('student', 'parent', 'all'),
+      allowNull: false,
+  },
   request_reason: {                    // 추가된 필드
     type: DataTypes.TEXT,
     allowNull: true,

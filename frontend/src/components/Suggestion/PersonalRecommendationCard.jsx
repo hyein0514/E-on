@@ -1,8 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"; 
 import styles from "./RecommendationCard.module.css";
 
 const PersonalRecommendationCard = ({ challenge }) => {
   const {
+    challenge_id,
     challenge_title,
     challenge_description,
     start_date,
@@ -11,8 +13,15 @@ const PersonalRecommendationCard = ({ challenge }) => {
     image_url
   } = challenge;
 
+const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/challenge/${challenge_id}`); // ✅ 상세 페이지로 이동
+  };
+  
   return (
-    <div className={styles.card}>
+    <div className={styles.card} onClick={handleClick} style={{ cursor: "pointer" }}>
+
       <div className={styles.cardHeader}>
         <h3>{challenge_title}</h3>
         <p>{challenge_description}</p>

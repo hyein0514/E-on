@@ -22,7 +22,11 @@ const ChallengeListItem = ({
   start_date,
   end_date,
   onApply,
-  my_participation
+  my_participation,
+  age_range,  
+  minimum_age,
+  maximum_age,      
+  userAge
 }) => {
   const navigate = useNavigate();
 
@@ -35,6 +39,27 @@ const ChallengeListItem = ({
     !!my_participation && my_participation.participating_state !== "취소";
   const participationId = my_participation?.participating_id;
   const participationState = my_participation?.participating_state;
+
+  // 나이 파싱
+  let minAge = minimum_age ?? null;
+  let maxAge = maximum_age ?? null;
+
+  if ((minAge === null || maxAge === null) && typeof age_range === "string" && age_range.trim() !== "") {
+    const m = age_range.match(/(\d+)\s*~\s*(\d+)/);
+    if (m) {
+      minAge = Number(m[1]);
+      maxAge = Number(m[2]);
+    }
+  }
+
+  const canJoinByAge =
+    userAge == null || minAge == null || maxAge == null
+      ? true
+      : userAge >= minAge && userAge <= maxAge;
+  console.log("userAge", userAge, "minAge", minAge, "maxAge", maxAge);
+
+
+
 
   // ③ 상세 페이지 이동 함수
   const handleGoDetail = () => {
@@ -86,7 +111,11 @@ const ChallengeListItem = ({
       {/* 신청하기/참여취소 버튼 */}
       <button
         onClick={(e) => {
-          e.stopPropagation();   // 버튼 클릭 시 부모 onClick(=상세이동) 방지
+          e.stopPropagation();
+          if (!canJoinByAge) {
+            alert(`${minAge}~${maxAge}세만 신청 가능`);
+            return;
+          }
           onApply({
             challenge_id,
             isJoined,
@@ -94,19 +123,32 @@ const ChallengeListItem = ({
             participationState
           });
         }}
+        disabled={!canJoinByAge}
         style={{
-          background: isJoined ? "#fef2f2" : "#f3f4f6",
-          color: isJoined ? "#e11d48" : "#1f2937",
+          background: !canJoinByAge
+            ? "#eee"
+            : isJoined
+            ? "#fef2f2"
+            : "#f3f4f6",
+          color: !canJoinByAge
+            ? "#bbb"
+            : isJoined
+            ? "#e11d48"
+            : "#1f2937",
           border: "none",
           borderRadius: "7px",
           padding: "10px 23px",
           fontWeight: "bold",
           fontSize: "15px",
-          cursor: "pointer",
+          cursor: !canJoinByAge ? "not-allowed" : "pointer",
           transition: "background 0.15s"
         }}
       >
-        {isJoined ? "참여 취소" : "신청하기"}
+        {!canJoinByAge
+          ? `${minAge}~${maxAge}세만 신청 가능`
+          : isJoined
+          ? "참여 취소"
+          : "신청하기"}
       </button>
     </div>
   );

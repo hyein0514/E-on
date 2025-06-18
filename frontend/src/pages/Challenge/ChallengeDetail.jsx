@@ -17,6 +17,7 @@ const ChallengeDetail = () => {
   const [participationId, setParticipationId] = useState(null);
   const [participationState, setParticipationState] = useState(null);
 
+
   // detail 정보와 참여상태를 모두 fetch하는 함수로 분리!
   const fetchDetail = async () => {
   setLoading(true);
@@ -73,7 +74,8 @@ const ChallengeDetail = () => {
         participationId={participationId}
         setParticipationId={setParticipationId}
         participationState={participationState}
-        refresh={fetchDetail} // 추가! (핵심)
+        userAge={user?.age}
+        refresh={fetchDetail} 
       />
     </div>
   );

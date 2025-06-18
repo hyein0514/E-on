@@ -42,6 +42,12 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {}, user_id }) => 
 
   const dayOptions = ["월", "화", "수", "목", "금", "토", "일"];
 
+  const engToKor = {
+    ACTIVE: "모집중",
+    CLOSED: "마감",
+    CANCELLED: "취소됨"
+  };
+
   // ────────────────── 2) 관심사/진로 옵션 불러오기 ──────────────────
   useEffect(() => {
     axiosInstance.get("api/interests").then((res) => setInterestOptions(res.data));
@@ -115,13 +121,9 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {}, user_id }) => 
       setPhone(initialData.phone || initialData.creator_contact || "");
       setStatus(
         initialData.status ||
-          (initialData.challenge_state === "모집중"
-            ? "ACTIVE"
-            : initialData.challenge_state === "마감"
-            ? "CLOSED"
-            : initialData.challenge_state === "취소됨"
-            ? "CANCELLED"
-            : "ACTIVE")
+        engToKor[initialData.challenge_state] ||
+        initialData.challenge_state ||
+        "모집중"
       );
 
       setInterestIds(

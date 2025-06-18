@@ -145,10 +145,13 @@ const ChallengeListItem = ({
         }}
       >
         {!canJoinByAge
-          ? `${minAge}~${maxAge}세만 신청 가능`
+          ? minAge === maxAge
+            ? `${maxAge}세만 신청 가능`
+            : `${minAge}~${maxAge}세만 신청 가능`
           : isJoined
           ? "참여 취소"
           : "신청하기"}
+
       </button>
     </div>
   );

@@ -82,6 +82,8 @@ const ChallengeDetailContent = ({
     userAge >= minAgeNum &&
     userAge <= maxAgeNum;
 
+  const isOwner = challenge.creator_id === userId || challenge.creator?.user_id === userId; 
+
   // ─────────────────────────────
   // 1) 리뷰 가져오기
   // ─────────────────────────────
@@ -396,45 +398,48 @@ const ChallengeDetailContent = ({
             />
           </button>
           {/* 신청/취소 */}
-          <button
-            disabled={!canJoinByAge || actionLoading}
-            style={{
-              background: !canJoinByAge
-                ? "#eee"
-                : isJoined
-                ? "#f3f3f3"
-                : "#e5e7eb",
-              color: !canJoinByAge
-                ? "#bbb"
-                : isJoined
-                ? "#e11d48"
-                : "#222",
-              border: "none",
-              borderRadius: 8,
-              padding: "9px 28px",
-              fontWeight: "bold",
-              fontSize: 16,
-              cursor: !canJoinByAge ? "not-allowed" : "pointer",
-            }}
-            onClick={
-              !canJoinByAge
-                ? () => {
-                    alert(
-                      `참여 가능 연령이 아닙니다! (${minAgeNum}~${maxAgeNum}세만 신청 가능)`
-                    );
+                <button
+                  disabled={!canJoinByAge || actionLoading}
+                  style={{
+                    background: !canJoinByAge
+                      ? "#eee"
+                      : isJoined
+                      ? "#f3f3f3"
+                      : "#e5e7eb",
+                    color: !canJoinByAge
+                      ? "#bbb"
+                      : isJoined
+                      ? "#e11d48"
+                      : "#222",
+                    border: "none",
+                    borderRadius: 8,
+                    padding: "9px 28px",
+                    fontWeight: "bold",
+                    fontSize: 16,
+                    cursor: !canJoinByAge ? "not-allowed" : "pointer",
+                  }}
+                  onClick={
+                    !canJoinByAge
+                      ? () => {
+                          alert(
+                            `참여 가능 연령이 아닙니다! (${minAgeNum}~${maxAgeNum}세만 신청 가능)`
+                          );
+                        }
+                      : isJoined
+                      ? handleCancel
+                      : handleJoin
                   }
-                : isJoined
-                ? handleCancel
-                : handleJoin
-            }
-          >
-            {!canJoinByAge
-              ? `${minAgeNum}~${maxAgeNum}세만 신청 가능`
-              : isJoined
-              ? "참여 취소"
-              : "신청하기"}
-          </button>
-        </div>
+                >
+                  {!canJoinByAge
+                    ? minAgeNum === maxAgeNum
+                      ? `${maxAgeNum}세만 신청 가능`
+                      : `${minAgeNum}~${maxAgeNum}세만 신청 가능`
+                    : isJoined
+                    ? "참여 취소"
+                    : "신청하기"}
+                </button>
+              </div>
+        {isOwner && (
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           <button
             style={{
@@ -469,6 +474,8 @@ const ChallengeDetailContent = ({
             삭제
           </button>
         </div>
+      )}
+
       </div>
 
       {/* ── 사진 (PHOTO) ── */}

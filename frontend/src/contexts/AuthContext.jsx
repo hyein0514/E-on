@@ -30,6 +30,7 @@ function AuthProvider({ children }) {
                 confirm,
                 type,
                 agreements,
+                state_code: "active",
             });
             console.log("✅ signup axios 성공", res.data);
             setUser(res.data.user);

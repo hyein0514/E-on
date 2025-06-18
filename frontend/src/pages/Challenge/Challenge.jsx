@@ -6,6 +6,7 @@ import Pagination from "../../components/Challenge/Pagination";
 import { getChallengeList, participateChallenge, cancelParticipation } from "../../api/challengeApi";
 import axiosInstance from "../../api/axiosInstance";
 import styles from "../../styles/Pages/Challenge.module.css"
+import { useAuth } from "../../hooks/useAuth";
 
 const itemsPerPage = 5;
 
@@ -16,7 +17,8 @@ const Challenge = () => {
   const [totalCount, setTotalCount] = useState(0);      // 총 아이템 수
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
-  const userId = 1; // 로그인 유저 ID (예시)
+  const { user, loading: authLoading } = useAuth();
+  const userId = user?.user_id;
 
   // ─── 필터 상태: 모달에서 내려오는 값들을 담음 ───
   const emptyFilters = {
@@ -38,6 +40,10 @@ const Challenge = () => {
     setAppliedFilters(emptyFilters);
     setCurrentPage(1);
   };
+
+  useEffect(() => {
+  console.log('[Challenge] 로그인한 유저:', user);  // user_id, name 등
+}, [user]);
 
   useEffect(() => {
     axiosInstance.get("/api/interests")
@@ -86,7 +92,6 @@ const Challenge = () => {
         params.date = date; // "YYYY-MM-DD"
       }
 
-      console.log("▶ fetchChallenges 에서 보낼 params:", { minAge, maxAge, ...params });
 
       // 3) 나이 필터
       if (minAge) params.minAge = minAge;
@@ -138,6 +143,7 @@ const Challenge = () => {
 
   // 참여 / 참여 취소 로직
   const handleApply = async ({ challenge_id, isJoined, participationId, participationState }) => {
+    console.log('[handleApply] user_id:', userId, 'challenge_id:', challenge_id, 'isJoined:', isJoined, 'participationId:', participationId, 'participationState:', participationState);
     if (actionLoading) return;
     setActionLoading(true);
 

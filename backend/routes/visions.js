@@ -1,8 +1,10 @@
+// routes/visionRoutes.js (신규)
 const express = require('express');
 const router = express.Router();
-const visionController = require('../controllers/visionController');
+const visionController = require('../controllers/vision');
+const visionController2 = require('../controllers/visionController');
 
-// GET /api/visions
-router.get('/', visionController.getAll);
+router.get('/my', visionController.getMy); // ✅ [GET] /api/visions/my
+router.get('/', visionController2.getAll);
 
 module.exports = router;

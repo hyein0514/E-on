@@ -74,6 +74,7 @@ app.use("/api/reviews", require("./routes/reviewRoutes"));
 app.use("/api/attachments", require("./routes/attachmentRoutes"));
 app.use("/api/visions", require("./routes/visions"));
 
+
 // 테스트용 헬로우 엔드포인트
 app.get("/api/hello", (req, res) => {
     res.json({ message: "Hello from Node.js!" });

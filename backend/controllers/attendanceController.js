@@ -58,7 +58,10 @@ exports.listByChallenge = async (req, res, next) => {
 
     /* 3) 쿼리 : 참여자 전체 + (해당 날짜/기간의) 출석 LEFT JOIN */
     const rows = await ParticipatingChallenge.findAll({
-      where: { challenge_id: challengeId },
+      where: {
+        challenge_id: challengeId,
+        participating_state: { [Op.in]: ['신청', '진행 중'] } 
+      },
       include: [
         // 3-1) 유저 이름
         {
@@ -69,9 +72,9 @@ exports.listByChallenge = async (req, res, next) => {
         // 3-2) 출석 LEFT JOIN
         {
           model: ParticipatingAttendance,
-          as   : 'attendances',        // ★ 모델에서 hasMany(..., { as:'attendances' })
-          required: false,             // ★ LEFT JOIN 핵심
-          where   : dateCondition      // 없으면 전체, 있으면 조건
+          as   : 'attendances',        
+          required: false,            
+          where   : dateCondition      
         }
       ],
       order: [
@@ -92,9 +95,11 @@ exports.listByChallenge = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const id = req.params.id;
+     console.log('🔵 PATCH 요청 도착! id:', req.params.id, 'body:', req.body);
     const { attendance_state, memo } = req.body;
 
     const row = await ParticipatingAttendance.findByPk(id);
+    console.log('🔵 findByPk 결과:', row);
     if (!row) return res.status(404).json({ error:'출석 기록 없음' });
 
     if (attendance_state) row.attendance_state = attendance_state;

@@ -3,9 +3,11 @@ import axiosInstance from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 import styles from "../../styles/Challenge/ChallengeCreateForm.module.css";
 
-const ChallengeCreateForm = ({ mode = "create", initialData = {} }) => {
+
+const ChallengeCreateForm = ({ mode = "create", initialData = {}, user_id }) => {
   const isEdit   = mode === "edit";
   const navigate = useNavigate();
+
 
   // ────────────────── 1) 상태 선언 ──────────────────
   // (A) 관심사/진로 옵션 및 선택된 ID
@@ -206,10 +208,10 @@ const ChallengeCreateForm = ({ mode = "create", initialData = {} }) => {
           default:   return d;
         }
       }),
-      interestIds:         interestIds,
-      visionIds:           visionIds,
-      creator_contact:     phone,
-      user_id:             1, // 실제 로그인 유저 ID로 교체 필요
+      interestIds: interestIds,
+      visionIds: visionIds,
+      creator_contact: phone,
+      user_id: user_id, 
       ...(isEdit && {
         challenge_state: status === "모집중" ? "ACTIVE" : "CLOSED",
       }),

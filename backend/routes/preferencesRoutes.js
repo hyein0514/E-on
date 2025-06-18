@@ -12,10 +12,17 @@ const Visions = require('../models/Visions');
 
 // 관심분야 저장
 router.post("/interests", async (req, res) => {
-  const { userId, interestIds } = req.body;
+  //const { userId, interestIds } = req.body;
+  const userId = req.user?.user_id;
+  const { interestIds } = req.body;
+
+if (!userId) {
+  return res.status(401).json({ message: "로그인이 필요합니다." });
+}
   try {
     await SelectInterests.destroy({ where: { user_id: userId } });
     const data = interestIds.map(id => ({ user_id: userId, interest_id: id }));
+    console.log("✅ 저장할 데이터:", data);
     await SelectInterests.bulkCreate(data);
     res.status(200).json({ message: "관심분야 저장 완료" });
   } catch (error) {
@@ -25,7 +32,13 @@ router.post("/interests", async (req, res) => {
 });
 // 진로희망 저장
 router.post("/visions", async (req, res) => {
-  const { userId, visionIds } = req.body;
+  const userId = req.user?.user_id; // 세션에서 가져오기
+  const { visionIds } = req.body;
+
+  if (!userId) {
+    return res.status(401).json({ message: "로그인이 필요합니다." });
+  }
+  
   try {
     await SelectVisions.destroy({ where: { user_id: userId } });
     const data = visionIds.map(id => ({ user_id: userId, vision_id: id }));

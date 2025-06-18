@@ -23,17 +23,6 @@ const AttendanceList = ({ challengeId, date }) => {
       try {
         // date 파라미터를 꼭 넘겨야, 백엔드에서 해당 날짜 출석만 LEFT JOIN으로 가져옵니다
         const res = await getChallengeAttendances(challengeId, date);
-
-        /* 응답 예상 구조
-           [
-             {
-               participating_id,
-               participant: { user_id, name },
-               attendances: [ { attendance_id, attendance_state, memo } ]  // 배열 (길이가 0 또는 1)
-             },
-             ...
-           ]
-        */
         setRows(
           res.data.map((p) => ({
             participationId: p.participating_id,
@@ -70,14 +59,15 @@ const AttendanceList = ({ challengeId, date }) => {
   // ─── 저장 로직: DELETE / PATCH / POST 분기 ───
   const handleSave = async () => {
     for (const r of rows) {
-      // 1) 삭제: attendanceId가 있고, status가 빈 문자열이면 DELETE
       if (r.attendanceId && r.status === "") {
+        console.log("[DELETE 요청] attendanceId:", r.attendanceId);
         await deleteAttendance(r.attendanceId);
         continue;
       }
 
       // 2) 수정: attendanceId가 있고, status가 비어있지 않으면 PATCH
       if (r.attendanceId) {
+        console.log("[PATCH 요청] attendanceId:", r.attendanceId, "status:", r.status, "reason:", r.reason);
         await updateAttendance(r.attendanceId, {
           attendance_state: r.status,
           memo: r.reason,
@@ -87,6 +77,7 @@ const AttendanceList = ({ challengeId, date }) => {
 
       // 3) 신규 추가: attendanceId가 없고, status가 비어있지 않으면 POST
       if (!r.attendanceId && r.status !== "") {
+         console.log("[POST 요청] participationId:", r.participationId, "status:", r.status);
         await addAttendance(r.participationId, {
           attendance_date: date,
           attendance_state: r.status,
@@ -95,6 +86,17 @@ const AttendanceList = ({ challengeId, date }) => {
       }
     }
     alert("저장 완료!");
+    const res = await getChallengeAttendances(challengeId, date);
+    setRows(
+      res.data.map((p) => ({
+        participationId: p.participating_id,
+        userId: p.participant.user_id,
+        name: p.participant.name,
+        attendanceId: p.attendances[0]?.attendance_id ?? null,
+        status: p.attendances[0]?.attendance_state ?? "",
+        reason: p.attendances[0]?.memo ?? "",
+      }))
+    );
   };
 
   if (loading) return <div style={{ textAlign: "center" }}>로딩 중…</div>;
@@ -106,7 +108,7 @@ const AttendanceList = ({ challengeId, date }) => {
           key={r.participationId}
           num={i + 1}
           name={r.name}
-          date={date}                  // 날짜를 그대로 넘겨줌
+          date={date}                 
           status={r.status}
           reason={r.reason}
           onStatus={(s) => toggleStatus(r.participationId, s)}

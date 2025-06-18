@@ -141,19 +141,41 @@ exports.signupStep3 = async (req, res, next) => {
     }
 };
 
-// 로그인
 exports.login = (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
-        if (err) return next(err);
-        if (!user) return res.status(401).json({ message: info.message });
+  passport.authenticate("local", async (err, user, info) => {
+    if (err) return next(err);
+    if (!user) return res.status(401).json({ message: info.message });
 
-        req.login(user, (loginErr) => {
-            if (loginErr) return next(loginErr);
-            // toJSON() 으로 password, refresh_token 등 민감 정보 제외
-            return res.json({ success: true, user: user.toJSON() });
-        });
-    })(req, res, next);
+    try {
+      const foundUser = await User.findByPk(user.user_id);
+      console.log("🧨 로그인 시도 유저:", {
+        id: user.user_id,
+        email: foundUser.email,
+        accountStatus: foundUser.accountStatus,
+      });
+
+      // 강제 차단 테스트
+      if (!foundUser) {
+        console.log("❌ DB에서 유저 못 찾음");
+        return res.status(403).json({ message: '유저 없음' });
+      }
+
+      if (foundUser.accountStatus !== 'active') {
+        console.log("🚫 비활성화 계정 로그인 시도 차단됨");
+        return res.status(403).json({ message: '비활성화된 계정입니다.' });
+      }
+
+      req.login(foundUser, (loginErr) => {
+        if (loginErr) return next(loginErr);
+        return res.json({ success: true, user: foundUser.toJSON() });
+      });
+    } catch (e) {
+      return next(e);
+    }
+  })(req, res, next);
 };
+
+
 
 // 로그아웃
 exports.logout = (req, res, next) => {

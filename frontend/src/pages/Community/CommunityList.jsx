@@ -92,11 +92,6 @@ const CommunityList = () => {
                     ))}
                 </div>
 
-                {/* 게시판 공지
-      <div className={styles.notice}>
-        <span role="img" aria-label="notice">📢</span> 게시판 공지
-      </div> */}
-
                 {/* 게시글 목록 */}
                 <div className={styles.postTable}>
                     {/* 헤더 */}

@@ -5,16 +5,26 @@ const { Comment } = require('../models/Comment');
 const BoardRequest = require('../models/BoardRequest');
 const User = require('../models/User');
 
+// 게시판 조회 1
 exports.getBoardList = async (req, res) => {
   try {
-    // 로그인한 경우
-    let boardCondition = { board_audience: 'all' };
+    let boardCondition = {};
 
     if (req.isAuthenticated && req.isAuthenticated()) {
-      const userType = req.user.type; // 'student' or 'parent'
-      boardCondition = {
-        board_audience: [userType, 'all']  // 본인 + 공용
-      };
+      const userType = req.user.type;
+
+      if (userType === 'admin') {
+        // 관리자: 모든 게시판 조회
+        boardCondition = {};
+      } else {
+        // 일반 유저: 자신 + 공용 게시판
+        boardCondition = {
+          board_audience: [userType, 'all']
+        };
+      }
+    } else {
+      // 비로그인 유저: 공용 게시판만
+      boardCondition = { board_audience: 'all' };
     }
 
     const boards = await Board.findAll({
@@ -32,8 +42,7 @@ exports.getBoardList = async (req, res) => {
 
 
 
-
-
+// 게시판 조회 2
 exports.getBoard = async (req, res) => {
     try {
         const { board_id } = req.params;
@@ -122,7 +131,11 @@ exports.updatePost = async (req, res) => {
       return res.status(404).json({ error: '게시글을 찾을 수 없습니다.' });
     }
 
-    if (post.user_id !== req.user.user_id) {
+    // 작성자 본인 또는 관리자만 삭제 가능
+    const isOwner = post.user_id === req.user.user_id;
+    const isAdmin = req.user.type === 'admin';
+
+    if (!isOwner && !isAdmin) {
       return res.status(403).json({ error: '본인의 게시글만 수정할 수 있습니다.' });
     }
 
@@ -150,8 +163,12 @@ exports.deletePost = async (req, res) => {
       return res.status(404).json({ error: '게시글을 찾을 수 없습니다.' });
     }
 
-    if (post.user_id !== req.user.user_id) {
-      return res.status(403).json({ error: '본인의 게시글만 삭제할 수 있습니다.' });
+    // 작성자 본인 또는 관리자만 삭제 가능
+    const isOwner = post.user_id === req.user.user_id;
+    const isAdmin = req.user.type === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ error: '게시글을 삭제할 권한이 없습니다.' });
     }
 
     await Post.destroy({ where: { post_id } });
@@ -163,7 +180,6 @@ exports.deletePost = async (req, res) => {
     res.status(500).json({ error: '게시글 삭제 중 오류가 발생했습니다.' });
   }
 };
-
 
 
 // 댓글 작성
@@ -203,7 +219,11 @@ exports.updateComment = async (req, res) => {
   try {
     const comment = await Comment.findOne({ where: { comment_id } });
 
-    if (comment.user_id !== req.user.user_id) {
+    // 작성자 본인 또는 관리자만 삭제 가능
+    const isOwner = comment.user_id === req.user.user_id;
+    const isAdmin = req.user.type === 'admin';
+
+    if (!isOwner && !isAdmin) {
       return res.status(403).json({ error: '본인의 댓글만 수정할 수 있습니다.' });
     }
 
@@ -241,8 +261,12 @@ exports.deleteComment = async (req, res) => {
       return res.status(404).json({ error: '댓글을 찾을 수 없습니다.' });
     }
 
-    if (comment.user_id !== req.user?.user_id) {
-      return res.status(403).json({ error: '본인의 댓글만 삭제할 수 있습니다.' });
+    // 작성자 본인 또는 관리자만 삭제 가능
+    const isOwner = comment.user_id === req.user?.user_id;
+    const isAdmin = req.user?.type === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ error: '댓글을 삭제할 권한이 없습니다.' });
     }
 
     await Comment.destroy({ where: { comment_id } });
@@ -253,6 +277,7 @@ exports.deleteComment = async (req, res) => {
     res.status(500).json({ error: '댓글 삭제 중 오류가 발생했습니다.' });
   }
 };
+
 
 
 // 게시판 개설 요청

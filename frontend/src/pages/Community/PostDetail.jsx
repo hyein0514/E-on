@@ -256,7 +256,7 @@ const PostDetail = () => {
                         ) : (
                             <h1 className={styles.title}>{post.title}</h1>
                         )}
-                        {user?.user_id === post.user_id && (
+                        {(user?.user_id === post.user_id || user?.type === "admin") && (
                             <div className={styles.actions}>
                                 {isEditingPost ? (
                                     <>
@@ -333,7 +333,7 @@ const PostDetail = () => {
                                                 ).toLocaleString()}
                                             </span>
                                         </div>
-                                        {user?.user_id === comment.user_id &&
+                                        {(user?.user_id === comment.user_id || user?.type === "admin") &&
                                             editingCommentId !==
                                                 comment.comment_id && (
                                                 <div

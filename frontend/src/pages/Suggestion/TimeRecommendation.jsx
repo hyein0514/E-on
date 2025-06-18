@@ -76,7 +76,7 @@ const TimeRecommendation = () => {
 
             {recommendations.length === 0 ? (
                 <div className={styles.emptyMessage}>
-                    😥 현재 선택한 조건에 해당하는 추천 활동이 없습니다.
+                    학년과 월을 선택하고 "추천 보기" 버튼을 눌러주세요.
                 </div>
             ) : (
                 <div className={styles.cardList}>
